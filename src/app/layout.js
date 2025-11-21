@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import Link from "next/link";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css"
 
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* 여기에 헤더 추가 */}
           <header className="border-b py-4 mb-8 flex justify-between items-center">
-            <h1 className="text-xl font-bold">DevLog</h1>
+            <Link href="/">
+              <h1 className="text-xl font-bold cursor-pointer text-black dark:text-white">DevLog</h1>
+            </Link>
             <nav className="flex items-center gap-4">
               <a href="/" className="mr-4">Home</a>
               <a href="/about">About</a>
