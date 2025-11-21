@@ -15,8 +15,8 @@ const fileName = `${slug}.md`
 
 // 4. 파일 내용 템플릿
 const content = `---
-title: "${title}
-date: "${date}
+title: "${title}"
+date: "${date}"
 description: ""
 ---
 
