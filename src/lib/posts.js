@@ -51,7 +51,7 @@ export async function getPostData(id) {
 
     const htmlContent = processedContent.toString()
 
-    console.log(htmlContent)
+    // console.log(htmlContent)
 
     // 데이터와 HTML 내용을 합쳐서 반환
     return {
