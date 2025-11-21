@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,25 +21,25 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ko">
-      <body className="max-w-3xl mx-auto p-4">
-        {/* 여기에 헤더 추가 */}
-        <header className="border-b py-4 mb-8 flex justify-between items-center">
-          <h1 className="text-xl font-bold">DevLog</h1>
-          <nav>
-            <a href="/" className="mr-4">Home</a>
-            <a href="/about">About</a>
-          </nav>
-        </header>
-
-        {/* children = 내가 만들 main 페이지 들어가는 곳 */}
-        <main>
-          {children}
-        </main>
-
-        {/** footer 추가 */}
-        <footer className="border-t py-4 mt-10 text-center text-gray-500 text-sm">
-          © 2025 Vorschlag Tech Blog
-        </footer>
+      <body className="max-w-3xl mx-auto p-4 dark:bg-gray-900 dark:text-gray-100">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {/* 여기에 헤더 추가 */}
+          <header className="border-b py-4 mb-8 flex justify-between items-center">
+            <h1 className="text-xl font-bold">DevLog</h1>
+            <nav>
+              <a href="/" className="mr-4">Home</a>
+              <a href="/about">About</a>
+            </nav>
+          </header>
+          {/* children = 내가 만들 main 페이지 들어가는 곳 */}
+          <main>
+            {children}
+          </main>
+          {/** footer 추가 */}
+          <footer className="border-t py-4 mt-10 text-center text-gray-500 text-sm">
+            © 2025 Vorschlag Tech Blog
+          </footer>
+        </ThemeProvider>
       </body>
     </html>
   );
