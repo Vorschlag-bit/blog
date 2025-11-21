@@ -1,5 +1,6 @@
 import { getPostData } from "@/lib/posts";
 import Comments from "@/components/Comments";
+import CodeBlockManager from "@/components/CodeBlockManager";
 
 // URL의 [id]부분이 parmas로 들어감
 export default async function Post({params}) {
@@ -18,8 +19,11 @@ export default async function Post({params}) {
             {/** React는 보안 떄문에 HTML 태그를 보여주지 않고 글자 그대로 보여줌, 그걸 무시하기 위한 문법 */}
             <div 
             className="prose prose-lg dark:prose-invert" 
-            dangerouslySetInnerHTML={{ __html: postData.htmlContent}} 
+            dangerouslySetInnerHTML={{ __html: postData.htmlContent}}
             />
+
+            {/** CodeBlockManager 추가 */}
+            <CodeBlockManager />
 
             {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
             <Comments />
