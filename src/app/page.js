@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { getSortedPostsData } from "@/lib/posts"
 
 export default function Home() {
@@ -15,7 +16,13 @@ export default function Home() {
       {allPosts.map(({id, title, date, description}) => (
         <li key={id} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition">
           <p className="text-gray-500 text-sm">{date}</p>
-          <h2 className="text-2xl font-bold text-blue-600 cursor-pointer">{title}</h2>
+
+          {/** Link 컴포넌트로 감싸기 */}
+          <Link href={`/posts/${id}`}>
+            <h2 className="text-2xl font-bold text-blue-600 cursor-pointer hover:underLine">
+              {title}
+            </h2>
+          </Link>
           <p className="mt-2 text-gray-700">{description}</p>
         </li>
       ))}

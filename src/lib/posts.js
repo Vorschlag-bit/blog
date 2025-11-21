@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { remark } from 'remark';
+import html from 'remark-html';
 
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
@@ -33,4 +35,28 @@ export function getSortedPostsData() {
         if (a.date < b.date) return 1
         else return -1
     })
+}
+
+// id(파일 이름)을 받아서 해당 글의 데이터를 가져오는 함수 (remark 비동기)
+export async function getPostData(id) {
+    const fullPath = path.join(postsDirectory, `${id}.md`)
+    const fileContents = fs.readFileSync(fullPath, 'utf8')
+
+    // 메타 데이터 파싱 (gray-matter)
+    const matterResult = matter(fileContents)
+    // 마크다운 본문을 HTML로 파싱 (remark)
+    const processedContent = await remark()
+    .use(html)
+    .process(matterResult.content)
+
+    const htmlContent = processedContent.toString()
+
+    console.log(htmlContent)
+
+    // 데이터와 HTML 내용을 합쳐서 반환
+    return {
+        id,
+        htmlContent,
+        ...matterResult.data,
+    }
 }
