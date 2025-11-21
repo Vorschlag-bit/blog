@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
 
         {/** footer 추가 */}
         <footer className="border-t py-4 mt-10 text-center text-gray-500 text-sm">
-          © 2025 My Tech Blog
+          © 2025 Vorschlag Tech Blog
         </footer>
       </body>
     </html>
