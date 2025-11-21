@@ -10,12 +10,19 @@ export default function Home() {
     <div className="p-10">
       <section>
       <h1 className="text-4xl font-bold mb-8">블로그 글 목록 📝</h1>
-      
       <ul className="space-y-4"></ul>
       {/** map으로 반복문 돌리기 */}
-      {allPosts.map(({id, title, date, description}) => (
+      {allPosts.map(({id, title, date, description, category}) => (
         <li key={id} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition">
-          <p className="text-gray-500 text-sm">{date}</p>
+          <div className="flex items-center gap-2 mb-2">
+            {/** category 뱃지 추가 */}
+            <Link href={`/categories/${category}`}>
+              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 hover:underline cursor-pointer">
+                {category}
+              </span>
+            </Link>
+            <p className="text-gray-500 text-sm">{date}</p>
+          </div>
 
           {/** Link 컴포넌트로 감싸기 */}
           <Link href={`/posts/${id}`}>

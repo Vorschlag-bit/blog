@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
+import "highlight.js/styles/github-dark.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -1,6 +1,7 @@
 ---
 title: "첫 번째 글"
-date: "2025-11-21"
+date: "2025-11-21 16:00:00"
+category: "일상"
 description: "Next.js로 블로그를 만들기 시작"
 ---
 

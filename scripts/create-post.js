@@ -4,7 +4,8 @@ const fs = require('fs')
 const path = require('path')
 
 // 1. 오늘 날짜 구하기 (YYYY-mm-dd)
-const date = new Date().toISOString().slice(0,10)
+const date = new Date().toISOString().slice(0,19).replace('T'," ")
+// console.log(date)
 
 // 2. 실행할 때 입력한 제목 가져오기 (없으면 'new-post')
 const title = process.argv[2] || `new-post${randomInt}`
