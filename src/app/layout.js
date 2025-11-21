@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,15 +21,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <body className="max-w-3xl mx-auto p-4 dark:bg-gray-900 dark:text-gray-100">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* 여기에 헤더 추가 */}
           <header className="border-b py-4 mb-8 flex justify-between items-center">
             <h1 className="text-xl font-bold">DevLog</h1>
-            <nav>
+            <nav className="flex items-center gap-4">
               <a href="/" className="mr-4">Home</a>
               <a href="/about">About</a>
+              <ThemeToggle/>
             </nav>
           </header>
           {/* children = 내가 만들 main 페이지 들어가는 곳 */}

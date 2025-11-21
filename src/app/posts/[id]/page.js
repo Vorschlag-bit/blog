@@ -1,4 +1,5 @@
 import { getPostData } from "@/lib/posts";
+import Comments from "@/components/Comments";
 
 // URL의 [id]부분이 parmas로 들어감
 export default async function Post({params}) {
@@ -15,7 +16,13 @@ export default async function Post({params}) {
 
             {/** 3. HTML 문자열을 실제 HTML로 랜더링하는 리액트 문법 */}
             {/** React는 보안 떄문에 HTML 태그를 보여주지 않고 글자 그대로 보여줌, 그걸 무시하기 위한 문법 */}
-            <div className="prose prose-lg" dangerouslySetInnerHTML={{ __html: postData.htmlContent}} />
+            <div 
+            className="prose prose-lg dark:prose-invert" 
+            dangerouslySetInnerHTML={{ __html: postData.htmlContent}} 
+            />
+
+            {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
+            <Comments />
         </div>
     )
 }
