@@ -7,7 +7,12 @@ export default function Home() {
   return (
     <div className="p-10">
       <section>
-        <h1 className="text-4xl font-bold mb-8 font-[Galmuri11]">블로그 글 목록 📝</h1>
+        <h1 className="flex items-center text-4xl font-bold mb-8 font-[Galmuri11]">
+        <svg className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M2 3h20v18H2V3zm18 16V5H4v14h16zM8 7H6v2h2V7zm2 0h8v2h-8V7zm-2 4H6v2h2v-2zm2 0h8v2h-8v-2zm-2 4H6v2h2v-2zm2 0h8v2h-8v-2z" fill="currentColor"/>
+        </svg>
+        <span className="ml-3">블로그 글 목록</span>
+        </h1>
         
         <ul className="space-y-6 list-none"> 
           {allPostsData.map(({ id, title, date, description, category }) => (
