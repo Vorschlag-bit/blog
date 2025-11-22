@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
       <body className="dark:bg-gray-900 dark:text-gray-100 font-[Galmuri11]">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* 여기에 헤더 추가 */}
-          <header className="max-w-4xl mx-auto px-4 border-b py-4 mb-8 flex justify-between items-center">
+          <header className="max-w-4xl mx-auto px-4 border-b py-4 flex justify-between items-center">
             {/** 마스코트 추가 */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:-rotate-12">
