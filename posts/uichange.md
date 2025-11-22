@@ -127,3 +127,23 @@ button, .border {
 
 #### 적용 후
 ![적용_후](/images/after_sh.png)
+
+그 다음에는 3번 같은 페이지를 모든 div마다 그리는 건 너무 비효율적이므로 `<RetroWindow>`라는 컴포넌트로 만들어서 재사용할 수 있게 만드는 게 목표였다. 먼저 global.css를 수정해서 `body`에 입힐 css를 격자모양을 주었다.\
+
+```css
+body {
+  /* ...기존 설정... */
+  /* 모눈종이 패턴 (색상은 취향껏 조절) */
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* 다크모드일 때 그리드 색상 변경 */
+.dark body {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+```

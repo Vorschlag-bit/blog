@@ -31,25 +31,25 @@ export default function RootLayout({ children }) {
           href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css"
         />
       </head>
-      <body className="max-w-3xl mx-auto p-4 dark:bg-gray-900 dark:text-gray-100 font-[Galmuri11]">
+      <body className="dark:bg-gray-900 dark:text-gray-100 font-[Galmuri11]">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* 여기에 헤더 추가 */}
-          <header className="border-b py-4 mb-8 flex justify-between items-center">
+          <header className="max-w-4xl mx-auto px-4 border-b py-4 mb-8 flex justify-between items-center">
             <Link href="/">
               <h1 className="text-xl font-bold cursor-pointer text-black dark:text-white">DevLog</h1>
             </Link>
             <nav className="flex items-center gap-4">
-              <a href="/" className="mr-4">Home</a>
-              <a href="/about">About</a>
+              <Link href="/" className="mr-4">Home</Link>
+              <Link href="/about">About</Link>
               <ThemeToggle/>
             </nav>
           </header>
           {/* children = 내가 만들 main 페이지 들어가는 곳 */}
-          <main>
+          <main className="max-w-5xl mx-auto px-4">
             {children}
           </main>
           {/** footer 추가 */}
-          <footer className="border-t py-4 mt-10 text-center text-gray-500 text-sm">
+          <footer className="max-w-4xl mx-auto px-4 border-t py-4 mt-10 text-center text-gray-500 text-sm">
             © 2025 Vorschlag Tech Blog
           </footer>
         </ThemeProvider>

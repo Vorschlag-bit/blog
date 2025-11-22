@@ -8,6 +8,21 @@
     border-radius: 0 !important;
 }
 
+/* 배경의 격자 */
+body {
+    background-size: 40px 40px;
+    background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* dark mode일 경우 격자 */
+.dark body {
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
 .prose details {
     display: block;
     margin-bottom: 1rem;

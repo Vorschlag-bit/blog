@@ -1,4 +1,5 @@
 import { getPostData } from "@/lib/posts";
+import RetroWindow from "@/components/RetroWindow";
 import Comments from "@/components/Comments";
 import CodeBlockManager from "@/components/CodeBlockManager";
 
@@ -11,22 +12,21 @@ export default async function Post({params}) {
     const postData = await getPostData(id)
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-4">{postData.title}</h1>
-            <p className="text-gray-600 mb-8">{postData.date}</p>
-
-            {/** 3. HTML 문자열을 실제 HTML로 랜더링하는 리액트 문법 */}
-            {/** React는 보안 떄문에 HTML 태그를 보여주지 않고 글자 그대로 보여줌, 그걸 무시하기 위한 문법 */}
-            <div 
-            className="prose prose-lg dark:prose-invert" 
-            dangerouslySetInnerHTML={{ __html: postData.htmlContent}}
-            />
-
-            {/** CodeBlockManager 추가 */}
-            <CodeBlockManager />
-
-            {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
-            <Comments />
+        <div className="max-w-4xl mx-auto p-4">
+            <RetroWindow title={`Reading: ${postData.title}.txt`}>
+                <h1 className="text-3xl font-bold mb-4">{postData.title}</h1>
+                <p className="text-gray-600 mb-8">{postData.date}</p>
+                {/** 3. HTML 문자열을 실제 HTML로 랜더링하는 리액트 문법 */}
+                {/** React는 보안 떄문에 HTML 태그를 보여주지 않고 글자 그대로 보여줌, 그걸 무시하기 위한 문법 */}
+                <div
+                className="prose prose-lg dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: postData.htmlContent}}
+                />
+                {/** CodeBlockManager 추가 */}
+                <CodeBlockManager />
+                {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
+                <Comments />
+            </RetroWindow>
         </div>
     )
 }
