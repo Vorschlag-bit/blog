@@ -1,39 +1,46 @@
-import Link from "next/link"
-import { getSortedPostsData } from "@/lib/posts"
+import Link from "next/link";
+import { getSortedPostsData } from "@/lib/posts";
 
 export default function Home() {
-  // 함수 실행시켜 글목록 가져오기
-  const allPosts = getSortedPostsData()
+  const allPostsData = getSortedPostsData();
 
   return (
-    // Tailwind CSS(className="...")
     <div className="p-10">
       <section>
-      <h1 className="text-4xl font-bold mb-8">블로그 글 목록 📝</h1>
-      <ul className="space-y-4"></ul>
-      {/** map으로 반복문 돌리기 */}
-      {allPosts.map(({id, title, date, description, category}) => (
-        <li key={id} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition">
-          <div className="flex items-center gap-2 mb-2">
-            {/** category 뱃지 추가 */}
-            <Link href={`/categories/${category}`}>
-              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 hover:underline cursor-pointer">
-                {category}
-              </span>
-            </Link>
-            <p className="text-gray-500 text-sm">{date}</p>
-          </div>
+        <h1 className="text-4xl font-bold mb-8 font-[Galmuri11]">블로그 글 목록 📝</h1>
+        
+        <ul className="space-y-6 list-none"> 
+          {allPostsData.map(({ id, title, date, description, category }) => (
+            <li 
+              key={id} 
+              // 2. text-black을 줘서 currentColor가 검은색을 잡도록 명시
+              className="relative p-4 bg-white dark:bg-gray-800 shadow-pixel hover:translate-x-1 hover:translate-y-1 transition-transform text-black dark:text-gray-100"
+            >
+              {/* <div className="absolute -left-3 top-4 hidden sm:block">
+                👾
+              </div> */}
 
-          {/** Link 컴포넌트로 감싸기 */}
-          <Link href={`/posts/${id}`}>
-            <h2 className="text-2xl font-bold text-blue-600 cursor-pointer hover:underLine">
-              {title}
-            </h2>
-          </Link>
-          <p className="mt-2 text-gray-700">{description}</p>
-        </li>
-      ))}
+              <div className="flex items-center gap-2 mb-2">
+                <Link href={`/categories/${category}`}>
+                  {/* 뱃지도 픽셀 스타일 (rounded 제거) */}
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
+                    {category}
+                  </span>
+                </Link>
+                <p className="text-gray-500 text-sm font-[Galmuri11]">{date}</p>
+              </div>
+
+              <Link href={`/posts/${id}`}>
+                <h2 className="text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 font-[Galmuri11]">
+                  <span className="mr-2 text-black dark:text-white"></span>
+                  {title}
+                </h2>
+              </Link>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{description}</p>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
-  )
+  );
 }

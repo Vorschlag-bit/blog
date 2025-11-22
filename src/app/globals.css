@@ -3,6 +3,18 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+
+/* 모든 요소의 둥근 모서리 제거 */
+* {
+    border-radius: 0 !important;
+}
+
+/* 버튼에 픽셀 테두리 느낌 추가 */
+button, .border {
+    border-width: 2px !important;
+    border-style: solid !important;
+}
+
 .prose pre {
     background-color: transparent !important; /* prose의 기본 회색 제거 */
     border: none !important; /* 테두리 제거 */
@@ -15,4 +27,33 @@
     padding: 1rem !important; /* 코드와 박스 사이 여백 여기서 조절 */
     border-radius: 0.5rem; /* 모서리 둥글게 */
     font-family: inherit; /* font 상속 */
+}
+
+.prose img {
+    max-width: 80%;
+    height: auto;
+    margin: 2rem 0; /* 위아래 여백 2rem, 좌우는 왼쪽 정렬 */
+    display: block; /* 가운데 정렬을 위해 block 요소로 변경 */
+
+    /* Retro 감성 느낌 내보기 */
+    border: 2px solid currentColor;
+    box-shadow: 4px 4px 0px currentColor;
+}
+
+
+/* pixel art 테두리 효과 (Box-shadow) */
+.shadow-pixel {
+    box-shadow:
+        -2px 0 0 0 currentColor,
+        2px 0 0 0 currentColor,
+        0 -2px 0 0  currentColor,
+        0 2px 0 0 currentColor;
+    border: none !important;
+    margin: 2px; /* 그림자 공간 확보 */
+}
+
+/* 버튼 누를 때 효과 */
+.shadow-pixel:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
 }

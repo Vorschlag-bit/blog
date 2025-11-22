@@ -22,7 +22,7 @@ export default async function CategoryPage({ params }) {
             ) : (
                 <ul className="space-y-4">
                     {categoryPosts.map(({ id,title,date,description }) => (
-                        <li key={id} className="border p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                        <li key={id} className="border p-4 shadow-sm hover:shadow-md transition">
                             <p className="text-gray-500 text-sm mb-1">{date}</p>
                             <Link href={`/posts/${id}`}>
                                 <h2 className="text-2xl font-bold hover:underline">{title}</h2>
