@@ -9,11 +9,11 @@ export default function RetroWindow({ children, title = "Untitled", className ="
             <div suppressHydrationWarning className="border-b-2 border-black dark:border-gray-400 bg-blue-100 dark:bg-gray-800 p-2
             flex justify-between items-center select-none">
                 {/** file/title */}
-                <div className="font-[Galmuri11] font-bold text-sm truncate flex items-center gap-2">
-                    <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M13 17V3h-2v10H9v-2H7v2h2v2h2v2h2zm8 2v-4h-2v4H5v-4H3v6h18v-2zm-8-6v2h2v-2h2v-2h-2v2h-2z" fill="currentColor"/>
-                    </svg>
-                    <span className="ml-3">{title}</span>
+                <div className="font-[Galmuri11] font-bold text-sm truncate flex items-center gap-1 text-black dark:text-white">
+                <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M3 22h18V8h-2V6h-2v2h-2V6h2V4h-2V2H3v20zm2-2V4h8v6h6v10H5z" fill="currentColor"/>
+                </svg>
+                    <span className="ml-1">{title}</span>
                 </div>
 
                 {/** 윈도우 버튼 3개(장식용) */}
