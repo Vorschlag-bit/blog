@@ -2,13 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
-import html from 'remark-html';
 import exp from 'constants';
 
 // code 하이라이트를 위해 새로운 라이브러리 import
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
+
+import rehypeRaw from 'rehype-raw';
 
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
@@ -53,7 +54,8 @@ export async function getPostData(id) {
     const matterResult = matter(fileContents)
     // 마크다운 본문을 HTML로 파싱 (remark)
     const processedContent = await remark()
-    .use(remarkRehype) // md -> HTML로 변경
+    .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
+    .use(rehypeRaw)
     .use(rehypeHighlight) // 코드 하이라이팅 적용
     .use(rehypeStringify) // HTML 문자열로 변경
     .process(matterResult.content)

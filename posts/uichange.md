@@ -1,6 +1,7 @@
 ---
 title: "블로그 UI 바꾸기"
 date: "2025-11-22 02:32:45"
+category: "개발"
 description: "블로그 UI를 픽셀 아트로 바꿔보자"
 ---
 
@@ -37,11 +38,18 @@ Next.js는 js답게 구글폰트나 로컬 폰트를 손쉽게 불러올 수 있
 <html/>
 ```
 
-> **트러블 슈팅** 🎯 \
-> `<link>`를 적용할 때 `<Link>`를 처음에 사용했었는데 당연히 되질 않았다.\
-> `<Link>`는 `next/link` 라이브러리에서 가져온 것으로 클릭하면 페이지가 이동하는 `<a>`태그로 변한다.\
-> 하지만 `<a>`태그는 `<head>`태그의 자식이 될 수 없는 HTML 문법 때문에 에러가 나왔었다.\
-> `<link>`태그는 HTML 표준 태그로 CSS나 폰트 스타일을 불러올 때 사용한다.
+<details>
+<summary>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
+<span>트러블 슈팅(클릭)</span>
+</summary>
+
+`<link>`를 적용할 때 `<Link>`를 처음에 사용했었는데 당연히 되질 않았다.\
+`<Link>`는 `next/link` 라이브러리에서 가져온 것으로 클릭하면 페이지가 이동하는 `<a>`태그로 변한다.\
+하지만 `<a>`태그는 `<head>`태그의 자식이 될 수 없는 HTML 문법 때문에 에러가 나왔었다.\
+`<link>`태그는 HTML 표준 태그로 CSS나 폰트 스타일을 불러올 때 사용한다.
+
+</details>
 
 #### 폰트 적용 모습
 ![galmuri적용](/images/galmuri.png)
@@ -113,6 +121,7 @@ button, .border {
     box-shadow: 4px 4px 0px currentColor;
 }
 ```
+
 #### 적용 전
 ![적용_전](/images/before_sh.png)
 

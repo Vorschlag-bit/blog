@@ -1,6 +1,7 @@
 ---
 title: "HTML & CSS 특징 공부"
 date: "2025-11-22 11:58:05"
+category: "HTML"
 description: "이 웹사이트를 구현하면서 쌓이는 HTML 태그와 CSS 지식 서술"
 ---
 

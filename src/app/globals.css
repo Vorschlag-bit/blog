@@ -3,10 +3,38 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-
 /* 모든 요소의 둥근 모서리 제거 */
 * {
     border-radius: 0 !important;
+}
+
+.prose details {
+    display: block;
+    margin-bottom: 1rem;
+    background-color: rgba(128, 128, 128, 0.05); /* 배경색 살짝 추가 */
+    border: 2px solid currentColor; /* pixel 테두리 */
+    padding: 0.5rem;
+}
+
+.prose summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex; 
+    align-items: center;
+    font-weight: bold;
+    outline: none; /* 클릭 시 파란 테두리 제거 */
+}
+
+/* 크롬, 사파리에서 기본 삼각형 제거 */
+summary::-webkit-details-marker {
+    display: none;
+}
+
+/* summary안에 있는 아이콘 크기 자동 조절 */
+.prose summary svg {
+    width: 1.5rem; 
+    height: 1.5rem;
+    margin-right: 0.5rem; 
 }
 
 /* 버튼에 픽셀 테두리 느낌 추가 */
@@ -15,44 +43,56 @@ button, .border {
     border-style: solid !important;
 }
 
-.prose pre {
-    background-color: transparent !important; /* prose의 기본 회색 제거 */
-    border: none !important; /* 테두리 제거 */
-    padding: 0 !important; /* padding 제거, highlight.js가 처리 */
-    box-shadow: none !important;
+/* 인라인 코드(코드 블럭이 아닌 문장 중간에 들어가는 코드) 스타일링 */
+.prose :not(pre) code {
+    border-radius: 0 !important; /* 둥근 모서리 제거 */
+    font-family: inherit; 
+    font-weight: normal !important;
+    font-style: normal !important; /* 픽셀 폰트 기울임 방지 */
+
+    padding: 2px 5px !important; /* 간격 살짝 조정 */
+    background-color: rgba(135, 131, 120, 0.15) !important; /* 연한 회색 배경 */
+    color: #eb5757 !important; /* 붉은 글씨 강조 */
+    border: 1px solid rgba(135, 131, 120, 0.25) !important;
 }
 
-.prose.code {
-    background-color: transparent !important; /* 이중 배경 금지 */
-    padding: 1rem !important; /* 코드와 박스 사이 여백 여기서 조절 */
-    border-radius: 0.5rem; /* 모서리 둥글게 */
-    font-family: inherit; /* font 상속 */
+/* 백틱 제거 */
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+    content: "" !important;
+}
+
+/* 코드 블럭 내부의 코드는 설정 무시 */
+.prose pre code {
+    background-color: transparent !important; 
+    border: none !important; 
+    color: inherit !important;
+    padding: 0 !important; 
+    font-family: inherit;
 }
 
 .prose img {
     max-width: 80%;
     height: auto;
-    margin: 2rem 0; /* 위아래 여백 2rem, 좌우는 왼쪽 정렬 */
-    display: block; /* 가운데 정렬을 위해 block 요소로 변경 */
+    margin: 2rem 0; 
+    display: block; 
 
-    /* Retro 감성 느낌 내보기 */
+    /* Retro 감성 */
     border: 2px solid currentColor;
     box-shadow: 4px 4px 0px currentColor;
 }
 
-
-/* pixel art 테두리 효과 (Box-shadow) */
+/* 👇 오타 수정: 두 번째 줄 끝에 콤마(,) 추가 */
 .shadow-pixel {
     box-shadow:
         -2px 0 0 0 currentColor,
-        2px 0 0 0 currentColor,
+        2px 0 0 0 currentColor,  /* 콤마 추가됨 */
         0 -2px 0 0  currentColor,
         0 2px 0 0 currentColor;
     border: none !important;
-    margin: 2px; /* 그림자 공간 확보 */
+    margin: 2px; 
 }
 
-/* 버튼 누를 때 효과 */
 .shadow-pixel:active {
     transform: translate(2px, 2px);
     box-shadow: none;
