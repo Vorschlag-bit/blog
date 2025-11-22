@@ -13,8 +13,13 @@ export default async function CategoryPage({ params }) {
 
     return (
         <div className="p-10">
-            <h1 className="text-3xl font-bold mb-8">
-                📂 <span className="text-blue-600">{category}</span> 관련 글
+            <h1 className="text-3xl font-bold mb-8 flex items-center">
+                <svg 
+                className="w-8 h-8"
+                fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M4 4h8v2h10v14H2V4h2zm16 4H10V6H4v12h16V8z" fill="currentColor"/>
+                </svg>
+                <span className="text-blue-600 ml-2">{category}</span>관련 글
             </h1>
 
             { categoryPosts.length === 0 ? (
@@ -25,7 +30,7 @@ export default async function CategoryPage({ params }) {
                         <li key={id} className="border p-4 shadow-sm hover:shadow-md transition">
                             <p className="text-gray-500 text-sm mb-1">{date}</p>
                             <Link href={`/posts/${id}`}>
-                                <h2 className="text-2xl font-bold hover:underline">{title}</h2>
+                                <h2 className="text-2xl font-bold text-blue-600">{title}</h2>
                             </Link>
                             <p className="mt-2 text-gray-600 dark:text-gray-400">{description}</p>
                         </li>
