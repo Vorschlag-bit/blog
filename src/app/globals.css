@@ -3,6 +3,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html {
+    /* 스크롤바가 없어도 자리 차지하게 만들어서 레이아웃 흔들림 방지 */
+    scrollbar-gutter: stable;
+}
+
 /* 모든 요소의 둥근 모서리 제거 */
 * {
     border-radius: 0 !important;
