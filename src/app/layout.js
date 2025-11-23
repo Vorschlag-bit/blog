@@ -18,11 +18,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  /** 도메인 주소 */
+  metadata: new URL("https://vorschlag-blog.vercel.app/"),
+
   title: {
     template: '%s | DevLog',
     default: "Vorschlag's DevLog",
   },
   description: "Next.js와 Tailwind CSS로 바닥부터 만든 레트로 감성 기술 블로그",
+
+  /** OG */
+  openGraph: {
+    title: "DevLog | 바닥부터 파보는 기술 블로그",
+    description: "개발 지식과 트러블 슈팅을 기록하는 레트로 공간입니다.",
+    url: "https://vorschlag-blog.vercel.app/",
+    siteName: "DevLog",
+    locale: "ko_KR",
+    type: "website",
+    images: [
+      {
+        url: "images/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }) {

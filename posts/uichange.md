@@ -128,7 +128,8 @@ button, .border {
 #### 적용 후
 ![적용_후](/images/after_sh.png)
 
-그 다음에는 3번 같은 페이지를 모든 div마다 그리는 건 너무 비효율적이므로 `<RetroWindow>`라는 컴포넌트로 만들어서 재사용할 수 있게 만드는 게 목표였다. 먼저 global.css를 수정해서 `body`에 입힐 css를 격자모양을 주었다.
+그 다음에는 3번 같은 페이지를 모든 div마다 그리는 건 너무 비효율적이므로 `<RetroWindow>`라는 컴포넌트로 만들어서 재사용할 수 있게 만드는 게 목표였다.\
+먼저 global.css를 수정해서 `body`에 입힐 css를 격자모양을 주었다.
 
 ```css
 body {
@@ -196,7 +197,7 @@ export default function RetroWindow({ children, title = "Untitled", className ="
 
 </details>
 
-이후에 이걸 `/src/app/page.js`파일과 `/src/app/posts/[id]/page.js`파일의 최상위 `<div>` 바로 아래에 `<RetroWindow>` 컴포넌트를 감쌌다.
+이후에 이걸 `/src/app/page.js` 파일과 `/src/app/posts/[id]/page.js` 파일의 최상위 `<div>` 바로 아래에 `<RetroWindow>` 컴포넌트를 감쌌다.
 
 ```javascript
 /** /src/app/page.js */
@@ -234,7 +235,7 @@ export default async function Post({params}) {
 
 ### 3. 후기
 중간 중간 `CSS` 오류로 인해서 리팩토링이 꽤 오래걸렸지만 그만큼 css의 흐름과 기본 문법을 익힐 수 있었다.\
-또한 `suppressHydrationWarning`를 활용해서 client와 server의 HTML 차이를 강제로 무시하는 방법으로\
+또한 `suppressHydrationWarning`를 활용해서 client와 server의 HTML 차이를 강제로 무시하는 방법으로
 console Error를 피할 수 있었는데 이런 자잘자잘한 지식들 역시 이번 포스팅을 작성하면서 배울 수 있었다.\
 다음엔 **사이드** 추가할 컴포넌트들을 어떻게 넣을지 고민하고 개발하는 포스트를 올릴 것 같다.\
 또 하루를 꼬박 걸려서 만들 생각에 조금은 막막하지만 이상하리만치 재밌다..\

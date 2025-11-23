@@ -3,6 +3,29 @@ import RetroWindow from "@/components/RetroWindow";
 import Comments from "@/components/Comments";
 import CodeBlockManager from "@/components/CodeBlockManager";
 
+// 동적 메타데이터 생성 함수
+export async function generateMetaData({ params }) {
+    const { id } = await params
+    const post = await getPostData(id)
+
+    return {
+        title: post.title,
+        description: post.description,
+        openGraph: {
+            title: post.title,
+            description: post.description,
+            images: [
+                {
+                    url: "/Users/a./Downloads/og-image.png",
+                    width: 1200,
+                    height: 630,
+                },
+            ]
+        },
+    }
+}
+
+
 // URL의 [id]부분이 parmas로 들어감
 export default async function Post({params}) {
     // 1. params는 Promise라서 await로 기다려야 함

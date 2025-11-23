@@ -11,3 +11,14 @@ Next.js에서는 아주 손쉽게 favicon과 사이트 이름 그리고 **OG(Ope
 
 먼저 내가 하고 싶은 마스코트는 Pinterest에서 찾은 닥스훈트 도트였다.
 
+!["dachshund"](/images/dachs.jpeg)
+
+이 도트가 맘에 들어서 favicon 겸 마스코트로 사용하기로 결정했고, 투명한 배경을 얻기 위해 [Piskel](https://www.piskelapp.com/)에서\
+32 * 32 pixel에 맞춰서 도트를 찍었다.
+
+그 후에는 `layout.js` 파일에서 메타데이터를 수정해 블로그 이름과 description을 수정했고\
+`src/app`에 **icon.png** 파일을 넣어서 자동으로 favicon으로 등록시켰다.
+
+다음으로는 OG를 만들 차례였다.\
+OG는 보통 가로로 긴 직사각형의 모양이 가장 이쁘게 나오므로 대략 1200 * 630 비율의 대표 이미지가 필요했다.
+이를 위해서 
