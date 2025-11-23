@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   /** 도메인 주소 */
-  metadata: new URL("https://vorschlag-blog.vercel.app/"),
+  metadataBase: new URL("https://vorschlag-blog.vercel.app/"),
 
   title: {
     template: '%s | DevLog',
@@ -37,7 +37,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "images/og-image.png",
+        url: "/images/og-image.png",
         width: 1200,
         height: 630,
       },
