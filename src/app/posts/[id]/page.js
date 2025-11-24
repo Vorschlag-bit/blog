@@ -2,6 +2,7 @@ import { getPostData } from "@/lib/posts";
 import RetroWindow from "@/components/RetroWindow";
 import Comments from "@/components/Comments";
 import CodeBlockManager from "@/components/CodeBlockManager";
+import Link from "next/link";
 
 // 동적 메타데이터 생성 함수
 export async function generateMetaData({ params }) {
@@ -38,9 +39,10 @@ export default async function Post({params}) {
         <div className="max-w-4xl mx-auto p-4">
             <RetroWindow title={`Reading: ${postData.title}.txt`}>
                 <h1 className="text-3xl font-bold mb-4 flex items-center">
-                    <span className="bg-blue-600 text-white text-xl mr-3 font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
+                    <Link href={`/categories/${postData.category}`}
+                        className="bg-blue-600 text-white text-xl mr-3 font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
                         {postData.category}
-                    </span>
+                    </Link>
                     {postData.title}
                 </h1>
                 <p className="text-gray-600 mb-8">{postData.date}</p>
