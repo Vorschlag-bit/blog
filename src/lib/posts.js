@@ -4,6 +4,10 @@ import matter from 'gray-matter';
 import { remark } from 'remark';
 import exp from 'constants';
 
+// 수학 공식 이쁘게 표현하기 위한 라이브러리 import
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
 // code 하이라이트를 위해 새로운 라이브러리 import
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
@@ -54,7 +58,9 @@ export async function getPostData(id) {
     const matterResult = matter(fileContents)
     // 마크다운 본문을 HTML로 파싱 (remark)
     const processedContent = await remark()
+    .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
+    .use(rehypeKatex)
     .use(rehypeRaw)
     .use(rehypeHighlight) // 코드 하이라이팅 적용
     .use(rehypeStringify) // HTML 문자열로 변경

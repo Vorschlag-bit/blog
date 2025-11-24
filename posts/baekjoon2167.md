@@ -9,7 +9,9 @@ description: "python으로 풀어보는 백준 2167번"
 
 ### 문제 사진
 !["문제사진"](/images/2167.png)\
-[문제 링크]("https://www.acmicpc.net/problem/2167")
+<a href="https://www.acmicpc.net/problem/2167" style="color: #2f9e44; text-decoration: none;">
+  문제링크
+</a>
 
 백준 2167번 문제 풀이에 대한 해설.
 
