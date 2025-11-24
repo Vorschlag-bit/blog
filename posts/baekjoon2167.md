@@ -76,16 +76,56 @@ for i in range(1,n+1):
 ```
 내가 풀이한 건 행마다 합을 구한 코드였지만 2차원 누적합에선 **면적 합** 공식을 사용하는 게 훨씬 빠르다.\
 여기서 면적합에 사용된\
-`pre_sum[i][j] = pre_sum[i-1][j] + pre_sum[i][j-1] - pre_sum[i-1][j-1] + arr[i-1][j-1]` 코드를
+`pre_sum[i][j] = pre_sum[i-1][j] + pre_sum[i][j-1] - pre_sum[i-1][j-1] + arr[i-1][j-1]` 코드를\
 시각적으로 쉽게 이해하기 위해서 아래의 사진을 준비했다!
 
 !["누적합_설명_사진"](/images/pre_fix_details.png)
 
 위의 사진은 0-based 인덱스를 가진 배열에서 (1,2)까지의 면적합을 구하는 방식을 설명하는 그림이다.\
 (0,0) ~ (x,y)의 면적합을 저장하는 배열 preSum과 그냥 원본 배열 arr이 있다는 가정 하에 설명하면\
-<span style="color:#e03131">1. (1,2) 위쪽의 직사각형의 누적합을 더해서 위 부분을 커버한다(= preSum[i-1][j])</span>
-<span style="color:#2f9e44">2. (1,2) 왼쪽의 직사각형의 누적합을 더해서 왼쪽 부분을 커버한다(= preSum[i][j-1])</span>
-<span style="color:#f08c00">3. 앞의 1,2번의 커버 공간 중 중복된 사각형을 제거한다(= preSum[i-1][j-1])</span>
-<span style="color:#f08c00">4. 원본 배열에서 원하는 구간의 값만 더해서 직사각형의 면적합을 완성한다.(= arr[i][j])</span>
+<span style="color:#e03131">1. (1,2) 위쪽의 직사각형의 누적합을 더해서 위 부분을 커버한다(= preSum[i-1][j])</span>\
+<span style="color:#2f9e44">2. (1,2) 왼쪽의 직사각형의 누적합을 더해서 왼쪽 부분을 커버한다(= preSum[i][j-1])</span>\
+<span style="color:#f08c00">3. 앞의 1,2번의 커버 공간 중 중복된 사각형을 제거한다(= preSum[i-1][j-1])</span>\
+<span style="color:#1971c2">4. 원본 배열에서 원하는 구간의 값만 더해서 직사각형의 면적합을 완성한다.(= arr[i][j])</span>
 
+#### 3. 구간 합을 구할 때는 `끝 - (시작-1)` 공식만 기억하자.
+문제에서 `(x1,y1)`부터 `(x2,y2)`까지의 합을 구하라고 하면 아래의 공식을 사용하면 된다.\
+**시작점(start)는 무조건 -1을 붙인다고 기억하자**\
 
+```python
+# (x1, y1) ~ (x2, y2) 합
+Answer = S[x2][y2] - S[x1-1][y2] - S[x2][y1-1] + S[x1-1][y1-1]
+```
+
+위 공식은 앞서 설명한 사진을 그대로 응용한 공식이다. 마찬가지로 **위,왼쪽**의 직사각형을 제거하고\
+**중복제거한** (x1,y1)에 대해서는 다시 더해주는 방법이다.
+
+이러한 방식을 반영해서 앞서 내가 작성한 코드를 리팩토링하면서 마치겠다.
+```python
+from sys import stdin as input
+
+n,m = map(int,input.readline().split())
+
+# [원칙 1] 배열 크기는 반드시 (N+1) * (M+1)로
+prefix = [[0] * (m+1) for _ in range(n+1)]
+
+# 원본 데이터와 누적합을 동시에 처리
+for i in range(1,n+1):
+    arr = list(map(int,input.readline().split()))
+    for j in range(1,m+1):
+        # [원칙 2] (1,1)부터 채우기 & 2차원 누적합 공식 사용
+        prefix[i][j] = prefix[i-1][j] + prefix[i][j-1] - prefix[i-1][j-1] + arr[j-1]
+
+k = int(input.readline())
+
+for _ in range(k):
+    x1,y1,x2,y2 = map(int,input.readline().split())
+    # [원칙 3] 면적합 공식 사용
+    # x1,x2,y1,y2에 대한 좌표 보정할 필요 X
+    ans = prefix[x2][y2] - prefix[x1-1][y2] - prefix[x2][y1-1] + prefix[x1-1][y1-1]
+    print(ans)
+```
+
+### 결과
+!["훨씬_나은_결과"](/images/prefix_better.png)
+이전 코드보다 훨씬 빠른 시간복잡도를 가진 것을 볼 수 있다!
