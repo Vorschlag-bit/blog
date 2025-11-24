@@ -19,7 +19,7 @@ export default async function CategoryPage({ params }) {
                 fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M4 4h8v2h10v14H2V4h2zm16 4H10V6H4v12h16V8z" fill="currentColor"/>
                 </svg>
-                <span className="text-blue-600 ml-2">{category}</span>관련 글
+                <span className="text-blue-600 ml-2">{category}</span> 관련 글
             </h1>
 
             { categoryPosts.length === 0 ? (
