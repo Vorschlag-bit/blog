@@ -18,6 +18,7 @@ const fileName = `${slug}.md`
 const content = `---
 title: "${title}"
 date: "${date}"
+category: ""
 description: ""
 ---
 
