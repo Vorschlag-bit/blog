@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import "./globals.css";
-import "highlight.js/styles/github-dark.css"
-import 'katex/dist/katex.min.css'
+import "highlight.js/styles/github-dark.css";
+import 'katex/dist/katex.min.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
