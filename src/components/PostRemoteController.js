@@ -14,16 +14,15 @@ export default function PostRemoteControl() {
     useEffect(() => {
         // 본문이 들어가있는 태그를 선택 (page.js의 prose 클래스 가진 div) (Tailwind Typography 클래스)
         const contentArea = document.querySelector(".prose")
-
-        console.log(`디버깅 용 콘솔, 찾은 영역: ${contentArea}`)
+        // console.log(`디버깅 용 콘솔, 찾은 영역: ${contentArea}`)
 
         if (!contentArea) return;
 
         // h1,h2,h3 태그 수집
         const elements = contentArea.querySelectorAll("h2, h3")
         
-        console.log(`찾은 요소들 개수: ${elements.length}`)
-        console.log(`찾은 요소: ${Array.from(elements)}`)
+        // console.log(`찾은 요소들 개수: ${elements.length}`)
+        // console.log(`찾은 요소: ${Array.from(elements)}`)
 
         const headingData = []
 
