@@ -31,7 +31,7 @@ const [count, setCount] = useState(0)
 **4, API 응답 저장용**
 
 - 내 블로그에서 사용 예시\
-이번에 개발한 리모컨 컴포넌트를 예시로 보면\
+이번에 개발한 리모컨 컴포넌트를 예시로 보면
 ```javascript
 // 목차 리스트 상태관리
 const [headings, setHeadings] = useState([])

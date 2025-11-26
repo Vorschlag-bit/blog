@@ -45,6 +45,42 @@ body {
     outline: none; /* 클릭 시 파란 테두리 제거 */
 }
 
+@layer components {
+    /* 표 전체 틀: 굵은 테두리, 픽셀 폰트 */
+    .prose table {
+        @apply w-full border-collapse border-2 border-black dark:border-gray-400 my-8 font-[Galmuri11];
+        font-size: 0.9rem;
+    }
+
+    /* 헤더(th): 배경색과 이중 밑줄 */
+    .prose thead th {
+        @apply bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-400 px-1 py-3 text-left align-middle;
+        /* retro한 느낌을 위한 이중 테두리 */
+        border-bottom-width: 4px;
+        border-bottom-style: double;
+    }
+
+    /* 셀(td): 점선 테두리 */
+    .prose tbody td {
+        @apply border-r-2 border-b-2 border-dashed border-gray-300 dark:border-gray-600 px-4 align-middle;
+    }
+
+    .prose thead th:first-child,
+    .prose tbody td:first-child {
+        padding-left: 1rem !important; /* !important로 강제 적용 */
+    }
+
+    /* 마지막 칸은 오른쪽 선 없애기 */
+    .prose tbody td:last-child {
+        @apply border-r-0;
+    }
+
+    /* 마우스 하이라이트 */
+    .prose tbody tr:hover {
+        @apply bg-blue-50 dark:bg-blue-900/30 transition-colors cursor-default;
+    }
+}
+
 /* 크롬, 사파리에서 기본 삼각형 제거 */
 summary::-webkit-details-marker {
     display: none;
