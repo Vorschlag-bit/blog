@@ -2,6 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 
+const indentStyles = {
+    H2: "text-sm font-bold",
+    H3: "ml-4 text-xs font-medium",
+    H4: "ml-8 text-[11px] text-gray-500"
+}
+
 export default function PostRemoteControl() {
     // 목차 리스트 상태관리
     const [headings, setHeadings] = useState([])
@@ -19,7 +25,7 @@ export default function PostRemoteControl() {
         if (!contentArea) return;
 
         // h1,h2,h3 태그 수집
-        const elements = contentArea.querySelectorAll("h2, h3")
+        const elements = contentArea.querySelectorAll("h2, h3, h4")
         
         // console.log(`찾은 요소들 개수: ${elements.length}`)
         // console.log(`찾은 요소: ${Array.from(elements)}`)
@@ -104,7 +110,7 @@ export default function PostRemoteControl() {
     return (
         // 레이아웃: xl 화면(1280px) 이상에서만 보임
         // 메인 콘텐츠 옆에 붙이기 위해 left 계산식 사용
-        <aside className="hidden xl:block fixed top-32 right-8 w-64 p-4 font-[Galmuri11] z-40">
+        <aside className="hidden xl:block fixed top-32 right-0 w-70 p-4 font-[Galmuri11] z-40">
             {/** 1. 목차 박스 (레트로 스타일) */}
             <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900 
             shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] mb-4 p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -115,7 +121,7 @@ export default function PostRemoteControl() {
                 <ul className="space-y-2">
                     {headings.map((heading) => (
                         <li key={heading.id}
-                            className={`transition-color ${heading.level === "H3" ? "ml-4 text-xs" : "text-sm"}`}
+                            className={`transition-color ${indentStyles[heading.level]}`}
                         >
                             <a href={`#${heading.id}`}
                                 onClick={(e) => handleLinkClick(e,heading.id)}

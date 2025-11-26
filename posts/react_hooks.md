@@ -24,14 +24,13 @@ const [count, setCount] = useState(0)
 `useState`는 **배열**을 반환하는데, 첫 번째 요소로는 현재 상태값, 두 번째 요소로는 상태를 업데이트하는 함수를 반환한다.
 상태가 변경되면 컴포넌트는 **자동으로** 리랜더링된다.
 
-- 주요 사용처\
-**1. 사용자의 입력값 저장** (폼 데이터, 검색어 등)\
-**2. UI 상태관리** (모달 창 열림/닫힘, 탭 선택 등)\
-**3. 카운터, 토글 같은 간단한 상태**
-**4, API 응답 저장용**
+**주요 사용처**
+1. 사용자의 입력값 저장 (폼 데이터, 검색어 등)
+2. UI 상태관리 (모달 창 열림/닫힘, 탭 선택 등)
+3. 카운터, 토글 같은 간단한 상태
+4, API 응답 저장용
 
-- 내 블로그에서 사용 예시\
-이번에 개발한 리모컨 컴포넌트를 예시로 보면
+- 내 블로그에서 사용 예시
 ```javascript
 // 목차 리스트 상태관리
 const [headings, setHeadings] = useState([])
@@ -81,21 +80,21 @@ useEffect(() => {
     }
 }, [dependencies]) // 의존성 배열
 ```
-- **의존성 배열의 역할**\
+**의존성 배열의 역할**
 - `[]` 빈 배열: 컴포너트가 마운트 시 **한번만** 실행
 - `[value]` : **value가 변경될 때마다** 실행
 - 생략: **매 렌더링마다** 실행
 
-- 주요 사용처\
-**1. API 호출 및 데이터 fetching**\
-**2. DOM 직접 조작**\
-**3. 타이머 설정** (setTimeout, setInterval)\
-**4. 이벤트 리스너 등록/해제**\
-**5. 외부 라이브러리와의 연동**\
-**6. 로컬 스토리지 접근**\
-**7. 구독 설정**
+**주요 사용처**
+1. API 호출 및 데이터 fetching
+2. DOM 직접 조작
+3. 타이머 설정 (setTimeout, setInterval)
+4. 이벤트 리스너 등록/해제
+5. 외부 라이브러리와의 연동
+6. 로컬 스토리지 접근
+7. 구독 설정
 
-- 내 블로그 사용 예시\
+- 내 블로그 사용 예시
 ```javascript
 // 1. 헤딩 태그 id 찾기 
 useEffect(() => {
@@ -164,10 +163,48 @@ countRef.current = 1; // 재렌더링 발생 안 함!
 ```
 useState는 모두 알아차리는 공공연한 값이라면 useRef는 private한 값이라고 생각하면 될 거 같다.
 
-
-
-
-- 내 블로그 사용 예시\
+- 내 블로그 사용 예시
 ```javascript
-// Observer
+// Observer를 저장할 ref (cleanup)
+const observerRef = useRef(null)
+
+// 2. IntersectionObserver로 현재 위치 감지 로직 구현
+const handleObserver = (entries) => {
+    entries.forEach((entry) => {
+        // 헤딩이 화면의 특정 영역에 들어오면 activeId 변경
+        if (entry.isIntersecting) {
+            setActiveId(entry.target.id)
+        }
+    })
+}
+
+// rootMargin: '-10% 0px -80% 0px'
+// -> 화면 상단 10 - 20 % 사이 좁은 구역을 지나갈 때만 감지
+observerRef.current = new IntersectionObserver(handleObserver, {
+    rootMargin: "-10% 0px -80% 0px",
+    threshold: 0,
+})
+
+headingData.forEach((heading) => {
+    observerRef.current.observe(heading.element)
+})
 ```
+
+**1. 불필요한 리렌더링 방지**\
+`IntersectionObserver` 객체는 스크롤 감지라는 **기능**을 수행할 뿐, 그 객체 자체가 화면에 그려지는 UI는 아니다.\
+만약 이를 `useState`에 저장했다면, 옵저버가 생성(`new IntersectionObserver`)되는 순간 `setObserver`가 실행되어
+불필요한 리렌더링이 한 번 더 발생했을 것이다. `useRef`는 값이 할당되어도 리렌더링을 유발하지 않기 때문에 이런
+**보이지 않는 기능성 객체**를 담아두기에 가장 적합하다!
+
+**2. 컴포넌트 생명주기 동안 값 유지**\
+만약 옵저버를 일반 변수(`let Observer`)로 선언했다면, 컴포넌트가 리렌더링될 때마다 변수가 초기화되어 감시 연결이 끊기거나, 새로운
+옵저버가 계속 생성되는 문제가 발생했을 것이다.\
+`useRef`는 컴포넌트가 마운트 해제될 때까지 그 값을 **기억**하기 때문에 `useEffect` 내부에서 생성된 옵저버 객체를 안전하게 보관했다가,
+나중에 컴포넌트가 사라질 때(CleanUp 시점) `observe.current`로 접근해 `disconnect` 할 수 있었다.
+
+
+### 마치며
+블로그를 개발하면서 React와 기본 프론트 지식들을 차곡차곡 쌓아가는 게 맘에 든다.\
+DOM의 생명주기를 예전에 공부하다가 말아서 기억이 가물가물한데 다음 번에는 이러한 기초 지식들을 공부해서 정리해야겠다.\
+개발과 학습을 병행하다보니 하루 너무 짧다. 하지만 세세하게 개발한 내용에 대한 기록을 하지 않는다면\
+개발하고 딱히 남는 게 없었던 적이 많았어서 스스로 정리하는 시간을 꼭 지키고 싶다!
