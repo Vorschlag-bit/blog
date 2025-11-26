@@ -14,6 +14,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 
 import rehypeRaw from 'rehype-raw';
+import rehypeSlug from 'rehype-slug';
 
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
@@ -60,6 +61,7 @@ export async function getPostData(id) {
     const processedContent = await remark()
     .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
+    .use(rehypeSlug) // HTML 변환 시 id 추가
     .use(rehypeKatex)
     .use(rehypeRaw)
     .use(rehypeHighlight) // 코드 하이라이팅 적용

@@ -2,6 +2,7 @@ import { getPostData } from "@/lib/posts";
 import RetroWindow from "@/components/RetroWindow";
 import Comments from "@/components/Comments";
 import CodeBlockManager from "@/components/CodeBlockManager";
+import PostRemoteControl from "@/components/PostRemoteController";
 import Link from "next/link";
 
 // 동적 메타데이터 생성 함수
@@ -36,7 +37,8 @@ export default async function Post({params}) {
     const postData = await getPostData(id)
 
     return (
-        <div className="max-w-4xl mx-auto p-4">
+        <div className="max-w-4xl mx-auto p-4 relative">
+            <PostRemoteControl />
             <RetroWindow title={`Reading: ${postData.title}.txt`}>
                 <h1 className="text-3xl font-bold mb-4 flex items-center">
                     <Link href={`/categories/${postData.category}`}
