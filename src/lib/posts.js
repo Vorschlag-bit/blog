@@ -15,6 +15,7 @@ import rehypeStringify from 'rehype-stringify';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
+import remarkGfm from 'remark-gfm';
 
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
@@ -60,6 +61,7 @@ export async function getPostData(id) {
     // 마크다운 본문을 HTML로 파싱 (remark)
     const processedContent = await remark()
     .use(remarkMath)
+    .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
     .use(rehypeSlug) // HTML 변환 시 id 추가
     .use(rehypeKatex)
