@@ -6,7 +6,7 @@ export default function robots() {
             // 모든 로봇에게 허용
             userAgent: '*', 
             // 모든 페이지 허용
-            allow: '*',
+            allow: '/',
             // (예시) 특정 페이지는 막고 싶을 때
             disallow: '/private',
         },
