@@ -75,6 +75,25 @@ export default async function sitemap() {
 위의 파일들을 다 만들었어도, 구글은 아직 내 블로그가 생긴지조차 모를 수 있다.
 따라서 가서 자소서를 돌려야 한다!
 
-["구글 서치 콘솔"](https://search.google.com/search-console/welcome)에 접속해서 구글 아이디로 로그인을 하고,
-**속성 추가**를 누르고 블로그 도메인을 입력한다.
+<a href="https://search.google.com/search-console/welcome" style="color: #2f9e44; text-decoration: none;">
+  구글 서치 콘솔
+</a>
+에 접속해서 구글 아이디로 로그인을 하고, 속성 추가를 누르고 블로그 도메인을 입력한다.
+
+프로토콜과 `/path` 같은 건 지우고 도메인만 입력한 후, TXT 방식을 선택하면 나오는 TXT 레코드를
+`src/app/layout.js`에 있는 `metadata`에 아래의 설정을 추가한 후 인증을 하면 된다.
+
+```javascript
+// src/app/layout.js
+export const metadata = {
+  title: 'DevLog',
+  description: '개발 블로그',
+  // ... 기타 설정 ...
+  verification: {
+    google: '복사한-구글-확인-코드',
+  },
+};
+```
+
+마지막으로 소유권 확인이 끝나면 메뉴의 **sitemap**탭으로 가서 `sitemap.xml`을 제출하면 끝!
 

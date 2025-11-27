@@ -30,7 +30,7 @@ export const metadata = {
 
   /** 구글 서치 콘솔 설정 */
   verification: {
-    google: 'google-site-verification=7QG_urUFyo5h0X3CZ3zNANUChnEg9q8qokQ3BnYlvlQ',
+    google: '7QG_urUFyo5h0X3CZ3zNANUChnEg9q8qokQ3BnYlvlQ',
   },
 
   /** OG */
