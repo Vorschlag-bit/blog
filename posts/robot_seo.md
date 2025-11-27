@@ -80,7 +80,7 @@ export default async function sitemap() {
 </a>
 에 접속해서 구글 아이디로 로그인을 하고, 속성 추가를 누르고 블로그 도메인을 입력한다.
 
-프로토콜과 `/path` 같은 건 지우고 도메인만 입력한 후, TXT 방식을 선택하면 나오는 TXT 레코드를
+필자는 개인 도메인은 없기 때문에 URL 접두어에 내 URL을 넣고, **HTML 태그**로 제공되는 verification code를
 `src/app/layout.js`에 있는 `metadata`에 아래의 설정을 추가한 후 인증을 하면 된다.
 
 ```javascript

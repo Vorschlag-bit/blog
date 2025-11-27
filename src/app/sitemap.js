@@ -1,23 +1,36 @@
-import { getSortedPostsData } from "@/lib/posts"; // 게시글 데이터 가져오는 함수
+import { getSortedPostsData } from "@/lib/posts";
 
 export default async function sitemap() {
-    // 본인 도메인
     const baseUrl = 'https://vorschlag-blog.vercel.app'
-
-    // 1. 블로그의 모든 게시글 가져오기
     const allPosts = getSortedPostsData()
 
-    // 2. 게시글 url 목록 만들기
-    const posts = allPosts.map((post) => ({
-        url: `${baseUrl}/posts/${post.id}`,
-        lastModified: new Date(post.date),
-    }))
+    const posts = allPosts.map((post) => {
+        // [안전장치] 날짜 변환 시도
+        let dateObj;
+        try {
+            dateObj = new Date(post.date);
+            // 만약 날짜가 유효하지 않다면(Invalid Date) 현재 시간으로 설정
+            if (isNaN(dateObj.getTime())) {
+                dateObj = new Date();
+            }
+        } catch (e) {
+            dateObj = new Date();
+        }
 
-    // 3. 메인 페이지와 게시글 목록을 합쳐서 반환
+        return {
+            url: `${baseUrl}/posts/${post.id}`,
+            lastModified: dateObj, 
+            changeFrequency: 'daily',
+            priority: 0.7, // 게시글은 보통 0.7~0.8
+        }
+    })
+
     return [
         {
             url: baseUrl,
             lastModified: new Date(),
+            changeFrequency: 'daily',
+            priority: 1.0, // 메인은 중요하니까 1.0
         },
         ...posts,
     ]
