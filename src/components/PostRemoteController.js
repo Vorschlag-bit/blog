@@ -110,7 +110,7 @@ export default function PostRemoteControl() {
     return (
         // 레이아웃: xl 화면(1280px) 이상에서만 보임
         // 메인 콘텐츠 옆에 붙이기 위해 left 계산식 사용
-        <aside className="hidden xl:block fixed top-32 right-0 w-70 p-4 font-[Galmuri11] z-40">
+        <aside className="hidden xl:block fixed top-32 left-[calc(50%+28rem)] w-70 p-4 font-[Galmuri11] z-40">
             {/** 1. 목차 박스 (레트로 스타일) */}
             <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900 
             shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] mb-4 p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
