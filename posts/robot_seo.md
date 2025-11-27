@@ -114,5 +114,15 @@ export const metadata = {
 처음에 몇 가지 설정을 잘못해서 실패가 나온 후에 수정하고 재시도를 했는데도 여전히 **가져올 수 없음** 상태가 나오고 있었다.\
 최대 3-4일이 걸릴 수도 있다고 하니 일단은 최소 하루 정도는 가만히 두고 결과를 기다려보자.
 
-혹여 설정에 대한 실수가 있지 않을까 불안한 사람들은 아래의 링크들을 사용해서 검증을 해보자!\
-**1. sitemap.xml 검증 사이트**
+혹여 설정에 대한 실수가 있지 않을까 불안한 사람들은 아래의 링크들을 사용해서 검증을 해보자!
+#### sitemap.xml의 문법 검증하기
+[xml 검증 사이트](https://www.xml-sitemaps.com/validate-xml-sitemap.html)에 들어가서 본인 사이트맵이
+xml 파싱 규칙에 알맞게 되어있는지 확인해보자.
+
+!["xml_suc"](/images/xml_suc.png)
+제대로 되어 있다면 위의 사진처럼 나올 것이다.
+
+#### sitemap 페이지의 요청 상태 확인하기
+[요청 응답 확인 사이트](https://httpstatus.io/)에 들어가서 사이트맵 주소를 입력해 HTTP status를 확인해보자.
+!["status"](/images/sitemap_status.png)
+정상적이라면 200이 return 되어야 할 것이다.
