@@ -11,17 +11,17 @@ export default function robots() {
                 ],
                 // (예시) 특정 페이지는 막고 싶을 때
                 disallow: [
-                    '/private/*'
+                    '/private/'
                 ],
             },
             {
                 // 다른 크롤러 규칙
                 userAgent: '*',
                 allow: [
-                    '/posts/*'
+                    '/posts/'
                 ],
                 disallow: [
-                    '/private/*'
+                    '/private/'
                 ]
             }
         ],
