@@ -1,5 +1,3 @@
-import { userAgent } from "next/server";
-
 export default function robots() {
     const baseUrl = `https://vorschlag-blog.vercel.app`
     return {
@@ -10,7 +8,6 @@ export default function robots() {
                 // 모든 페이지 허용
                 allow: [
                     '/',
-                    '/posts/*'
                 ],
                 // (예시) 특정 페이지는 막고 싶을 때
                 disallow: [
@@ -21,7 +18,6 @@ export default function robots() {
                 // 다른 크롤러 규칙
                 userAgent: '*',
                 allow: [
-                    '/',
                     '/posts/*'
                 ],
                 disallow: [
