@@ -11,7 +11,7 @@ const fileName = `${slug}.md`
 
 const content = `---
 title: "백준 ${title}번 (python)"
-date: ${date}
+date: "${date}"
 category: "코테"
 description: "python으로 풀어보는 ${title}"
 ---
