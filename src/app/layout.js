@@ -28,6 +28,11 @@ export const metadata = {
   },
   description: "Next.js와 Tailwind CSS로 바닥부터 만든 레트로 감성 기술 블로그",
 
+  /** 구글 서치 콘솔 설정 */
+  verification: {
+    google: 'google-site-verification=7QG_urUFyo5h0X3CZ3zNANUChnEg9q8qokQ3BnYlvlQ',
+  },
+
   /** OG */
   openGraph: {
     title: "DevLog | 바닥부터 파보는 기술 블로그",
