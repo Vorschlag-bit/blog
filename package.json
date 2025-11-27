@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "new": "node scripts/create-post.js"
+    "new": "node scripts/create-post.js",
+    "cote": "node scripts/create-codetest-post.js"
   },
   "dependencies": {
     "@vercel/speed-insights": "^1.2.0",
