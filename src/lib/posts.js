@@ -64,13 +64,13 @@ export async function getPostData(id) {
     .use(remarkMath)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
+    .use(rehypeRaw)
     .use(rehypeExternalLinks, {
         target: '_blank',
         rel: ['noopener', 'noreferrer'],
     })
     .use(rehypeSlug) // HTML 변환 시 id 추가
     .use(rehypeKatex)
-    .use(rehypeRaw)
     .use(rehypeHighlight) // 코드 하이라이팅 적용
     .use(rehypeStringify) // HTML 문자열로 변경
     .process(matterResult.content)
