@@ -32,7 +32,7 @@ export const metadata = {
 
   /** 구글 서치 콘솔 설정 */
   verification: {
-    google: '7QG_urUFyo5h0X3CZ3zNANUChnEg9q8qokQ3BnYlvlQ',
+    google: 'Htjlq8zQw672rHdKDBD1kI5bsP718VLw9FgsJU5pMVo',
   },
 
   /** OG */
