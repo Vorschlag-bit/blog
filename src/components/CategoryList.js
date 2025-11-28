@@ -11,10 +11,9 @@ export default function CategoryList() {
             {/* 1. 가장 바깥 박스 (그림자 효과) */}
             <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]">
                 
-                {/* 2. 타이틀 바 (윈도우 95 스타일) - 파란색 헤더 */}
+                {/* 2. 타이틀 바 */}
                 <div className="bg-blue-600 text-white p-1.5 border-b-2 border-black dark:border-gray-500 flex justify-between items-center select-none">
                     <span className="font-bold text-xs pl-1">CATEGORY.EXE</span>
-                    {/* 윈도우 버튼 장식 */}
                     <div className="flex gap-1">
                         <div className="w-3 h-3 bg-white border border-black cursor-pointer hover:bg-gray-200"></div>
                         <div className="w-3 h-3 bg-gray-300 border border-black cursor-pointer hover:bg-gray-400"></div>
@@ -37,7 +36,7 @@ export default function CategoryList() {
                             <li key={category}>
                                 <Link 
                                     href={category === "All" ? "/" : `/categories/${category}`}
-                                    // hover-glitch 클래스 적용!
+                                    // hover-glitch 클래스 적용
                                     className="hover-glitch block p-1.5 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors rounded group"
                                 >
                                     {/* 마우스 올리면 화살표 나오게 (group-hover) */}

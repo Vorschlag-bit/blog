@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
                   style={{ imageRendering: "pixellated" }}
                 />
               </div>
-              <h1 className="text-xl font-bold cursor-pointer text-black dark:text-white">
+              <h1 className="hover-glitch text-xl font-bold cursor-pointer text-black dark:text-white">
                 DevLog
               </h1>
             </Link>
