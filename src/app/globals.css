@@ -28,6 +28,12 @@ body {
         linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
+@layer utilities {
+    .hover-glitch:hover {
+        text-shadow: 2px 0 #ff00ff, -2px 0 #00ffff;
+    }
+}
+
 .prose details {
     display: block;
     margin-bottom: 1rem;
