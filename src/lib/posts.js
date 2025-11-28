@@ -92,3 +92,16 @@ export function getPostsByCategory(category) {
     // filter 함수로 조건에 맞는 것만 남기기
     return allPosts.filter((post) => post.category === category)
 }
+
+// 왼쪽 사이드 바 카테고리 리스트를 만들기 위한 카테고리 추출 함수
+export function getAllCategories() {
+    const allPosts = getSortedPostsData()
+    const allCategories = allPosts.map(({ category }) => category)
+    const setCategory = new Set(allCategories)
+
+    // set을 다시 array return, [...Set]은 set의 요소를 펼쳐서 다시 배열로 만드는 문법
+    return [...setCategory].sort((a,b) => {
+        if (a < b) return 1
+        else return -1
+    })
+}
