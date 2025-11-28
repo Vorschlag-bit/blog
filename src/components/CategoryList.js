@@ -1,6 +1,5 @@
 import { getAllCategories } from "@/lib/posts";
 import Link from "next/link";
-// import ScrollProgress from "./ScrollProgress"; // 2단계에서 만든 컴포넌트 import
 
 export default function CategoryList() {
     const sortedCategories = getAllCategories()
@@ -49,9 +48,6 @@ export default function CategoryList() {
                             </li>
                         ))}
                     </ul>
-
-                    {/* 4. 여기에 스크롤 진행률 바 추가 */}
-                    {/* <ScrollProgress /> */}
                 </div>
             </div>
         </aside>

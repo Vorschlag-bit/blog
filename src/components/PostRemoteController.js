@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import ScrollProgress from "./ScrollProgress";
 
 const indentStyles = {
     H2: "text-sm font-bold",
@@ -139,6 +140,7 @@ export default function PostRemoteControl() {
                         </li>
                     ))}
                 </ul>
+                <ScrollProgress />
             </div>
 
             {/** 2. 리모컨 버튼 (맨위/맨아래) */}
