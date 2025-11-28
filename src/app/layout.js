@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import Image from "next/image";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import CategoryList from "@/components/CategoryList";
 import Link from "next/link";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css";
@@ -91,8 +92,14 @@ export default function RootLayout({ children }) {
             </nav>
           </header>
           {/* children = 내가 만들 main 페이지 들어가는 곳 */}
-          <main className="max-w-5xl mx-auto px-4">
-            {children}
+          {/** 왼쪽 사이드 바 추가로 flex 추가 */}
+          <main className="max-w-5xl mx-auto px-4 flex">
+            {/** 왼쪽: 카테고리 사이드 바 */}
+            <CategoryList />
+            {/** 오른쪽: 본문 */}
+            <div className="flex-1">
+              {children}
+            </div>
           </main>
           {/** footer 추가 */}
           <footer className="max-w-5xl mx-auto px-4 border-t py-4 mt-10 text-center text-gray-500 text-sm">
