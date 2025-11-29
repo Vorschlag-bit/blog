@@ -24,9 +24,6 @@ export default function Home() {
                 // 2. text-black을 줘서 currentColor가 검은색을 잡도록 명시
                 className="relative p-4 bg-white dark:bg-gray-800 shadow-pixel hover:translate-x-1 hover:translate-y-1 transition-transform text-black dark:text-gray-100"
               >
-                {/* <div className="absolute -left-3 top-4 hidden sm:block">
-                  👾
-                </div> */}
                 <div className="flex items-center gap-2 mb-2">
                   <Link href={`/categories/${category}`}>
                     {/* 뱃지도 픽셀 스타일 (rounded 제거) */}
