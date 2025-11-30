@@ -137,3 +137,38 @@ export default function CategoryList() {
 
 수정 후
 !["after_changed_logics"](/images/list_temp2.png)
+
+#### CSS 수정하기
+
+남은 건 CSS를 수정하는 일이었다.  
+이 리스트는 리모컨과 다르게 항상 좌측에 붙어있을 컴포넌트다.
+난 따라서 `layout.js`에서 `<main>`과 같은 레벨에 둬야할 컴포넌트였는데, 문제는 기존 CSS가
+main을 감싼 부모태그에 `flex justify-center` 속성을 주어서 왼쪽에 컴포넌트가 위치할 경우 2개의 컴포넌트로
+가운데 정렬을 시도하다보니 main이 정확한 중심을 잡는 게 어려줬다는 것이다.  
+margin을 줘서 맞출 수도 있겠지만, 후에 오른쪽에도 컴포넌트가 들어갈 수도 있으니 보이지 않는 `<div>`을 넣어둬서
+3개의 컴포넌트로 중앙 정렬을 시키기로 했다.
+
+```javascript
+{/** justify-center로 전체 덩어리를 가운데 정렬 */}
+<div className="flex justify-center max-w-[1920px] mx-auto px-4">
+{/** 1. 왼쪽 카테고리 사이드 바 */}
+<CategoryList />
+{/** 2. 중앙 메인 본문 */}
+<main className="max-w-4xl w-full min-w-0">
+    {/* children = 내가 만들 main 페이지 들어가는 곳 */}
+    {children}
+</main>
+{/** 3. 오른쪽 균형을 맞추기 위한 투명한 유령 박스 */}
+{/** 왼쪽 사이드바(w-64 + mr-8)와 합친 너비만큼 공간 차지 */}
+<div className="hidden xl:block w-52 ml-6 shrink-0" aria-hidden="true" />
+</div>
+```
+
+### 완성된 모습
+!["finale"](/images/side_fin.png)
+
+오른쪽에는 보이지 않는 사이드가 존재함으로써 균형을 잘 잡아주고 있다!  
+이번 기능은 확실히 함수적으로 그렇게 어렵진 않았지만 CSS를 수정하는 과정에서 기존의 컴포넌트 구조를
+많이 뜯어 고쳐야 했어서 시간이 좀 걸린 거 같다.  
+확실히 Figma 같은 UI 설계 과정 없이
+매번 즉석에서 설계 및 구현을 하다보니 뒷수습의 시간이 많이 걸린다. 뭐든 초반 설계가 탄탄할수록 좋은 법.
