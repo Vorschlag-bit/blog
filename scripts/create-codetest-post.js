@@ -9,19 +9,23 @@ const title = process.argv[2] || `new-post-${randomInt}`
 const slug = title.toLowerCase().replace(/\s+/g, '_')
 const fileName = `${slug}.md`
 
+const pNum = fileName.split("_")[1]
+
 const content = `---
-title: "백준 ${title}번 (python)"
+title: "백준 ${pNum}번 (python)"
 date: "${date}"
 category: "코테"
-description: "python으로 풀어보는 ${title}"
+description: "python으로 풀어보는 ${pNum}"
 ---
 
 ## 코딩 테스트 풀이
 
-!["문제사진"](/images/.png)
-glink
+!["문제사진"](/images/${pNum}.png)
+<a href="" style="color: #2f9e44; text-decoration: none;">
+  문제링크
+</a>
 
-백준 ${title} 문제 풀이에 대한 해설.
+백준 ${pNum}번 문제 풀이에 대한 해설.
 
 `
 
