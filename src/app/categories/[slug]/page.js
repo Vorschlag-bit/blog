@@ -12,7 +12,7 @@ export default async function CategoryPage({ params }) {
     const categoryPosts = getPostsByCategory(category)
 
     return (
-        <div className="p-10">
+        <section className="p-10">
             <h1 className="text-3xl font-bold mb-8 flex items-center">
                 <svg 
                 className="w-8 h-8"
@@ -37,6 +37,6 @@ export default async function CategoryPage({ params }) {
                     ))}
                 </ul>
             ) }
-        </div>
+        </section>
     )
 }

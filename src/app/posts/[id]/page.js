@@ -37,7 +37,7 @@ export default async function Post({params}) {
     const postData = await getPostData(id)
 
     return (
-        <div className="max-w-4xl mx-auto p-4 relative">
+        <article className="max-w-4xl mx-auto p-4 relative">
             <PostRemoteControl />
             <RetroWindow title={`Reading: ${postData.title}.txt`}>
                 <h1 className="text-3xl font-bold mb-4 flex items-center">
@@ -59,6 +59,6 @@ export default async function Post({params}) {
                 {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
                 <Comments />
             </RetroWindow>
-        </div>
+        </article>
     )
 }
