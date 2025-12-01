@@ -40,9 +40,13 @@ export default function CategoryList() {
                                     className="hover-glitch block p-1.5 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors rounded group"
                                 >
                                     {/* 마우스 올리면 화살표 나오게 (group-hover) */}
-                                    <span className="hidden group-hover:inline mr-1 text-xs">▶</span>
-                                    <span className="font-medium text-sm">{category}</span>
-                                    <span className="text-xs text-gray-400 ml-1">{`(${count})`}</span>
+                                    <span className="font-medium text-sm flex items-center">
+                                        {category != "All" && (
+                                            <svg className="w-6 h-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M6 16h10v2h2v-2h2v-2h-2v-2h-2v2H6V4H4v12h2zm10-4v-2h-2v2h2zm0 6v2h-2v-2h2z" fill="currentColor"/> </svg>
+                                        )}
+                                        {category}
+                                        <span className="text-xs text-gray-400 ml-1">{`(${count})`}</span>
+                                    </span>
                                 </Link>
                             </li>
                         ))}
