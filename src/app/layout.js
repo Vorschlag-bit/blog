@@ -68,7 +68,7 @@ export default function RootLayout({ children }) {
           {/* 여기에 헤더 추가 */}
           <header className="max-w-5xl mx-auto px-4 border-b py-4 flex justify-between items-center">
             {/** 마스코트 추가 */}
-            <Link href="/main" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-3 group">
               <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:-rotate-12">
                 <Image
                   src="/images/icon.png"
