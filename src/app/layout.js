@@ -3,7 +3,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import Image from "next/image";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
-import CategoryList from "@/components/CategoryList";
 import Link from "next/link";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css";
@@ -69,7 +68,7 @@ export default function RootLayout({ children }) {
           {/* 여기에 헤더 추가 */}
           <header className="max-w-5xl mx-auto px-4 border-b py-4 flex justify-between items-center">
             {/** 마스코트 추가 */}
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/main" className="flex items-center gap-3 group">
               <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:-rotate-12">
                 <Image
                   src="/images/icon.png"
@@ -91,18 +90,9 @@ export default function RootLayout({ children }) {
               <ThemeToggle/>
             </nav>
           </header>
-          {/** justify-center로 전체 덩어리를 가운데 정렬 */}
-          <div className="flex justify-center max-w-[1920px] mx-auto px-4">
-            {/** 1. 왼쪽 카테고리 사이드 바 */}
-            <CategoryList />
-            {/** 2. 중앙 메인 본문 */}
-            <main className="max-w-4xl w-full min-w-0">
-              {/* children = 내가 만들 main 페이지 들어가는 곳 */}
-              {children}
-            </main>
-            {/** 3. 오른쪽 균형을 맞추기 위한 투명한 유령 박스 */}
-            {/** 왼쪽 사이드바(w-64 + mr-8)와 합친 너비만큼 공간 차지 */}
-            <div className="hidden xl:block w-52 ml-6 shrink-0" aria-hidden="true" />
+          {/** 일반 페이지면 main/layout.js, 404면 not-fount.js */}
+          <div className="flex-1 w-full">
+            {children}
           </div>
           {/** footer 추가 */}
           <footer className="max-w-5xl mx-auto px-4 border-t py-4 mt-10 text-center text-gray-500 text-sm">

@@ -25,7 +25,6 @@ const postsDirectory = path.join(process.cwd(), 'posts')
 export function getSortedPostsData() {
     // 1. posts 폴더에 있는 파일 이름들을 가져옴 (['first-post.md, ...])
     const fileNames = fs.readdirSync(postsDirectory)
-
     // 2. 파일들을 하나씩 가공(map)
     const allPostsData = fileNames.map((fileName) => {
         // '.md' 확장자 제거 후 id로 사용 (ex: 'first-post')
