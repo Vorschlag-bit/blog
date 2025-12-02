@@ -57,8 +57,11 @@ export default function GlobalLoader() {
 
             {/** loading 텍스트 */}
             <div className="flex flex-col items-center gap-2 text-black dark:text-white">
-                <div className="text-2xl font-bold font-[Galmuri11 Bold] tracking-widest">
-                    NOW LOADING...
+                <div className="relative text-2xl font-bold font-[Galmuri11 Bold] tracking-widest">
+                    NOW LOADING
+                    <span className="absolute left-full w-8 text-left">
+                        ...
+                    </span>
                 </div>
                 <div className="text-sm font-[Galmuri11]">
                     {Math.floor(count)}% COMPLETE
