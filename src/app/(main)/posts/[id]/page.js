@@ -42,9 +42,9 @@ export default async function Post({params}) {
         <article className="max-w-4xl mx-auto p-4 relative">
             <PostRemoteControl />
             <RetroWindow title={`Reading: ${postData.title}.txt`}>
-                <h1 className="text-3xl font-bold mb-4 flex items-center">
+                <h1 className="text-3xl font-bold mb-4 flex items-start gap-3">
                     <Link href={`/categories/${postData.category}`}
-                        className="bg-blue-600 text-white text-xl mr-3 font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
+                        className="shrink-0 bg-blue-600 text-white text-xl mr-3 font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
                         {postData.category}
                     </Link>
                     {postData.title}

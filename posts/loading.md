@@ -61,3 +61,96 @@ export function LoadingProvider({ children }) {
 #### 3-2. Pixel Art Loader 구현(UI)
 블로그 컨셉에 맞춰 CSS(`Tailwind`)로 픽셀느낌을 냈다. 실제 데이터 로딩을 알 수는 없어서, `Math.random()`을 사용해 그럴듯하게 차오르는
 **가짜 진행률** 로직을 구현했다.
+```javascript
+// src/components/GlobalLoader.js
+"use client"
+// ... imports
+
+export default function GlobalLoader() {
+    const { isLoading } = useLoading()
+    const [count, setCount] = useState(0)
+
+    useEffect(() => {
+        if (!isLoading) {
+            setCount(0); return;
+        }
+        // 0.1초마다 랜덤하게 게이지 증가
+        const timerId = setInterval(() => {
+            setCount((prev) => {
+                if (prev >= 100) return 100;
+                return prev + Math.floor(Math.random() * 10) + 1;
+            })
+        }, 30) // 체감상 0.03초마다 증가가 제일 적절함
+        return () => clearInterval(timerId)
+    }, [isLoading]); // isLoading이 켜질 때마다 실행
+
+    if (!isLoading) return null;
+
+    return (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/200 dark:bg-gray-900/200 backdrop-blur-sm">
+            {/* 픽셀 스타일 박스 및 게이지 바 구현 */}
+            <div className="text-2xl font-bold font-[Galmuri11 Bold]">
+                NOW LOADING... {Math.floor(count)}%
+            </div>
+        </div>
+    )
+}
+```
+#### 3-3. 커스텀 링크 구현 (Interceptor)
+가장 중요한 부분이다. `next/link` 대신 `useRouter`를 사용해 이동과정을 수동으로 제어했다.
+```javascript
+// src/components/LoadingLink.js
+"use client"
+import { useRouter } from "next/navigation"
+import { useLoading } from "@/context/LoadingContext"
+
+export default function LoadingLink({ href, children, ...props }) {
+    const { setIsLoading } = useLoading()
+    const router = useRouter()
+
+    const handleClick = (e) => {
+        e.preventDefault() // 1. 기본 이동 동작을 막는다.
+        
+        setIsLoading(true) // 2. 로딩 화면을 켠다 (State Update)
+
+        // 3. 로딩 화면이 렌더링될 시간을 잠깐(500ms) 벌어주고 이동한다.
+        setTimeout(() => {
+            router.push(href)
+        }, 500)
+    }
+
+    return (
+        <a href={href} onClick={handleClick} {...props}>
+            {children}
+        </a>
+    )
+}
+```
+### 4. 동작원리 상세 분석
+이 기능이 작동하는 타임라인을 분석해보면 다음과 같다.  
+- 1. **Click**: 사용자가 `LoadingLink`를 클릭한다.
+- 2. **Intercept**: `e.preventDefault()`로 인해 브라우저의 즉시 이동이 차단된다.
+- 3. **UI Update**: `setIsLoading(true)`가 실행되고, React는 `GlobalLoader`를 최상단(`z-[9999]`)에 그린다.
+- 4. **Routing**: `setTimeout`(0.5초) 이후 `router.push()`가 실행되어, Next.js가 서버에 데이터를 요청한다.
+- 5. **Fetching**: 데이터를 받아오는 동안 사용자는 멈춘 화면 대신 **로딩 바**를 보게 된다.
+- 6. **Navigation End**: 데이터가 준비되어 페이지가 바뀌면 URL(`pathName`)이 변경된다.
+- 7. **Reset**: `LoadingProvider`의 `useEffect`가 이를 감지하고 `setIsLoading(false)`를 실행해 로딩창을 걷어낸다.
+
+### 5. 트레이드 오프: 성능 VS 경험
+이 기능은 분명 기술적으로 보면 **성능 최적화에 역행**하는 부분이 있다.  
+<strong>단점(Cons)</strong>
+
+- **Soft Navigation** 포기: Next.js가 추구하는 **앱 같은 부드러움**대신, 화면이 단절되는 경험을 주게 된다.
+- **Blocking**: 로딩 중에는 사용자가 스크롤 하거나 다른 행동을 할 수 없다.
+
+<strong>장점(Pros)</strong>
+
+- **즉각적인 피드백**: 클릭하자마자 UI가 반응하므로, 사용자는 시스템이 동작하는구나라는 걸 확실히 인지한다.
+- **브랜드 아이덴티티**: 내 블로그의 핵심 컨셉인 **레트로 OS** 느낌을 극대화할 수 있었다. 하나의 콘텐츠로서 소비하고자 했다.
+
+### 마치며
+개발자는 물론 성능을 최적화하는 코드를 짜는 게 중요하지만, <strong>어떤 사용자 경험(UX)</strong>를 줄 것인지에 대해서도 고민해야 한다고 생각한다.
+비록 기술적으로는 Next.js의 최적화된 라우팅을 우회하는 방식이었지만, 내 블로그를 방문하는 사람들에게 **개발자스러운 재미**를 주기 위한 설계였다.
+결과적으로 밋밋했던 페이지 이동이 훨씬 생동감 있게 변한 거 같아 만족스러웠다.
+
+또한 모든 링크 이동에 로딩을 거는 건 부정적인 경험이 될 수 있으므로, 글을 상세조회하는 링크만 로딩 링크로 변경함으로써 UX와 성능을 둘 다 고려하고 노력했다!

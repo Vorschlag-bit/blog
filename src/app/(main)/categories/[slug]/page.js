@@ -1,5 +1,5 @@
 /** main과 비슷하지만 전체가 아니라 필터링된 데이터만 가져오는 함수 */
-import Link from "next/link";
+import LoadingLink from "@/components/LoadingLink";
 import { getPostsByCategory } from "@/lib/posts";
 
 export default async function CategoryPage({ params }) {
@@ -29,9 +29,9 @@ export default async function CategoryPage({ params }) {
                     {categoryPosts.map(({ id,title,date,description }) => (
                         <li key={id} className="border p-4 shadow-sm hover:shadow-md transition">
                             <p className="text-gray-500 text-sm mb-1">{date}</p>
-                            <Link href={`/posts/${id}`}>
+                            <LoadingLink href={`/posts/${id}`}>
                                 <h2 className="text-2xl font-bold text-blue-600">{title}</h2>
-                            </Link>
+                            </LoadingLink>
                             <p className="mt-2 text-gray-600 dark:text-gray-400">{description}</p>
                         </li>
                     ))}

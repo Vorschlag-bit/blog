@@ -49,7 +49,7 @@ export default function GlobalLoader() {
                             key={index}
                             className={`w-4 h-10 transition-all duration-100
                             ${isFilled 
-                                ? "bg-green-500 dark:bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]"
+                                ? "bg-green-400 shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.4)]"
                                 : "bg-transparent opacity-30"}`} />
                     )
                 })}
