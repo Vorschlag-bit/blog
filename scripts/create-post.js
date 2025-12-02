@@ -2,10 +2,13 @@
 const { randomInt } = require('crypto')
 const fs = require('fs')
 const path = require('path')
+const { off } = require('process')
 
-// 1. 오늘 날짜 구하기 (YYYY-mm-dd)
-const date = new Date().toISOString().slice(0,19).replace('T'," ")
-// console.log(date)
+// 1. 오늘 날짜 구하기 (YYYY-mm-dd), 현재 시각 + 9시간
+const offset = 1000 * 60 * 60 * 9
+const kstDate = new Date(new Date().getTime() + offset)
+const date = kstDate.toISOString().slice(0,19).replace('T'," ")
+console.log(`date: ${date}`)
 
 // 2. 실행할 때 입력한 제목 가져오기 (없으면 'new-post')
 const title = process.argv[2] || `new-post${randomInt}`

@@ -2,7 +2,10 @@ const { randomInt } = require('crypto')
 const fs = require('fs')
 const path = require('path')
 
-const date = new Date().toISOString().slice(0,19).replace('T'," ")
+const offset = 1000 * 60 * 60 * 9
+const kstDate = new Date(new Date().getTime() + offset)
+const date = kstDate.toISOString().slice(0,19).replace('T'," ")
+console.log(`date: ${date}`)
 
 const title = process.argv[2] || `new-post-${randomInt}`
 
