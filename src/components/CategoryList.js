@@ -1,5 +1,5 @@
 import { getAllCategories } from "@/lib/posts";
-import Link from "next/link";
+import LoadingLink from "./LoadingLink";
 
 export default function CategoryList() {
     const sortedCategories = getAllCategories()
@@ -34,7 +34,7 @@ export default function CategoryList() {
                     <ul className="space-y-1">
                         {sortedCategories.map(({category, count}) => (
                             <li key={category}>
-                                <Link 
+                                <LoadingLink 
                                     href={category === "All" ? "/" : `/categories/${category}`}
                                     // hover-glitch 클래스 적용
                                     className="hover-glitch block p-1.5 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors rounded group"
@@ -47,7 +47,7 @@ export default function CategoryList() {
                                         {category}
                                         <span className="text-xs text-gray-400 ml-1">{`(${count})`}</span>
                                     </span>
-                                </Link>
+                                </LoadingLink>
                             </li>
                         ))}
                     </ul>

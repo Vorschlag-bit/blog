@@ -31,7 +31,6 @@ export async function generateMetaData({ params }) {
 
 // URL의 [id]부분이 parmas로 들어감
 export default async function Post({params}) {
-    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     // 1. params는 Promise라서 await로 기다려야 함
     const { id } = await params

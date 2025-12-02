@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LoadingLink from "@/components/LoadingLink";
 import RetroWindow from "@/components/RetroWindow";
 import { getSortedPostsData } from "@/lib/posts";
 
@@ -25,20 +25,20 @@ export default function Home() {
                 className="relative p-4 bg-white dark:bg-gray-800 shadow-pixel hover:translate-x-1 hover:translate-y-1 transition-transform text-black dark:text-gray-100"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <Link href={`categories/${category}`}>
+                  <LoadingLink href={`categories/${category}`}>
                     {/* 뱃지도 픽셀 스타일 (rounded 제거) */}
                     <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
                       {category}
                     </span>
-                  </Link>
+                  </LoadingLink>
                   <p className="text-gray-500 text-sm font-[Galmuri11]">{date}</p>
                 </div>
-                <Link href={`posts/${id}`}>
+                <LoadingLink href={`posts/${id}`}>
                   <h2 className="text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 font-[Galmuri11]">
                     <span className="mr-2 text-black dark:text-white"></span>
                     {title}
                   </h2>
-                </Link>
+                </LoadingLink>
                 <p className="mt-2 text-gray-700 dark:text-gray-300">{description}</p>
               </li>
             ))}
