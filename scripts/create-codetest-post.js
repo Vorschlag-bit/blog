@@ -9,19 +9,19 @@ const title = process.argv[2] || `new-post-${randomInt}`
 const slug = title.toLowerCase().replace(/\s+/g, '_')
 const fileName = `${slug}.md`
 
-const pNum = fileName.split("_")[1]
+const pNum = slug.split("_")[1]
 
 const content = `---
 title: "백준 ${pNum}번 (python)"
 date: "${date}"
 category: "코테"
-description: "python으로 풀어보는 ${pNum}"
+description: "python으로 풀어보는 백준 ${pNum}"
 ---
 
 ## 코딩 테스트 풀이
 
 !["문제사진"](/images/${pNum}.png)
-<a href="" style="color: #2f9e44; text-decoration: none;">
+<a href="https://www.acmicpc.net/problem/${pNum}" style="color: #2f9e44; text-decoration: none;">
   문제링크
 </a>
 

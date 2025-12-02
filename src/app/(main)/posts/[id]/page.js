@@ -4,6 +4,7 @@ import Comments from "@/components/Comments";
 import CodeBlockManager from "@/components/CodeBlockManager";
 import PostRemoteControl from "@/components/PostRemoteController";
 import Link from "next/link";
+import { resolve } from "styled-jsx/css";
 
 // 동적 메타데이터 생성 함수
 export async function generateMetaData({ params }) {
@@ -30,6 +31,8 @@ export async function generateMetaData({ params }) {
 
 // URL의 [id]부분이 parmas로 들어감
 export default async function Post({params}) {
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+
     // 1. params는 Promise라서 await로 기다려야 함
     const { id } = await params
 
