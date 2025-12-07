@@ -5,7 +5,6 @@ import CodeBlockManager from "@/components/CodeBlockManager";
 import PostRemoteControl from "@/components/PostRemoteController";
 import Link from "next/link";
 import PostImageLoader from "@/components/PostImageLoader";
-import { resolve } from "styled-jsx/css";
 
 // 동적 메타데이터 생성 함수
 export async function generateMetaData({ params }) {

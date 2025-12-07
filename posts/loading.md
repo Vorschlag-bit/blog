@@ -148,6 +148,110 @@ export default function LoadingLink({ href, children, ...props }) {
 - **즉각적인 피드백**: 클릭하자마자 UI가 반응하므로, 사용자는 시스템이 동작하는구나라는 걸 확실히 인지한다.
 - **브랜드 아이덴티티**: 내 블로그의 핵심 컨셉인 **레트로 OS** 느낌을 극대화할 수 있었다. 하나의 콘텐츠로서 소비하고자 했다.
 
+### 추가 기능 개발(2025.12.07)
+위에까진 시나리오가 사용자가 내가 등록한 `LoadingLink`를 클릭 시, pathName의 변경이 완료될 때까지 `setTimeOut()` 함수로 0.5초를
+대기하는 로딩화면이있다.
+하지만 나는 이 로딩시간을 더 유의미하게 만들어보고 싶어서 **실제 로딩 시간**과 비슷하도록 리팩토링을 진행했다.
+주어진 0.5초 동안 모든 이미지들을 최대한 가져오도고, 가져온 이미지들을 한꺼번에 화면에 그리도록 수정하고 싶었다.
+이를 위해선 먼저 pathName의 변경을 기준으로 load 완료 여부를 체크를 기존의 `LoadingContext.js`의 함수를 더이상 `path` 변경 감지를 하지 않도록 했다.
+```javascript
+"use client"
+import { createContext, useContext, useState, useEffect } from "react"
+// import { usePathname, useSearchParams } from "next/navigation"
+
+const LoadingContext = createContext()
+
+export function LoadingProvider({ children }) {
+    const [isLoading, setIsLoading] = useState(false)
+    // const pathName = usePathname()
+    // const searchParams = useSearchParams()
+
+    // 더이상 path 변경으로 로딩을 감지하지 않음, 대신 상세 페이지의 모든 img 태그 다운로드를 체크하도록 수정
+    // useEffect(() => {
+    //     setIsLoading(false)
+    // }, [pathName, searchParams])
+
+    return (
+        <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+            {children}
+        </LoadingContext.Provider>
+    )
+}
+```
+내가 원하는 방식대로 모든 이미지들을 글과 함께 한꺼번에 보여주기 위해선 상세 조회에 있는 글의 모든 `<img>` 태그들의 load 상태를 체크할 필요가 있었다.
+이를 위해서 이미지들의 로딩 상태를 체크하는 컴포넌트인 `PostImageLoader.js` 컴포넌트를 만들었다.
+```javascript
+"use client"
+import { useRef, useState, useEffect } from "react"
+import { useLoading } from "@/context/LoadingContext"
+
+export default function PostImageLoader({ children }) {
+    const { setIsLoading } = useLoading()
+    const contentRef = useRef(null)
+    const [isReady, setIsReady] = useState(false)
+
+    useEffect(() => {
+        if (!contentRef.current) return 
+
+        // 1. 분문 안의 <img> 찾기
+        const images = contentRef.current.querySelectorAll('img')
+
+        // 이미지가 하나도 없다면 바로 return
+        if (images.length === 0) {
+            setIsLoading(false)
+            setIsReady(true)
+            return
+        }
+
+        let loaderCount = 0
+        const total = images.length
+
+        // 2. 이미지 로드 완료 체크
+        const checkAllLoaded = () => {
+            loaderCount++
+            if (loaderCount >= total) {
+                // 모든 이미지 업로드 완료
+                setIsLoading(false)
+                setIsReady(true)
+            }
+        }
+
+        // 3. 각 이미지에 리스너 부착
+        images.forEach((img) => {
+            // 이미 캐시된 거면 pass
+            if (img.complete) {
+                checkAllLoaded()
+            } else {
+                // error, load 모두 등록
+                img.addEventListener('load', checkAllLoaded)
+                img.addEventListener('error', checkAllLoaded)
+            }
+        });
+
+        // 4. 일정 시간 초과 시, 화면 강제로 나오도록 하기
+        const timeOutId = setTimeout(() => {
+            setIsLoading(false)
+            setIsReady(true)
+        }, 3000) // 3초
+
+        return () => clearTimeout(timeOutId)
+    }, [setIsLoading])
+
+    return (
+        // isReady가 false면 opacity = 0, 아니면 100
+        <div ref={contentRef} className={`transition-opacity duration-500 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
+            {children}
+        </div>
+    )
+}
+```
+모든 이미지가 완료되지 않으면 **투명도**를 0으로 하고, 완료가 될 경우 한 번에 보여주면서 이를 `transition`을 사용해 부드럽게 연출하고자 했다.  
+또한 모든 이미지를 가져오지 못하더라도 3초를 넘기면 강제로 화면을 그리도록 했으며, 이미지의 오류로 인해 로딩이 되지 않는 경우 무한 로딩이 이뤄지지 않도록
+`error`와 `load` 모두에게 `addEventListener`를 붙였다.
+
+이 기능을 적용함으로써 **진짜 로딩** 화면을 갖게 되었다. 물론 체계적으로 데이터를 계산하는 로직은 아니지만, 대기 시간 동안 모든 데이터를 준비한다는 의미에서
+실제 로딩의 기능을 수행한다고 생각한다.
+
 ### 마치며
 개발자는 물론 성능을 최적화하는 코드를 짜는 게 중요하지만, <strong>어떤 사용자 경험(UX)</strong>를 줄 것인지에 대해서도 고민해야 한다고 생각한다.
 비록 기술적으로는 Next.js의 최적화된 라우팅을 우회하는 방식이었지만, 내 블로그를 방문하는 사람들에게 **개발자스러운 재미**를 주기 위한 설계였다.

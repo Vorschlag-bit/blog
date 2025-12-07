@@ -49,7 +49,7 @@ export default function PostImageLoader({ children }) {
         const timeOutId = setTimeout(() => {
             setIsLoading(false)
             setIsReady(true)
-        }, 5000) // 5초
+        }, 3000) // 3초
 
         return () => clearTimeout(timeOutId)
     }, [setIsLoading])
