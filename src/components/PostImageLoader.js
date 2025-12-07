@@ -51,7 +51,16 @@ export default function PostImageLoader({ children }) {
             setIsReady(true)
         }, 3000) // 3초
 
-        return () => clearTimeout(timeOutId)
+        return () => {
+            // timeOut 해제
+            clearTimeout(timeOutId)
+
+            // 붙였던 리스너 제거
+            images.forEach((img) => {
+                img.removeEventListener('load', checkAllLoaded)
+                img.removeEventListener('error', checkAllLoaded)
+            })
+        }
     }, [setIsLoading])
 
     return (
