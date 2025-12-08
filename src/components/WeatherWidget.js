@@ -2,7 +2,7 @@
 import { useEffect,useState } from "react"
 
 // 종로 3가 좌표
-const SEOUL_CODE = { nx: 37.57, ny: 126.99 }
+const SEOUL_CODE = { nx: '60', ny: '127' }
 
 export default function WeatherWidget() {
     // 초기값 null
@@ -11,7 +11,7 @@ export default function WeatherWidget() {
     const [errorMsg, setErrorMsg] = useState("");
 
     // 날씨 가져오는 함수
-    const fetchWeather = () => {
+    const fetchWeather = async (nx,ny) => {
         setLoading(true)
         setErrorMsg("")
         try {
@@ -28,17 +28,22 @@ export default function WeatherWidget() {
             const baseDate = today.toISOString().slice(0,10).replace(/-/g, "") // 20251201
             const baseTime = today.toISOString().slice(11,13) + "00" // 1300
 
-            var url = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst';
-            var queryParams =  '?' + encodeURIComponent('serviceKey') + '=서비스키'; /* Service Key*/
-            queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /* */
-            queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('100'); /* */
-            queryParams += '&' + encodeURIComponent('dataType') + '=' + encodeURIComponent('JSON'); /* */
-            queryParams += '&' + encodeURIComponent('base_date') + '=' + encodeURIComponent(`${date}`); /* */
-            queryParams += '&' + encodeURIComponent('base_time') + '=' + encodeURIComponent('0600'); /* */
-            queryParams += '&' + encodeURIComponent('nx') + '=' + encodeURIComponent('55'); /* */
-            queryParams += '&' + encodeURIComponent('ny') + '=' + encodeURIComponent('127'); /* */
+            const queryParams = new URLSearchParams({
+                base_date: baseDate,
+                base_time: baseTime,
+                nx: nx,
+                ny: ny
+            });
+
+            // 이제 블로그 API 주소로 변경됌
+            const res = await fetch(`/api/weather?${queryParams.toString()}`)
+            const data = await res.json()
+
+            setWeather(data)
         } catch (e) {
-            
+            console.debug(e)
         }
     }
+
+    
 }
