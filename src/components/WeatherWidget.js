@@ -43,7 +43,26 @@ export default function WeatherWidget() {
         } catch (e) {
             console.debug(e)
         }
-    }
+    };
 
-    
+    // 1. 처음엔 반드시 서울(종로)날씨 로딩
+    useEffect(() => {
+        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny)
+    },[])
+
+    // 2. '내 위치 찾기' 버튼 핸들러
+    const handleMyLocation = () => {
+        if (!navigator.geolocation) {
+            setErrorMsg("브라우저가 위치 정보를 지원하지 않습니다.")
+            return;
+        }
+
+        // 브라우저 내장 팝업 트리거
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                // 성공 시, 내 위치로 api 다시 호출
+                const { latitude, longitude } = position.coords;
+            }
+        )
+    }
 }
