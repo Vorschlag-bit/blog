@@ -1,5 +1,6 @@
 "use client"
 import { useEffect,useState } from "react"
+import { dfs_xy_conv } from "@/app/utils/positionConverter";
 
 // 종로 3가 좌표
 const SEOUL_CODE = { nx: '60', ny: '127' }
@@ -9,6 +10,9 @@ export default function WeatherWidget() {
     const [weather, setWeather] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+
+    // 디버깅 용 위치정보
+    const [location, setLocation] = useState({lat: null, lng: null, x: null, y: null})
 
     // 날씨 가져오는 함수
     const fetchWeather = async (nx,ny) => {
@@ -37,11 +41,15 @@ export default function WeatherWidget() {
 
             // 이제 블로그 API 주소로 변경됌
             const res = await fetch(`/api/weather?${queryParams.toString()}`)
+            if (!res.ok) throw new Error("❌ API 요청 실패!")
             const data = await res.json()
-
+            console.log(`✅ 가져온 데이터: ${data}`)
             setWeather(data)
         } catch (e) {
-            console.debug(e)
+            console.debug(e);
+            setErrorMsg("날씨 정보를 불러오지 못했습니다.")
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -62,7 +70,25 @@ export default function WeatherWidget() {
             (position) => {
                 // 성공 시, 내 위치로 api 다시 호출
                 const { latitude, longitude } = position.coords;
-            }
-        )
-    }
+
+                // 위/경도 -> 격자(x,y)로 변환
+                const rs = dfs_xy_conv("toXY", latitude, longitude);
+
+                setLocation({ lat: latitude, lng: longitude, x: rs.x, y: rs.y })
+
+                // 변환된 좌표로 날씨 API 호출
+                fetchWeather(rs.x, rs.y);
+            },
+            (error) => {
+                console.error(error);
+                if (error.code === 1) setErrorMsg("위치 정보를 가져올 수 없어서 서울 종로 날씨를 보여드립니다.");
+                else setErrorMsg("위치 정보를 가져올 수 없습니다.")
+            })
+    };
+
+    return (
+        <div className="retro-box p-4 w-full">
+            날씨 박스
+        </div>
+    )
 }
