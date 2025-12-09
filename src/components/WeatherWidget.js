@@ -47,8 +47,8 @@ export default function WeatherWidget() {
             const liveParams = formatDate(kstDate_Live);
             const fcstParams = formatDate(kstDate_Fcst);
 
-            console.log(`실황요청: ${liveParams}`);
-            console.log(`예보욫어: ${fcstParams}`);
+            console.log("실황요청: ", liveParams)
+            console.log("예보요청: ", fcstParams)
 
             const queryParams = new URLSearchParams({
                 baseDate_Live: liveParams.date,
@@ -64,6 +64,8 @@ export default function WeatherWidget() {
             if (!res.ok) throw new Error("❌ API 요청 실패!")
 
             const data = await res.json()
+            console.log("data: ", data);
+            
 
             // 데이터 파싱
             const parsedData = parseWeatherData(data.live, data.fcst);
@@ -169,18 +171,25 @@ function parseWeatherData(liveItems, fcstItems) {
         liveMap[item.category] = Number(item.category);
     });
 
-    // 2. 예보 데이터(SKY만 추출)
-    let skyValue = 1; // 기본 맑음
-    const skyItem = fcstItems.find(item => item.category === 'SKY');
+    // 2. 예보 데이터(SKY,LGT 추출)
+    let skyValue = 1 // 기본 맑음
+    let lgtValue = 0 // 기본 맑음
+    const skyItem = fcstItems.find(item => item.category === 'SKY')
+    const lgtItem = fcstItems.find(items => items.category === 'LGT')
     if (skyItem) {
         skyValue = Number(skyItem.fcstValue);
     }
-
+    if (lgtItem) {
+        lgtValue = Number(lgtItem.fcstValue);
+    }
+    console.log(`skyValue: ${skyValue}, lgtValue: ${lgtValue}`);
+    
     return {
         temperature: liveMap['T1H'], // 실황 기온
         humidity: liveMap['REH'],    // 실황 습도
         wind: liveMap['WSD'],        // 실황 풍속
         PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
-        SKY: skyValue
+        SKY: skyValue,
+        LGT: lgtValue
     }
 }
