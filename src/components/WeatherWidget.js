@@ -20,40 +20,41 @@ export default function WeatherWidget() {
         setErrorMsg("")
         try {
             const now = new Date();
-            // 예보용 kstDate
-            const kstDate_Fcst = new Date(now.getTime() + (9 * 60 * 60 * 1000));
-            // 실황용 kstDate
-            const kstDate_Live = new Date(now.getTime() + (9 * 60 * 60 * 1000));
-            console.log(`현재 시간(한국기준): ${kstDate.toISOString()}`)
+            // 9시간 더하기
+            const kstAbs = now.getTime() + (9 * 60 * 60 * 1000);
 
-            // 55분 이전에 요청할 경우 1시간 이전의 데이터 요청
-            if (kstDate_Fcst.getUTCMinutes() < 50) {
-                kstDate_Fcst.setUTCHours(kstDate_Fcst.getUTCHours() - 1);
+            // 객체 2개 생성
+            const kstDate_Live = new Date(kstAbs); // 실황용
+            const kstDate_Fcst = new Date(kstAbs); // 예보용
+
+            console.log(`현재 시간(KST): ${kstDate_Live.toISOString()}`)
+
+            // 실황은 20분 전
+            if (kstDate_Live.getUTCMinutes() < 20) kstDate_Live.setUTCHours(kstDate_Live.getUTCHours() - 1);
+
+            // 예보는 55분 전
+            if (kstDate_Fcst.getUTCHours() < 55) kstDate_Fcst.setUTCHours(kstDate_Fcst.getUTCHours() - 1);
+
+            // 문자열 변환 함수
+            const formatDate = (date) => {
+                const iso = date.toISOString();
+                return {
+                    date: iso.slice(0, 10).replace(/-/g, ""),
+                    time: iso.slice(11, 16).replace(':',"")
+                }
             }
 
-            // 20분 이전에 요청할 경우 1시간 이전의 데이터 요청
-            if (kstDate_Live.getUTCMinutes() < 20) {
-                kstDate_Live.setUTCHours(kstDate_Live.getUTCHours() - 1);
-            }
+            const liveParams = formatDate(kstDate_Live);
+            const fcstParams = formatDate(kstDate_Fcst);
 
-            // 예보용
-            const isoString = kstDate_Fcst.toISOString()
-            const baseDate_Fcst = isoString.slice(0,10).replace(/-/g, "") // 20251201
-            const baseTime_Fcst = isoString.slice(11,16).replace(':',"").padStart(2,'0')
-
-            // 실황용
-            const isoString_S = kstDate_S.toISOString()
-            const baseDate_Live = isoString_S.slice(0,10).replace(/-/g, "")
-            const baseTime_Live = isoString_S.slice(11,16).replace(':',"").padStart(2,'0')
-
-            console.log(`예보 최종 요청 일시: ${baseDate_Fcst}, ${baseTime_Fcst}`);
-            console.log(`실황 최종 요청 일시: ${baseDate_Live}, ${baseTime_Live}`)
+            console.log(`실황요청: ${liveParams}`);
+            console.log(`예보욫어: ${fcstParams}`);
 
             const queryParams = new URLSearchParams({
-                baseDate_Live: baseDate_Live,
-                baseTime_Live: baseTime_Live,
-                baseDate_Fcst: baseDate_Fcst,
-                baseTime_Fcst: baseTime_Fcst,
+                baseDate_Live: liveParams.date,
+                baseTime_Live: liveParams.time,
+                baseDate_Fcst: fcstParams.date,
+                baseTime_Fcst: fcstParams.time,
                 nx: nx,
                 ny: ny
             });
@@ -61,9 +62,12 @@ export default function WeatherWidget() {
             // 이제 블로그 API 주소로 변경됌
             const res = await fetch(`/api/weather?${queryParams.toString()}`)
             if (!res.ok) throw new Error("❌ API 요청 실패!")
+
             const data = await res.json()
-            // console.log(`✅ 가져온 데이터: ${data}`)
-            const parsedData = getWeather(data)
+
+            // 데이터 파싱
+            const parsedData = parseWeatherData(data.live, data.fcst);
+
             // 날씨 아이콘 정하기
 
             setWeather(parsedData)
@@ -158,24 +162,25 @@ export default function WeatherWidget() {
 }
 
 // data를 기반으로 날씨를 판별하는 함수
-function getWeather(data) {
-    const item = data.response?.body?.items?.item;
-    console.log("item 확인: ", item)
-    if (!item) throw new Error("날씨 데이터 조회 결과 없음")
-    // 정석적인 상황이라면, 0 = PTY(날씨 타입), 1 = REH(습도)
-    // 3 = T1H(기온), 7 = WSD(풍속)
-
-    const weatherMap = {};
-    item.forEach(i => {
-        // 각 정보가 6개씩 전달되며, 최신 ~ + 6까지 6개가 도착하므로 +1 정보 아니면 전부 패스
-        if (weatherMap[i.category]) {
-            continue
-        }
-        weatherMap[i.category] = i.fcstValue;
+function parseWeatherData(liveItems, fcstItems) {
+    // 1. 실황 데이터
+    const liveMap = {}
+    liveItems.forEach(item => {
+        liveMap[item.category] = Number(item.category);
     });
 
+    // 2. 예보 데이터(SKY만 추출)
+    let skyValue = 1; // 기본 맑음
+    const skyItem = fcstItems.find(item => item.category === 'SKY');
+    if (skyItem) {
+        skyValue = Number(skyItem.fcstValue);
+    }
+
     return {
-        POP: parseInt(weatherMap['POP'] || 0), // POP
-        PTY: parseInt(weatherMap['PTY'] || 0) // PTY
+        temperature: liveMap['T1H'], // 실황 기온
+        humidity: liveMap['REH'],    // 실황 습도
+        wind: liveMap['WSD'],        // 실황 풍속
+        PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
+        SKY: skyValue
     }
 }
