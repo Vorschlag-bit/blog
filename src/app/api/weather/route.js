@@ -43,13 +43,55 @@ export async function GET(request) {
         if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00')
             return NextResponse.json({ error: '기상청 API 오류' }, { status: 500 })
 
-        return NextResponse.json({
-            live: liveData.response.body.items.item,
-            fcst: fcstData.response.body.items.item,
-            srt: srtData.response.body.items.item
-        });
+        const parsedData = parseWeatherData(
+            liveData.response.body.items.item,
+            fcstData.response.body.items.item,
+            srtData.response.body.items.item,
+            baseDate_Srt
+        )
+
+        return NextResponse.json(parsedData)
     } catch (e) {
         console.debug(e)
         return NextResponse.json({ error: '❌ Failed to fetch weather data' }, { status: 500 })
     }
+}
+
+// data를 기반으로 날씨를 판별하는 함수
+function parseWeatherData(liveItems, fcstItems, srtItems, baseDate) {
+    // 1. 실황 데이터
+    const liveMap = {}
+    liveItems.forEach(item => {
+        liveMap[item.category] = Number(item.obsrValue);
+    });
+
+    // 2. 예보 데이터(SKY,LGT 추출)
+    const fcstMap = {}
+    // 예보 데이터에서 가장 빠른 시간대만 추출
+    fcstItems.forEach((item) => {
+        // 이미 있다면 pass
+        if (!fcstMap[item.category]) fcstMap[item.category] = Number(item.fcstValue);
+    })
+
+    // 3. 단기 예보 데이터(TMX(최고), TMN(최저))
+    let tmxValue = 0
+    let tmnValue = 0
+    srtItems.forEach((item) => {
+        // 오늘 날짜만 확인
+        if (item.fcstDate === baseDate) {
+            if (item.category === 'TMX') tmxValue = Number(item.fcstValue);
+            if (item.category === 'TMN') tmnValue = Number(item.fcstValue);
+        }
+    })
+
+    return {
+        temperature: liveMap['T1H'].toFixed(1), // 실황 기온
+        tmx: tmxValue.toFixed(1),               // 최고 기온
+        tmn: tmnValue.toFixed(1),               // 최저 기온
+        humidity: liveMap['REH'],    // 실황 습도
+        wind: liveMap['WSD'],        // 실황 풍속
+        PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
+        SKY: fcstMap['SKY'],         // 예보 하늘 상태
+        LGT: fcstMap['LGT'] > 0      // 예보 낙뢰 여부
+    };
 }

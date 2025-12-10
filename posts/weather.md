@@ -108,6 +108,40 @@ const baseTime = kstDate.toISOString().slice(11, 13) + "00";
 
 </details>
 
+<details>
+<summary>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
+<span className="text-red-400">트러블 슈팅</span>
+</summary>
+
+API 로직을 구현하던 중 문제가 발생했다.  
+가장 중요한 **서비스 키**를 하드코딩으로 사용할 생각은 없었다. 환경변수로서 관리해서 동적으로 넣는 걸 생각했는데,
+이 방식을 어떻게 해야할지 고민했다. 예전에 **Github Actions**를 활용해서 배포를 했을 때에는 github secrets를 사용해서
+환경 변수들을 관리했었는데, 현재는 Vercel을 배포로 사용하니까 Vercel에 환경변수를 등록해두었다.(Setting -> Env Variables)
+
+또한 `WeatherWidget`과 같은 클라이언트 컴포넌트에서는 보안상의 이유로 **서버의 환경변수에 절대 접근 불가**하다.
+만약 가능하다면 웹사이트에 접속만 해도 DB 비밀번호를 알아낼 수 있다는 의미가 될 테니까!
+따라서 Next.js에서는 실수로 비밀키가 브라우저로 유출되는 걸 막기 위해서 `.env`에 적힌 변수들을 **기본적으로 서버에서만 읽을 수 있게 한다**.
+(어찌보면 당연하다, 환경변수는 '컴퓨터'의 환경변수이니까) 따라서 내가 Vercel을 통해 서버에 환경변수를 등록해두더라도 브라우저는 이 값을
+`undefined`로 처리해버린다.
+
+물론 client에서 읽을 수 있는 환경변수도 존재한다. `NEXT_PUBLIC_`이라는 접두사를 붙인 환경변수는 브라우저에서도 읽을 수 있다.  
+하지만 public이라고 적힌 것처럼 사실상 이 변수는 **하드 코딩**해도 될 만큼 중요하지 않은 변수라는 의미를 갖기 때문에 대부분의 환경변수에서
+사용할 수 없을 것이다.
+
+비록 내 API key는 그렇게 중요한 정보는 아니지만, 그렇다고 노출시켜도 될 정보는 절대 아니므로 개발자 도구의 네트워크를 통해서 누군가가 쉽게 알아내지
+못 하도록 처리를 했어야 했다.
+
+이 문제를 해결하기 위해서 **Next.js App Router**가 제공하는 **Route Handler**를 도입했다. 쉽게 말하면, <strong>프론트엔드와 외부 API 사이에 중계 서버(Proxy)</strong>를 하나 두는 셈이다.
+
+> 기존 (Client-Side Fetching): Browser -> 기상청 API (Key 노출 🚨)
+> 변경 후 (Server-Side Proxy): Browser -> Next.js API Route (Key 없음) -> 기상청 API (Key 포함 🔒)
+
+이 방법을 사용함으로써 
+
+</details>
+
+
 이렇게 대강 정보를 받고난 다음 날씨 모양을 어떻게 줄까 고민하다가 유명한 <a href="https://basmilius.github.io/weather-icons/index-line.html" style="color: #2f9e44; text-decoration: none;">
   무료 날씨 애니메이션
 </a> github가 존재하길래 여기로 결정했다. 그런데 아이콘들을 보니까 매우 다양한 상황의 날씨 정보를 제공해주는 것이 아닌가!
@@ -194,7 +228,41 @@ export default function getWeatherIcon(pty, sky, lgt, isNight) {
 > **빈칸**: 데이터 제공되지 않음
 > 새벽 **02시** 발표 자료만이 **오늘의 최저기온**을 포함.
 
+로직은 제법 간단했다. 현재 시각이 02:15 이전일 경우 이전 날의 23시의 정보를 최고/최저 기온을 조회해오면 된다.
+정보 제공은 02:00부터지만 안전하게 15분의 텀을 두었다.  
+**단기, 초단기, 실황 시간 계산 로직**
+```javascript
+const now = new Date();
+// 9시간 더하기
+const kstAbs = now.getTime() + (9 * 60 * 60 * 1000);
 
+// 객체 3개 생성
+const kstDate_Live = new Date(kstAbs); // 실황용
+const kstDate_Fcst = new Date(kstAbs); // 예보용
+const kstDate_Srt = new Date(kstAbs);  // 단기 예보용
+const currentHour = kstDate_Srt.getUTCHours();
+const currentMin = kstDate_Srt.getUTCMinutes();
+
+// 실황은 20분 전
+if (kstDate_Live.getUTCMinutes() < 20) kstDate_Live.setUTCHours(kstDate_Live.getUTCHours() - 1);
+
+// 예보는 55분 전
+if (kstDate_Fcst.getUTCHours() < 55) kstDate_Fcst.setUTCHours(kstDate_Fcst.getUTCHours() - 1);
+
+// 단기예보는 02:15분 이전이면 이전날 23:00의 데이터를 사용
+if (currentHour < 2 || (currentHour === 2 && currentMin < 15)) {
+    kstDate_Srt.setUTCDate(kstDate_Srt.getUTCDate() - 1); // 하루전
+    kstDate_Srt.setUTCHours(23);
+    kstDate_Srt.setUTCMinutes(0);
+} else {
+    // 아니라면 새벽 2시 고정
+    kstDate_Srt.setUTCHours(2);
+    kstDate_Srt.setUTCMinutes(0);
+}
+```
+
+**임시로 완성된 UI ver2**
+!["임시로 완성된 날씨 UI 두 번째 버젼"](/images/weather_t2.png)
 
 여기서 고민이 생겼다.  
 - **1. 새로 들어오는 사람마다 fetch를 통해 실시간 정보를 보여준다.**
