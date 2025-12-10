@@ -80,12 +80,15 @@ export default function WeatherWidget() {
 
             // 이제 블로그 API 주소로 변경됌
             const res = await fetch(`/api/weather?${queryParams.toString()}`)
-            if (!res.ok) throw new Error("❌ API 요청 실패!")
+            if (!res.ok) {
+                const errorData = await res.json()
+                throw new Error("기상청 API 요청 실패!" || errorData.error)
+            }
 
             const data = await res.json()        
 
             // 데이터 파싱
-            console.log("parsedDate: ", data);
+            // console.log("parsedDate: ", data);
 
             setWeather({
                 ...data,

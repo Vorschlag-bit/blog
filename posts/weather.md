@@ -6,7 +6,7 @@ description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보�
 ---
 
 ## 공공기관 API를 활용한 날씨/미세먼지 UI 만들기
-### 1. 설계하기
+### 1. 날씨 어플 기능 설계하기
 먼저 공공기관 API에서 항상 최상위권으로 사용되는 <strong>기상청_단기예보 조회서비스</strong> API를 활용해서 날씨를 보여줄 생각이었다.
 내가 원하는 기능은 **현재 날씨에 대한 조회**이므로 조회서비스가 제공하는 4가지 API 중 **초단기 실황조회** API를 사용할 예정이었다.
 
@@ -65,10 +65,35 @@ description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보�
 **강수형태**는 **초단기 기준** 없음(0), 비(1), 비/눈(2), 눈(3), 빗방울(5), 빗방울눈날림(6), 눈날림(7)이였다.  
 친절하게도 공식문서에서 강수량 범주 및 표시 방법까지 제시해줬다.
 
-<strong>초단기 실황조회</strong>는 <span style="color: red">매시간 정시에 생성되고, 10분마다 최신 정보로 업데이트</span>되므로 hh:10마다 뭔가 업데이트를
-해야할 부분을 자동 수행하는 로직이 필요할 수도 있겠다.
+<strong>초단기 실황조회</strong>는 <span style="color: red">매시간 정시에 생성되고, 10분마다 최신 정보로 업데이트</span>되므로 hh:10마다 뭔가 업데이트를 해야할 부분을 자동 수행하는 로직이 필요하다.
 
-그렇게 순탄하게 기획이 되어가던 중에 문제가 발생했다.  
+#### 설계 전체 흐름도
+1.  **Client (브라우저):**
+    *   `navigator.geolocation.getCurrentPosition()`을 사용해 사용자의 정확한 <strong>위도(Lat), 경도(Lon)</strong>를 얻기. (사용자 동의 필요)
+    *   이 좌표를 서버 API (`/api/weather?lat=...&lon=...`)로 보낸다.
+2.  **Server (Next.js Route Handler):**
+    *   받은 위도/경도를 기상청 격자 좌표 **(nx, ny)로 변환**. (변환 공식 함수 필요)
+    *   **Redis 조회:** Key `weather:${nx}:${ny}`가 존재하는지 확인.
+        *   **Hit:** 저장된 날씨 데이터를 바로 `return`.
+        *   **Miss:** 기상청 API를 요청 -> 결과를 Redis에 저장(TTL 1시간) -> `return`.
+3.  **Client (UI):**
+    *   받은 데이터를 예쁘게 보여주기.
+
+사용자의 정확한 위치를 얻기 위해선 브라우저 내에서 자체적으로 사용자 위치 수집 여부를 묻게 될 텐데, 화면을 보여줄 때 바로 요청을 하는 것보단
+기본적으로 **서울 종로**의 위치를 기반으로 날씨를 보여주다가 **내 위치 찾기**와 같은 버튼을 따로 만들어서 권한을 획득하는 게 UX적으로 훨씬
+좋을 거 같아서 이런 방식을 적용하기로 했다!
+
+따라서 내가 준비할 UI는 크게 3가지로 구분할 수 있었다.
+- 1. <strong>기본 상태(Default)</strong>
+    - 사용자가 아직 허용/거부를 누르기 전, 혹은 거부를 눌렀을 때 보여줄 <strong>기본 지역 날씨(서울 종로)</strong>.
+- 2. <strong>로딩 상태(Loading)</strong>
+    - 사용자가 내 위치 찾기 버튼을 눌러서 GPS 좌표를 따고 서버 API를 갖다 오는 동안 보여줄 로딩 화면.
+- 3. <strong>에러/거부 상태(Error)</strong>
+    - 사용자가 '차단'을 누르거나, 위치 정보를 불러올 수 없을 경우 보여줄 작은 안내 문구 or 기본 화면으로 보여주기.
+
+
+### 2. 날씨 어플 기능 구현하기
+순탄하게 개발이 되어가던 중에 문제가 발생했다.  
 초단기 실황조회는 <strong>하늘 상태(SKY)</strong>에 대한 정보를 제공하지 않는다는 것이다.  
 단순히 강수형태만 제공하기 때문에 **맑음**과 **흐림**을 구분할 수가 없었다. 이는 날씨 제공 UI에 있어서 상당히 치명적이라고 생각했다.
 
@@ -78,7 +103,7 @@ description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보�
 <details>
 <summary>
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
-<span className="text-red-400">트러블 슈팅</span>
+<span className="text-red-400">트러블 슈팅(서버 시간 계산 문제)</span>
 </summary>
 
 **문제 상황**  
@@ -111,7 +136,7 @@ const baseTime = kstDate.toISOString().slice(11, 13) + "00";
 <details>
 <summary>
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
-<span className="text-red-400">트러블 슈팅</span>
+<span className="text-red-400">트러블 슈팅(클라이언트 사이드 환경 변수)</span>
 </summary>
 
 API 로직을 구현하던 중 문제가 발생했다.  
@@ -137,7 +162,23 @@ API 로직을 구현하던 중 문제가 발생했다.
 > 기존 (Client-Side Fetching): Browser -> 기상청 API (Key 노출 🚨)
 > 변경 후 (Server-Side Proxy): Browser -> Next.js API Route (Key 없음) -> 기상청 API (Key 포함 🔒)
 
-이 방법을 사용함으로써 
+이 방법을 사용함으로써 3가지 이점을 얻을 수 있었다.
+
+① 완벽한 환경변수 은닉
+Next.js의 API Route는 **Node.js 서버 환경**에서 실행된다.
+이곳에서는 `NEXT_PUBLIC_` 접두사가 없는, **서버 전용 환경변수**(`process.env.WEATHER_API_KEY`)에 접근할 수 있다.
+브라우저는 우리 서버(`/api/weather`)로 요청을 보낼 때 인증 키를 알 필요가 없다. 서버가 내부적으로 키를 붙여서 기상청에 다녀오기 때문이다.
+
+② Mixed Content (HTTP/HTTPS) 문제 해결
+공공기관 API 중 상당수가 아직 `http` 프로토콜을 사용한다.
+Vercel에 배포된 내 블로그는 `https`로 운영중이다.
+브라우저 보안 정책상, `https` 사이트에서 `http` 요청을 보내면 **Mixed Content** 에러가 발생하며 요청이 차단된다.
+**Server-to-Server 통신**은 이 제약에서 자유롭다. Next.js 서버가 대신 `http`로 데이터를 받아와주므로 배포 후에도 에러가 발생하지 않는다!
+
+③ 클라이언트 로직 단순화
+복잡한 URL 파라미터 조합, 데이터 가공(Parsing) 로직을 서버로 옮김으로써 클라이언트 코드가 훨씬 깔끔해졌다.
+**클라이언트:** "날씨 줘." (`fetch('/api/weather')`)
+**서버:** (시간 계산, 좌표 변환, 키 조합, 데이터 파싱) -> "여기 있어."
 
 </details>
 
@@ -184,7 +225,7 @@ export default function getWeatherIcon(pty, sky, lgt, isNight) {
 }
 ```
 아이콘 이름을 각 경우에 맞게 `return`하도록 설정했고, 낮/밤은 prefix로 결정하였다.  
-#### 대강 완성된 UI 모습
+#### 임시로 완성된 UI ver1
 !["대강 완성된 날씨 UI 버전1"](/images/weather_t1.png)
 
 만들면서 많은 수정 작업들이 있었다. 처음에는 아이콘과 기온표시를 가로로 한 열에 배치하고 싶었으나, 너비가 너무 넓어져서 기존의 레이아웃이
@@ -261,10 +302,47 @@ if (currentHour < 2 || (currentHour === 2 && currentMin < 15)) {
 }
 ```
 
-**임시로 완성된 UI ver2**
+`route.js`에서 데이터를 `fetch()`로 받아오는 것도 `Promise.all()`을 사용해서 동시에 병렬적으로 통신하도록 수정했다.
+```javascript
+try {
+    // Promise.all로 두 요청을 동시에 보냄(병렬)
+    const [resLive, resFcst, resSrt] = await Promise.all([
+        fetch(url_live),
+        fetch(url_fcst),
+        fetch(url_srt)
+    ]);
+
+    const liveData = await resLive.json();
+    const fcstData = await resFcst.json();
+    const srtData = await resSrt.json();
+
+    // 둘 중 하나라도 실패하면 오류
+    if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00')
+        return NextResponse.json({ error: '기상청 API 오류' }, { status: 500 })
+
+    const parsedData = parseWeatherData(
+        liveData.response.body.items.item,
+        fcstData.response.body.items.item,
+        srtData.response.body.items.item,
+        baseDate_Srt
+    )
+
+    return NextResponse.json(parsedData)
+} catch (e) {
+    // error 처리로직
+}
+```
+
+#### 임시로 완성된 UI ver2
 !["임시로 완성된 날씨 UI 두 번째 버젼"](/images/weather_t2.png)
 
-여기서 고민이 생겼다.  
+이렇게해도 뭔가 아쉽다..! 내 위치를 누르면 단순하게 '내 위치'만 사용하는데 사실 네이버처럼 **시군구 읍명동**까지 보여주면 좋겠다는 생각이 들었다.
+사실 이전에 동네 커뮤니티 서버를 구현하면서 **위/경도**를 바탕으로 행정동 구역을 알려주는 API가 있는 걸 알고 있고, 신청까지 했어서 더 마음이 쓰였다.
+기왕 API 요청을 연습하는 겸 이것도 넣으면 재밌을 거 같아서 갖다 붙여넣어보기로 결심했다!  
+
+### 3. 데이터 캐싱 설계하기
+
+이젠 데이터 캐싱을 고민할 차례였다. 크게 2가지 방법으로 정리할 수 있었다.  
 - **1. 새로 들어오는 사람마다 fetch를 통해 실시간 정보를 보여준다.**
     - 내 블로그에는 하루에 1만명이 들어올리가 없었다. 새로고침 횟수를 고려하더라도, 큰 문제는 없을 지도 모른다.
 - **2. 상태 저장과 redis를 통한 캐시를 적극 활용한다.**
@@ -290,28 +368,4 @@ AI로부터 받은 피드백은 아주 훌륭했다.
 라우터의 위치가 될 것이었다.
 
 따라서 동단위의 정확도와 성능(캐싱)을 모두 잡기 위해선 **클라이언트의 GPS** **서버 캐싱**을 잘 설계할 필요가 있었다.
-
-#### 설계 전체 흐름도
-1.  **Client (브라우저):**
-    *   `navigator.geolocation.getCurrentPosition()`을 사용해 사용자의 정확한 <strong>위도(Lat), 경도(Lon)</strong>를 얻기. (사용자 동의 필요)
-    *   이 좌표를 서버 API (`/api/weather?lat=...&lon=...`)로 보낸다.
-2.  **Server (Next.js Route Handler):**
-    *   받은 위도/경도를 기상청 격자 좌표 **(nx, ny)로 변환**. (변환 공식 함수 필요)
-    *   **Redis 조회:** Key `weather:${nx}:${ny}`가 존재하는지 확인.
-        *   **Hit:** 저장된 날씨 데이터를 바로 `return`.
-        *   **Miss:** 기상청 API를 요청 -> 결과를 Redis에 저장(TTL 1시간) -> `return`.
-3.  **Client (UI):**
-    *   받은 데이터를 예쁘게 보여주기.
-
-사용자의 정확한 위치를 얻기 위해선 브라우저 내에서 자체적으로 사용자 위치 수집 여부를 묻게 될 텐데, 화면을 보여줄 때 바로 요청을 하는 것보단
-기본적으로 **서울 종로**의 위치를 기반으로 날씨를 보여주다가 **내 위치 찾기**와 같은 버튼을 따로 만들어서 권한을 획득하는 게 UX적으로 훨씬
-좋을 거 같아서 이런 방식을 적용하기로 했다!
-
-따라서 내가 준비할 UI는 크게 3가지로 구분할 수 있었다.
-- 1. <strong>기본 상태(Default)</strong>
-    - 사용자가 아직 허용/거부를 누르기 전, 혹은 거부를 눌렀을 때 보여줄 <strong>기본 지역 날씨(서울 종로)</strong>.
-- 2. <strong>로딩 상태(Loading)</strong>
-    - 사용자가 내 위치 찾기 버튼을 눌러서 GPS 좌표를 따고 서버 API를 갖다 오는 동안 보여줄 로딩 화면.
-- 3. <strong>에러/거부 상태(Error)</strong>
-    - 사용자가 '차단'을 누르거나, 위치 정보를 불러올 수 없을 경우 보여줄 작은 안내 문구 or 기본 화면으로 보여주기.
 
