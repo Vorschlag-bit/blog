@@ -485,5 +485,24 @@ const handleMyLocation = () => {
     - 정석적인 개발의 의미라면 이 방식이 무조건 맞다고 생각한다. 다만 이렇게될 경우 cache에 있는 $$x,y$$좌표들을 기반으로
     fetch를 통해 <strong>최신화(lazy Loading)</strong>를 거쳐야 했었다.
 
+2번 방식을 선택하되, 캐싱을 저장할 곳을 어찌할지도 문제였다.  
+Vercel에서는 다양한 storage들을 제공해준다. 특히 <strong>upStash</strong>가 적당히 빠른 속도와 무료 티어에선
+<strong>월 50만의 cmd</strong>라는 양이 있어서 매력적인 선택이 될 수 있겠지만, 이후에 내가 만들 기능에게 양보하고 싶었다.
 
+따라서 나는 **Next.js**의 자체 캐시 기능을 사용하기로 했다. Next.js는 `fetch()` 자체에 캐싱 기능을 내장시키고 있다.  
+Vercel의 Data Cache를 무료로 사용한다고 생각하면 될 거 같다.
 
+심지어 방법도 너무나 간단하다. `fetch()` 옵션에 `next: { revalidate: sec }`를 넣어주기만 하면 된다!  
+먼저 기상 API에 15분 정도 캐싱을 해봤다.
+```javascript
+try {
+    const [resLive, resFcst, resSrt] = await Promise.all([
+        // 15min(= 900s) 캐싱 해두기
+        fetch(url_live, { next: { revalidate: 900 } }),
+        fetch(url_fcst, { next: { revalidate: 900 } }),
+        fetch(url_srt, { next: { revalidate: 900 } })
+    ]);
+}
+```
+
+이후에 `console.log()`를 통해서 `GET()` 함수가 정말로 15분만 찍히는지 확인해보면 된다.

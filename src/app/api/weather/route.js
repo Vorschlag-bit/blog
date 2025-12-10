@@ -30,9 +30,9 @@ export async function GET(request) {
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
         const [resLive, resFcst, resSrt] = await Promise.all([
-            fetch(url_live),
-            fetch(url_fcst),
-            fetch(url_srt)
+            fetch(url_live, { next: { revalidate: 900 } }),
+            fetch(url_fcst, { next: { revalidate: 900 } }),
+            fetch(url_srt, { next: { revalidate: 900 } })
         ]);
 
         const liveData = await resLive.json();
