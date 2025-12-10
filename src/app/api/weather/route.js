@@ -8,6 +8,8 @@ export async function GET(request) {
     const baseTime_Fcst = searchParams.get('baseTime_Fcst')
     const baseDate_Live = searchParams.get('baseDate_Live')
     const baseTime_Live = searchParams.get('baseTime_Live')
+    const baseDate_Srt = searchParams.get('baseDate_Srt')
+    const baseTime_Srt = searchParams.get('baseTime_Srt')
     const nx = searchParams.get('nx')
     const ny = searchParams.get('ny')
 
@@ -21,25 +23,30 @@ export async function GET(request) {
     const url_fcst = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${SERVICE_KEY}&pageNo=1&numOfRows=100&dataType=JSON&base_date=${baseDate_Fcst}&base_time=${baseTime_Fcst}&nx=${nx}&ny=${ny}`;
 
     // 3. 단기 예보 URL
-    const url_srt = ''
+    const url_srt = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${SERVICE_KEY}&pageNo=1&numOfRows=200&dataType=JSON&base_date=${baseDate_Srt}&base_time=${baseTime_Srt}&nx=${nx}&ny=${ny}`;
+    // console.log(`단기 예보 URL: ${url_srt}`);
+    
 
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
-        const [resLive, resFcst] = await Promise.all([
+        const [resLive, resFcst, resSrt] = await Promise.all([
             fetch(url_live),
-            fetch(url_fcst)
+            fetch(url_fcst),
+            fetch(url_srt)
         ]);
 
         const liveData = await resLive.json();
         const fcstData = await resFcst.json();
+        const srtData = await resSrt.json();
 
         // 둘 중 하나라도 실패하면 오류
-        if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00')
+        if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00')
             return NextResponse.json({ error: '기상청 API 오류' }, { status: 500 })
 
         return NextResponse.json({
             live: liveData.response.body.items.item,
-            fcst: fcstData.response.body.items.item
+            fcst: fcstData.response.body.items.item,
+            srt: srtData.response.body.items.item
         });
     } catch (e) {
         console.debug(e)

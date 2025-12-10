@@ -85,7 +85,7 @@ export default function WeatherWidget() {
             const data = await res.json()        
 
             // 데이터 파싱
-            const parsedData = parseWeatherData(data.live, data.fcst);
+            const parsedData = parseWeatherData(data.live, data.fcst, data.srt, srtParams.date);
             console.log("parsedDate: ", parsedData);
             
 
@@ -166,7 +166,7 @@ export default function WeatherWidget() {
                                 lgt={weather.LGT}
                             />
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-7">
                             <div className="flex-col">
                                 <div className="text-4xl font-[Galmuri9] mb-2 tracking-tighter min-w-[5rem]">
                                     {weather.temperature}℃
@@ -175,7 +175,18 @@ export default function WeatherWidget() {
                                     {weather.locationName} {/* 예: 서울특별시 중구 */}
                                 </div>
                             </div>
-                            <div className="flex items-start">
+                            <div className="flex flex-col items-start">
+                                {/** 최고 */}
+                                <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
+                                    <span className="text-red-500 font-bold mr-1">최고</span>
+                                    {weather.tmx}℃
+                                </div>
+                                {/** 최저 */}
+                                <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
+                                    <span className="text-blue-500 font-bold mr-1">최저</span>
+                                    {weather.tmn}℃
+                                </div>
+                                {/** 습도 */}
                                 <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
                                     <span className="text-blue-400 font-bold mr-1">습도</span>
                                     {weather.humidity} %
@@ -202,7 +213,7 @@ export default function WeatherWidget() {
 }
 
 // data를 기반으로 날씨를 판별하는 함수
-function parseWeatherData(liveItems, fcstItems) {
+function parseWeatherData(liveItems, fcstItems, srtItems, baseDate) {
     // 1. 실황 데이터
     const liveMap = {}
     liveItems.forEach(item => {
@@ -216,9 +227,22 @@ function parseWeatherData(liveItems, fcstItems) {
         // 이미 있다면 pass
         if (!fcstMap[item.category]) fcstMap[item.category] = Number(item.fcstValue);
     })
-    
+
+    // 3. 단기 예보 데이터(TMX(최고), TMN(최저))
+    let tmxValue = 0
+    let tmnValue = 0
+    srtItems.forEach((item) => {
+        // 오늘 날짜만 확인
+        if (item.fcstDate === baseDate) {
+            if (item.category === 'TMX') tmxValue = Number(item.fcstValue);
+            if (item.category === 'TMN') tmnValue = Number(item.fcstValue);
+        }
+    })
+
     return {
         temperature: liveMap['T1H'].toFixed(1), // 실황 기온
+        tmx: tmxValue.toFixed(1),               // 최고 기온
+        tmn: tmnValue.toFixed(1),               // 최저 기온
         humidity: liveMap['REH'],    // 실황 습도
         wind: liveMap['WSD'],        // 실황 풍속
         PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
