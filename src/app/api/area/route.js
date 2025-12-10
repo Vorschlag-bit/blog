@@ -5,6 +5,11 @@ export async function GET(request) {
     const lng = searchParams.get('lng')
     const lat = searchParams.get('lat')
 
+    if (!lng || !lat) {
+        console.error("좌표 누락: lng/lat이 없습니다.");
+        return NextResponse.json({ error: '좌표값 누락' }, { status: 400 });
+    }
+
     const SERVICE_KEY = process.env.VWORLD_API_KEY.trim();
     const url = new URL("https://api.vworld.kr/req/address")
     url.searchParams.append("service", "address")
