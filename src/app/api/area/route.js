@@ -5,7 +5,7 @@ export async function GET(request) {
     const lng = searchParams.get('lng')
     const lat = searchParams.get('lat')
 
-    const SERVICE_KEY = process.env.VWORLD_API_KEY;
+    const SERVICE_KEY = process.env.VWORLD_API_KEY.trim();
     const url = new URL("https://api.vworld.kr/req/address")
     url.searchParams.append("service", "address")
     url.searchParams.append("request", "getAddress")
@@ -23,10 +23,28 @@ export async function GET(request) {
     try {
         const res = await fetch(url, { next: { revalidate: 600 } });
 
-        const data = await res.json();
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error(`브이월드 위치 정보 API Error (${res.status}):`, errorText);
+            throw new Error("위치 정보 API 요청 실패")
+        }
 
-        if (data.response?.status !== "OK")
-            return NextResponse.json({ error: '장소 조회 API 에러' }, { status: 404 })
+        // 마찬가지로 text -> json으로 수정
+        const text = await res.text();
+        let data;
+
+        try {
+            // 안전한 파싱
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("VWORLD 파싱 에러 원본: ", text)
+            throw new Error("위치 조회 API 응답 형식 오류(Not Json)")
+        }
+
+        if (data.response?.status !== "OK") {
+            console.error("위치 정보 API status != OK", data.response?.status)
+            return NextResponse.json({ error: '장소 조회 실패' }, { status: 404 })
+        }
 
         const addr = parseAreaData(data)
 
