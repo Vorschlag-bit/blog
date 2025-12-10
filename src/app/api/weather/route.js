@@ -13,19 +13,50 @@ export async function GET(request) {
     const nx = searchParams.get('nx')
     const ny = searchParams.get('ny')
 
-    const SERVICE_KEY = process.env.WEATHER_API_KEY; // 서버에서만 접근 가능한 환경 변수(디코딩 키)
+    const SERVICE_KEY = process.env.WEATHER_API_KEY?.trim(); // 서버에서만 접근 가능한 환경 변수(디코딩 키)
     if (!SERVICE_KEY) return NextResponse.json({ error: 'API KEY 없음!' }, {status: 500})
-    const encodedKey = encodeURIComponent(SERVICE_KEY.trim());
+
+    const makeUrl = (baseUrl, baseDate, baseTime, rows) => {
+        const url = new URL(baseUrl);
+
+        // searchParams.append로 조합하기
+        url.searchParams.append("serviceKey", SERVICE_KEY)
+        url.searchParams.append("pageNo", "1")
+        url.searchParams.append("numOfRows", rows.toString())
+        url.searchParams.append("dataType", "JSON")
+        url.searchParams.append("base_date", baseDate)
+        url.searchParams.append("base_time", baseTime)
+        url.searchParams.append("nx", nx)
+        url.searchParams.append("ny", ny)
+
+        return url.toString()
+    };
 
     // 1. 초단기 실황 URL
-    const url_live = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${encodedKey}&pageNo=1&numOfRows=12&dataType=JSON&base_date=${baseDate_Live}&base_time=${baseTime_Live}&nx=${nx}&ny=${ny}`;
-    console.log(`url_live입니다: ${url_live}`)
+    const url_live = makeUrl(
+        "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst",
+        baseDate_Live,
+        baseTime_Live,
+        12
+    )
+    console.log(`초단기 실황 URL: ${url_live}`)
 
     // 2. 초단기 예보 URL
-    const url_fcst = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${encodedKey}&pageNo=1&numOfRows=100&dataType=JSON&base_date=${baseDate_Fcst}&base_time=${baseTime_Fcst}&nx=${nx}&ny=${ny}`;
+    const url_fcst = makeUrl(
+        "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst",
+        baseDate_Fcst,
+        baseTime_Fcst,
+        100
+    )
+    console.log(`초단기 예보 URL: ${url_fcst}`)
 
     // 3. 단기 예보 URL
-    const url_srt = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${encodedKey}&pageNo=1&numOfRows=200&dataType=JSON&base_date=${baseDate_Srt}&base_time=${baseTime_Srt}&nx=${nx}&ny=${ny}`;
+    const url_srt = makeUrl(
+        "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst",
+        baseDate_Srt,
+        baseTime_Srt,
+        200
+    )
     console.log(`단기 예보 URL: ${url_srt}`);
 
     try {
@@ -44,7 +75,6 @@ export async function GET(request) {
             }
             return res.json
         }
-        
 
         const liveData = await errorCheck(resLive, "초단기실황");
         const fcstData = await errorCheck(resFcst, "초단기예보");
