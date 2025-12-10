@@ -2,7 +2,6 @@
 import { useEffect,useState } from "react"
 import { dfs_xy_conv } from "@/app/utils/positionConverter";
 import WeatherIcon from "./WeatherIcon";
-import Image from "next/image";
 
 // 종로 3가 좌표
 const SEOUL_CODE = { nx: '60', ny: '127' }
@@ -17,7 +16,7 @@ export default function WeatherWidget() {
     const [location, setLocation] = useState({lat: null, lng: null, x: null, y: null})
 
     // 날씨 가져오는 함수
-    const fetchWeather = async (nx,ny, locationName = "서울 종로구") => {
+    const fetchWeather = async (nx,ny, locationName = "종로구 송월동") => {
         setLoading(true)
         setErrorMsg("")
         try {
@@ -104,7 +103,7 @@ export default function WeatherWidget() {
 
     // 1. 처음엔 반드시 서울(종로)날씨 로딩
     useEffect(() => {
-        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny, "서울 종로구")
+        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny, "종로구 종로")
     },[])
 
     // 2. '내 위치 찾기' 버튼 핸들러
@@ -114,13 +113,34 @@ export default function WeatherWidget() {
             return;
         }
 
+        // 로딩 시작
+        setLoading(true);
+
         // 브라우저 내장 팝업 트리거
         navigator.geolocation.getCurrentPosition(
-            (position) => {
+            async (position) => {
                 // 성공 시, 내 위치로 api 다시 호출
                 const { latitude, longitude } = position.coords;
-                // console.log(`경도: ${longitude}, 위도: ${latitude}}`);
-                const currentPosition = "내 위치"
+                let locationName = "내 위치"
+
+                try {
+                    const queryParams = new URLSearchParams({
+                    lng: longitude.toString(),
+                    lat: latitude.toString()
+                    })
+
+                    // 블로그 API로 요청
+                    const result = await fetch(`/api/area?${queryParams.toString()}`)
+                
+                    if (result.ok) {
+                        const data = await result.json();
+                        if (data.addr) locationName = data.addr
+                    } else {
+                        console.warn("주소 조회 API 실패, 기본 이름(종로구) 사용");
+                    }
+                } catch (err) {
+                    console.error("주소 파싱 중 에러 발생: ", err);
+                }
 
                 // 위/경도 -> 격자(x,y)로 변환
                 const rs = dfs_xy_conv("toXY", latitude, longitude);
@@ -128,10 +148,11 @@ export default function WeatherWidget() {
                 setLocation({ lat: latitude, lng: longitude, x: rs.x, y: rs.y })
 
                 // 변환된 좌표로 날씨 API 호출
-                fetchWeather(rs.x, rs.y, "내 위치");
+                fetchWeather(rs.x, rs.y, locationName);
             },
             (error) => {
                 console.error(error);
+                setLoading(false)
                 if (error.code === 1) setErrorMsg("위치 정보를 가져올 수 없어서 서울 종로 날씨를 보여드립니다.");
                 else setErrorMsg("위치 정보를 가져올 수 없습니다.")
             })
