@@ -35,9 +35,19 @@ export async function GET(request) {
             fetch(url_srt, { next: { revalidate: 900 } })
         ]);
 
-        const liveData = await resLive.json();
-        const fcstData = await resFcst.json();
-        const srtData = await resSrt.json();
+        const errorCheck = async (res, name) => {
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error(`🚨 ${name} API Error (${res.status}):`, errorText);
+                throw new Error(`${name} API 요청 실패: ${res.status} ${errorText}`);            
+            }
+            return res.json
+        }
+        
+
+        const liveData = await errorCheck(resLive, "초단기실황");
+        const fcstData = await errorCheck(resFcst, "초단기예보");
+        const srtData = await errorCheck(resSrt, "단기예보");
 
         // 둘 중 하나라도 실패하면 오류
         if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00')
@@ -59,7 +69,7 @@ export async function GET(request) {
         })
     } catch (e) {
         console.debug(e)
-        return NextResponse.json({ error: '❌ Failed to fetch weather data' }, { status: 500 })
+        return NextResponse.json({ error: e.message }, { status: 500 })
     }
 }
 
