@@ -39,7 +39,7 @@ export async function GET(request) {
         baseTime_Live,
         12
     )
-    console.log(`초단기 실황 URL: ${url_live}`)
+    // console.log(`초단기 실황 URL: ${url_live}`)
 
     // 2. 초단기 예보 URL
     const url_fcst = makeUrl(
@@ -48,7 +48,7 @@ export async function GET(request) {
         baseTime_Fcst,
         100
     )
-    console.log(`초단기 예보 URL: ${url_fcst}`)
+    // console.log(`초단기 예보 URL: ${url_fcst}`)
 
     // 3. 단기 예보 URL
     const url_srt = makeUrl(
@@ -57,7 +57,7 @@ export async function GET(request) {
         baseTime_Srt,
         200
     )
-    console.log(`단기 예보 URL: ${url_srt}`);
+    // console.log(`단기 예보 URL: ${url_srt}`);
 
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
@@ -67,38 +67,35 @@ export async function GET(request) {
             fetch(url_srt, { next: { revalidate: 900 } })
         ]);
 
+        // res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
         const errorCheck = async (res, name) => {
             if (!res.ok) {
                 const errorText = await res.text();
                 console.error(`🚨 ${name} API Error (${res.status}):`, errorText);
-                throw new Error(`${name} API 요청 실패: ${res.status} ${errorText}`);            
+                throw new Error(`${name} API 요청 실패: ${res.status}`);
             }
-            return res.text() // 바로 json하지 않고 text()로 받아서 로그 기록
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (error) {
+                console.error("API 응답이 JSON 형식이 아님: ", text.subString(0,100));
+                throw new Error('잘못 형식의 응답 도착(Not Json)')
+            }
         }
 
-        const textLive = await errorCheck(resLive, "초단기실황");
-        const textFcst = await errorCheck(resFcst, "초단기예보");
-        const textSrt = await errorCheck(resSrt, "단기예보");
-
-        console.debug("----- [디버깅 로그 시작] -----");
-        console.debug("1. 초단기실황 원본:", textLive.substring(0, 200)); // 너무 길면 자름
-        console.debug("2. 초단기예보 원본:", textFcst.substring(0, 200));
-        console.debug("3. 단기예보 원본:", textSrt.substring(0, 200));
-        console.debug("----- [디버깅 로그 끝] -----");
-
-        // 텍스트를 다시 JSON으로 변환
-        const liveData = JSON.parse(textLive)
-        const fcstData = JSON.parse(textFcst)
-        const srtData = JSON.parse(textSrt)
+        const liveData = await errorCheck(resLive, "초단기실황");
+        const fcstData = await errorCheck(resFcst, "초단기예보");
+        const srtData = await errorCheck(resSrt, "단기예보");
 
         // 셋 중 하나라도 실패하면 오류
         if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00') {
-            console.debug("초단기실황 resultCode: ", liveData.response?.header?.resultCode);
-            console.debug("초단기예보 resultCode: ", fcstData.response?.header?.resultCode);
-            console.debug("단기예보 resultCode: ", srtData.response?.header?.resultCode);
-            return NextResponse.json({ error: '기상청 API 오류: resultCode' }, { status: 500 })
+            console.error("API Error Codes:", 
+                liveData.response?.header?.resultCode,
+                fcstData.response?.header?.resultCode,
+                srtData.response?.header?.resultCode
+            );
+            return NextResponse.json({ error: '기상청 API 오류' }, { status: 500 })
         }
-            
 
         const parsedData = parseWeatherData(
             liveData.response.body.items.item,
