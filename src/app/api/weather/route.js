@@ -80,9 +80,14 @@ export async function GET(request) {
         const fcstData = await errorCheck(resFcst, "초단기예보");
         const srtData = await errorCheck(resSrt, "단기예보");
 
-        // 둘 중 하나라도 실패하면 오류
-        if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00')
-            return NextResponse.json({ error: '기상청 API 오류' }, { status: 500 })
+        // 셋 중 하나라도 실패하면 오류
+        if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00') {
+            console.debug("초단기실황 resultCode: ", liveData.response?.header?.resultCode);
+            console.debug("초단기예보 resultCode: ", fcstData.response?.header?.resultCode);
+            console.debug("단기예보 resultCode: ", srtData.response?.header?.resultCode);
+            return NextResponse.json({ error: '기상청 API 오류: resultCode' }, { status: 500 })
+        }
+            
 
         const parsedData = parseWeatherData(
             liveData.response.body.items.item,
