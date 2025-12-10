@@ -25,17 +25,29 @@ export default function WeatherWidget() {
             // 9시간 더하기
             const kstAbs = now.getTime() + (9 * 60 * 60 * 1000);
 
-            // 객체 2개 생성
+            // 객체 3개 생성
             const kstDate_Live = new Date(kstAbs); // 실황용
             const kstDate_Fcst = new Date(kstAbs); // 예보용
-
-            console.log(`현재 시간(KST): ${kstDate_Live.toISOString()}`)
+            const kstDate_Srt = new Date(kstAbs);  // 단기 예보용
+            const currentHour = kstDate_Srt.getUTCHours();
+            const currentMin = kstDate_Srt.getUTCMinutes();
 
             // 실황은 20분 전
             if (kstDate_Live.getUTCMinutes() < 20) kstDate_Live.setUTCHours(kstDate_Live.getUTCHours() - 1);
 
             // 예보는 55분 전
             if (kstDate_Fcst.getUTCHours() < 55) kstDate_Fcst.setUTCHours(kstDate_Fcst.getUTCHours() - 1);
+
+            // 단기예보는 02:15분 이전이면 이전날 23:00의 데이터를 사용
+            if (currentHour < 2 || (currentHour === 2 && currentMin < 15)) {
+                kstDate_Srt.setUTCDate(kstDate_Srt.getUTCDate() - 1); // 하루전
+                kstDate_Srt.setUTCHours(23);
+                kstDate_Srt.setUTCMinutes(0);
+            } else {
+                // 아니라면 새벽 2시 고정
+                kstDate_Srt.setUTCHours(2);
+                kstDate_Srt.setUTCMinutes(0);
+            }
 
             // 문자열 변환 함수
             const formatDate = (date) => {
@@ -48,15 +60,20 @@ export default function WeatherWidget() {
 
             const liveParams = formatDate(kstDate_Live);
             const fcstParams = formatDate(kstDate_Fcst);
+            const srtParams = formatDate(kstDate_Srt);
 
-            console.log("실황요청: ", liveParams)
-            console.log("예보요청: ", fcstParams)
+            // console.log("실황요청: ", liveParams)
+            // console.log("예보요청: ", fcstParams)
+            console.log("단기예보 요청: ", srtParams);
+            
 
             const queryParams = new URLSearchParams({
                 baseDate_Live: liveParams.date,
                 baseTime_Live: liveParams.time,
                 baseDate_Fcst: fcstParams.date,
                 baseTime_Fcst: fcstParams.time,
+                baseDate_Srt: srtParams.date,
+                baseTime_Srt: srtParams.time,
                 nx: nx,
                 ny: ny
             });
@@ -65,7 +82,7 @@ export default function WeatherWidget() {
             const res = await fetch(`/api/weather?${queryParams.toString()}`)
             if (!res.ok) throw new Error("❌ API 요청 실패!")
 
-            const data = await res.json()            
+            const data = await res.json()        
 
             // 데이터 파싱
             const parsedData = parseWeatherData(data.live, data.fcst);

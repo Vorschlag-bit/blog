@@ -15,10 +15,13 @@ export async function GET(request) {
 
     // 1. 초단기 실황 URL
     const url_live = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${SERVICE_KEY}&pageNo=1&numOfRows=12&dataType=JSON&base_date=${baseDate_Live}&base_time=${baseTime_Live}&nx=${nx}&ny=${ny}`;
-    console.log(`url_live입니다: ${url_live}`)
+    // console.log(`url_live입니다: ${url_live}`)
 
     // 2. 초단기 예보 URL
     const url_fcst = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${SERVICE_KEY}&pageNo=1&numOfRows=100&dataType=JSON&base_date=${baseDate_Fcst}&base_time=${baseTime_Fcst}&nx=${nx}&ny=${ny}`;
+
+    // 3. 단기 예보 URL
+    const url_srt = ''
 
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
