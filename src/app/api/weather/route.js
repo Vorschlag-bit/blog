@@ -73,12 +73,23 @@ export async function GET(request) {
                 console.error(`🚨 ${name} API Error (${res.status}):`, errorText);
                 throw new Error(`${name} API 요청 실패: ${res.status} ${errorText}`);            
             }
-            return res.json
+            return res.text() // 바로 json하지 않고 text()로 받아서 로그 기록
         }
 
-        const liveData = await errorCheck(resLive, "초단기실황");
-        const fcstData = await errorCheck(resFcst, "초단기예보");
-        const srtData = await errorCheck(resSrt, "단기예보");
+        const textLive = await errorCheck(resLive, "초단기실황");
+        const textFcst = await errorCheck(resFcst, "초단기예보");
+        const textSrt = await errorCheck(resSrt, "단기예보");
+
+        console.debug("----- [디버깅 로그 시작] -----");
+        console.debug("1. 초단기실황 원본:", textLive.substring(0, 200)); // 너무 길면 자름
+        console.debug("2. 초단기예보 원본:", textFcst.substring(0, 200));
+        console.debug("3. 단기예보 원본:", textSrt.substring(0, 200));
+        console.debug("----- [디버깅 로그 끝] -----");
+
+        // 텍스트를 다시 JSON으로 변환
+        const liveData = JSON.parse(textLive)
+        const fcstData = JSON.parse(textFcst)
+        const srtData = JSON.parse(textSrt)
 
         // 셋 중 하나라도 실패하면 오류
         if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00') {
