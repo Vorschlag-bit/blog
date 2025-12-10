@@ -103,7 +103,7 @@ export default function WeatherWidget() {
 
     // 1. 처음엔 반드시 서울(종로)날씨 로딩
     useEffect(() => {
-        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny, "종로구 종로")
+        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny, "종로구 송월동")
     },[])
 
     // 2. '내 위치 찾기' 버튼 핸들러
@@ -162,8 +162,8 @@ export default function WeatherWidget() {
         // 일단 보여주고 싶은 건 온도, 위치, 날씨만 해보기
         <div className="retro-box p-4 w-[120%] -ml-5 min-h-[160px] relative">
             {/** Header */}
-            <div className="flex justify-between items-center border-b-2 border-black/10 pb-2">
-                <span className="font-bold text-sm tracking-widest">WEATHER.APP</span>
+            <div className="flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2 ml-2">
+                <span className="font-bold text-sm tracking-widest ml-1">WEATHER.APP</span>
                             {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
                     onClick={handleMyLocation}
@@ -177,7 +177,7 @@ export default function WeatherWidget() {
             <div className="flex justify-center min-h-[100px]">
                 {loading ? (
                     // 로딩 중일 때
-                    <div className="animate-pulse text-xs">SEARCHING...</div>
+                    <div className="animate-pulse text-lg font-bold dark:text-white-500 mt-15">SEARCHING...</div>
                 ) : weather ? (
                     // 날씨 정보 표시
                     <div className="flex flex-col">
@@ -224,7 +224,7 @@ export default function WeatherWidget() {
                 )}
             </div>
             
-            {/* 에러 메시지 토스트 (선택 사항) */}
+            {/* 에러 메시지 토스트 */}
             {errorMsg && (
                 <div className="text-[10px] text-red-500 mt-2 text-center bg-red-50 p-1">
                     ! {errorMsg}

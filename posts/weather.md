@@ -67,6 +67,23 @@ description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보�
 
 <strong>초단기 실황조회</strong>는 <span style="color: red">매시간 정시에 생성되고, 10분마다 최신 정보로 업데이트</span>되므로 hh:10마다 뭔가 업데이트를 해야할 부분을 자동 수행하는 로직이 필요하다.
 
+우선 Ip 주소를 기반으로 사용자 위치가 조회 가능한지 LLM과 대화해보았다.  
+**Ip 기반 사용자 추적**에 대한 답변으로, **가능은 하나, 날씨용으로는 부정확하다**는 답변이 돌아왔다.  
+
+`request-ip`나 Next.js의 `req.headers.get('x-forwarded-for')`를 통해서 사용자의 ip를 얻고 `geoip-lite`와 같은 DB나
+`ipapi`와 같은 외부 API를 통해서 대략적인 위치(위도/경도)를 알 수 있긴 하다.
+
+문제는 이런 식으로 제공되는 위도 경도는 대부분 <strong>시/군/구</strong>단위까지만 정확하고 내가 구현하고픈 **동**단위까지는 맞지 않는다.
+
+또한, 이 기능을 설계하면서 중요하게 생각했던 것 중 하나가 **모바일** 환경에 대한 고려였다.  
+두 플랫폼으로 모두 제대로된 기능을 제공하기 위해선 모바일 환경의 네트워크와 PC 환경의 네트워크의 차이점을 알 필요가 있었다.  
+
+<strong>PC(WiFi/LAN)</strong>은 비교적 통신사 기지국이나 인터넷 교환 노드 위치와 가까워서 '시' 단위까지는 맞을 가능성이 있다.  
+하지만 <strong>모바일(LTE/5G)</strong>은 통신사의 <strong>NAT(Gateway) Ip</strong> 를 사용하기 때문에 ip 위치가 사용자의 위치가 아닌
+라우터의 위치가 될 것이었다.
+
+따라서 동단위의 정확도와 성능(캐싱)을 모두 잡기 위해선 **클라이언트의 GPS** **서버 캐싱**을 잘 설계할 필요가 있었다.
+
 #### 설계 전체 흐름도
 1.  **Client (브라우저):**
     *   `navigator.geolocation.getCurrentPosition()`을 사용해 사용자의 정확한 <strong>위도(Lat), 경도(Lon)</strong>를 얻기. (사용자 동의 필요)
@@ -115,7 +132,7 @@ description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보�
 자바스크립트의 `Date` 객체는 실행되는 환경(브라우저/OS)의 시간대(Timezone)에 영향을 받기 때문이었다. `getHours()` 같은 메서드는 로컬 시간을 반환하기 때문에, 서버와 클라이언트 간의 불일치가 발생한다.
 
 **해결 방법**  
-실행 환경에 상관없이 **'절대 시간(UTC)'**을 기준으로 계산하되, 한국 시차만큼 강제로 이동시킨 후 `toISOString()`을 사용하는 방식으로 해결했다.
+실행 환경에 상관없이 <strong>'절대 시간(UTC)'</strong>을 기준으로 계산하되, 한국 시차만큼 강제로 이동시킨 후 `toISOString()`을 사용하는 방식으로 해결했다.
 
 ```javascript
 // 1. 현재 시스템의 절대 시간(UTC)을 가져옴
@@ -146,6 +163,7 @@ API 로직을 구현하던 중 문제가 발생했다.
 
 또한 `WeatherWidget`과 같은 클라이언트 컴포넌트에서는 보안상의 이유로 **서버의 환경변수에 절대 접근 불가**하다.
 만약 가능하다면 웹사이트에 접속만 해도 DB 비밀번호를 알아낼 수 있다는 의미가 될 테니까!
+
 따라서 Next.js에서는 실수로 비밀키가 브라우저로 유출되는 걸 막기 위해서 `.env`에 적힌 변수들을 **기본적으로 서버에서만 읽을 수 있게 한다**.
 (어찌보면 당연하다, 환경변수는 '컴퓨터'의 환경변수이니까) 따라서 내가 Vercel을 통해 서버에 환경변수를 등록해두더라도 브라우저는 이 값을
 `undefined`로 처리해버린다.
@@ -159,26 +177,27 @@ API 로직을 구현하던 중 문제가 발생했다.
 
 이 문제를 해결하기 위해서 **Next.js App Router**가 제공하는 **Route Handler**를 도입했다. 쉽게 말하면, <strong>프론트엔드와 외부 API 사이에 중계 서버(Proxy)</strong>를 하나 두는 셈이다.
 
-> 기존 (Client-Side Fetching): Browser -> 기상청 API (Key 노출 🚨)
-> 변경 후 (Server-Side Proxy): Browser -> Next.js API Route (Key 없음) -> 기상청 API (Key 포함 🔒)
+> 기존 (Client-Side Fetching): Browser -> 기상청 API (Key 노출)
+
+> 변경 후 (Server-Side Proxy): Browser -> Next.js API Route (Key 없음) -> 기상청 API (Key 포함)
 
 이 방법을 사용함으로써 3가지 이점을 얻을 수 있었다.
 
-① 완벽한 환경변수 은닉
+① 완벽한 환경변수 은닉  
 Next.js의 API Route는 **Node.js 서버 환경**에서 실행된다.
 이곳에서는 `NEXT_PUBLIC_` 접두사가 없는, **서버 전용 환경변수**(`process.env.WEATHER_API_KEY`)에 접근할 수 있다.
 브라우저는 우리 서버(`/api/weather`)로 요청을 보낼 때 인증 키를 알 필요가 없다. 서버가 내부적으로 키를 붙여서 기상청에 다녀오기 때문이다.
 
-② Mixed Content (HTTP/HTTPS) 문제 해결
+② Mixed Content (HTTP/HTTPS) 문제 해결  
 공공기관 API 중 상당수가 아직 `http` 프로토콜을 사용한다.
 Vercel에 배포된 내 블로그는 `https`로 운영중이다.
 브라우저 보안 정책상, `https` 사이트에서 `http` 요청을 보내면 **Mixed Content** 에러가 발생하며 요청이 차단된다.
 **Server-to-Server 통신**은 이 제약에서 자유롭다. Next.js 서버가 대신 `http`로 데이터를 받아와주므로 배포 후에도 에러가 발생하지 않는다!
 
-③ 클라이언트 로직 단순화
-복잡한 URL 파라미터 조합, 데이터 가공(Parsing) 로직을 서버로 옮김으로써 클라이언트 코드가 훨씬 깔끔해졌다.
-**클라이언트:** "날씨 줘." (`fetch('/api/weather')`)
-**서버:** (시간 계산, 좌표 변환, 키 조합, 데이터 파싱) -> "여기 있어."
+③ 클라이언트 로직 단순화  
+복잡한 URL 파라미터 조합, 데이터 가공(Parsing) 로직을 서버로 옮김으로써 클라이언트 코드가 훨씬 깔끔해졌다.  
+**클라이언트:** 날씨요청 (`fetch('/api/weather')`)  
+**서버:** (시간 계산, 좌표 변환, 키 조합, 데이터 파싱) -> 정보 제공
 
 </details>
 
@@ -229,11 +248,15 @@ export default function getWeatherIcon(pty, sky, lgt, isNight) {
 !["대강 완성된 날씨 UI 버전1"](/images/weather_t1.png)
 
 만들면서 많은 수정 작업들이 있었다. 처음에는 아이콘과 기온표시를 가로로 한 열에 배치하고 싶었으나, 너비가 너무 넓어져서 기존의 레이아웃이
-꺠지는 게 너무 마음에 안 들었다. 아무래도 처음부터 UI를 설계하는 게 아니다보니 이런 일로 스트레스 받는 건 앞으로도 자주 발생할 거 같다.
+깨지는 게 너무 마음에 안 들었다.
+
+아무래도 처음부터 UI를 설계하는 게 아니다보니 이런 일로 스트레스 받는 건 앞으로도 자주 발생할 거 같다.
 현재 레이아웃이 너무 맘에 들기에 되도록 세로로 배치하는 걸 지향해야겠다.
 
 소소하게 UI가 망가지는 것도 수정해야 했었다. 나는 API로부터 날라오는 숫자를 그대로 `Number()` 함수를 사용해서 화면에 뿌리다보니까,
-소수점 1자리로 날라올 때도 있고, 정수로 날라올 때도 있었다. 그러다보니 3글자(숫자 소수점 숫자)인 경우와 1글자(숫자)인 경우 그리고 현재는
+소수점 1자리로 날라올 때도 있고, 정수로 날라올 때도 있었다.
+
+그러다보니 3글자(숫자 소수점 숫자)인 경우와 1글자(숫자)인 경우 그리고 현재는
 겨울이라 2자리인 경우는 거의 없지만 2자리가 될 경우에는 4글자(2자리 숫자, 소수점, 숫자)까지 될 수 있었기 때문에 온도 UI의 최소폭을 주어
 찌그러지지 않도록 수정했다.
 ```javascript
@@ -265,8 +288,8 @@ export default function getWeatherIcon(pty, sky, lgt, isNight) {
 | **20** | | ○ | ○ | ○ | ○ | | ○ | ○ | ○ | ○ |
 | **23** | | ○ | ○ | ○ | ○ | | ○ | ○ | ○ | ○ |
 
-> **○**: 데이터 제공됨
-> **빈칸**: 데이터 제공되지 않음
+> **○**: 데이터 제공됨  
+> **빈칸**: 데이터 제공되지 않음  
 > 새벽 **02시** 발표 자료만이 **오늘의 최저기온**을 포함.
 
 로직은 제법 간단했다. 현재 시각이 02:15 이전일 경우 이전 날의 23시의 정보를 최고/최저 기온을 조회해오면 된다.
@@ -336,9 +359,122 @@ try {
 #### 임시로 완성된 UI ver2
 !["임시로 완성된 날씨 UI 두 번째 버젼"](/images/weather_t2.png)
 
-이렇게해도 뭔가 아쉽다..! 내 위치를 누르면 단순하게 '내 위치'만 사용하는데 사실 네이버처럼 **시군구 읍명동**까지 보여주면 좋겠다는 생각이 들었다.
+이렇게해도 뭔가 아쉽다..! 내 위치를 누르면 단순하게 '내 위치'만 사용하는데 사실 네이버처럼 **시군구 읍면동**까지 보여주면 좋겠다는 생각이 들었다.  
 사실 이전에 동네 커뮤니티 서버를 구현하면서 **위/경도**를 바탕으로 행정동 구역을 알려주는 API가 있는 걸 알고 있고, 신청까지 했어서 더 마음이 쓰였다.
 기왕 API 요청을 연습하는 겸 이것도 넣으면 재밌을 거 같아서 갖다 붙여넣어보기로 결심했다!  
+
+먼저 <strong>좌표->행정동</strong>을 지원하는 API는 
+<a href="https://www.vworld.kr/dev/v4dv_geocoderguide2_s002.do" style="color:  #2f9e44; text-decoration: none;">
+브이월드 Geocoder API 2.0
+</a>이다. 키를 발급받는 건 누구나 가능하니 개발용으로 6개월을 받고, 3번의 연장을 할 수 있다!
+
+parameter는 사용 예제에 나오는 url에서 `format`만 `json`으로 바꾸고, 좌표계는 기본으로 주어지는 epsg를 사용해도 충분하다.
+<strong>반드시 경도,위도(x,y) 순서</strong>로 넣어야 제대로 나오므로 그 점만 주의하고 내가 원하는 건 도로명 주소가 아니라 지번 주소이므로
+<code>type</code>은 <strong>PARCEL</strong>로 설정했다.
+
+이 요청 역시 클라이언트에서 요청하는 게 아니라 **Proxy** 서버를 거치도록 구현하기 위해서 `/api/are?queryParams`으로 요청을 보내기 위한
+`route.js`를 만들고, 파싱 로직까지 구현해주었다.
+```javascript
+import { NextResponse } from "next/server";
+
+export async function GET(request) {
+    const { searchParams } = new URL(request.url)
+    const lng = searchParams.get('lng')
+    const lat = searchParams.get('lat')
+
+    const SERVICE_KEY = process.env.VWORLD_API_KEY;
+
+    const url = `https://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=${lng},${lat}&format=json&type=PARCEL&zipcode=true&simple=false&key=${SERVICE_KEY}`    
+
+    try {
+        const res = await fetch(url);
+
+        const data = await res.json();
+
+        if (data.response?.status !== "OK")
+            return NextResponse.json({ error: '장소 조회 API 에러' }, { status: 404 })
+
+        const addr = parseAreaData(data)
+
+        if (!addr) 
+            return NextResponse.json({error: '장소 조회 결과 없음'}, { status: 500 })
+
+        return NextResponse.json({ addr: addr })
+    } catch (e) {
+        console.error(e);
+        return NextResponse.json({ error: 'Failed to fetch area data' }, { status: 500 })
+    }
+}
+
+function parseAreaData(data) {
+    // data.response.result[0].text
+    const addr = data.response?.result[0]?.text ?? "";
+    // text 형식: 서울시 --구 --동 지번
+    if (addr) {
+        const sp = addr.split(' ')
+
+        if (sp.length >= 3)
+            return `${sp[1]} ${sp[2]}`;
+        return addr;
+    }
+    return "";
+}
+```
+
+데이터를 잘 가져오는 걸 확인을 했고, 기존의 단순한 **내 위치**에서 정확한 행정구역을 반영하기 위한 로직도 수정했다.  
+```javascript
+const handleMyLocation = () => {
+    if (!navigator.geolocation) {
+        setErrorMsg("브라우저가 위치 정보를 지원하지 않습니다.")
+        return;
+    }
+
+    // 로딩 시작
+    setLoading(true);
+
+    // 브라우저 내장 팝업 트리거
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            // 성공 시, 내 위치로 api 다시 호출
+            const { latitude, longitude } = position.coords;
+            let locationName = "내 위치"
+
+            try {
+                const queryParams = new URLSearchParams({
+                lng: longitude.toString(),
+                lat: latitude.toString()
+                })
+
+                // 블로그 API로 요청
+                const result = await fetch(`/api/area?${queryParams.toString()}`)
+            
+                if (result.ok) {
+                    const data = await result.json();
+                    if (data.addr) locationName = data.addr
+                } else {
+                    console.warn("주소 조회 API 실패, 기본 이름(종로구) 사용");
+                }
+            } catch (err) {
+                console.error("주소 파싱 중 에러 발생: ", err);
+            }
+
+            // 위/경도 -> 격자(x,y)로 변환
+            const rs = dfs_xy_conv("toXY", latitude, longitude);
+
+            setLocation({ lat: latitude, lng: longitude, x: rs.x, y: rs.y })
+
+            // 변환된 좌표로 날씨 API 호출
+            fetchWeather(rs.x, rs.y, locationName);
+        },
+        (error) => {
+            console.error(error);
+            setLoading(false)
+            if (error.code === 1) setErrorMsg("위치 정보를 가져올 수 없어서 서울 종로 날씨를 보여드립니다.");
+            else setErrorMsg("위치 정보를 가져올 수 없습니다.")
+        })
+};
+```
+그렇게 장소도 제대로 반영되는 날씨 UI를 만들었다. 장소는 개인 정보이므로 따로 사진을 준비하지 않았다.
 
 ### 3. 데이터 캐싱 설계하기
 
@@ -346,26 +482,8 @@ try {
 - **1. 새로 들어오는 사람마다 fetch를 통해 실시간 정보를 보여준다.**
     - 내 블로그에는 하루에 1만명이 들어올리가 없었다. 새로고침 횟수를 고려하더라도, 큰 문제는 없을 지도 모른다.
 - **2. 상태 저장과 redis를 통한 캐시를 적극 활용한다.**
-    - 정석적인 개발의 의미라면 이 방식이 무조건 맞다고 생각한다. 다만 이렇게될 경우 cache에 있는 $$x,y$$좌표들을 기반으로 매 시간 10분마다
-    fetch를 통해 **최신화**를 거쳐야 했었다.
+    - 정석적인 개발의 의미라면 이 방식이 무조건 맞다고 생각한다. 다만 이렇게될 경우 cache에 있는 $$x,y$$좌표들을 기반으로
+    fetch를 통해 <strong>최신화(lazy Loading)</strong>를 거쳐야 했었다.
 
-프론트엔트에서 상태 저장을 자주 활용하는 걸 봤었고, 프론트엔드에서 caching을 해본 적이 없어서 이 방법이 아주 매력적으로 느껴졌었다.  
-우선 이 방법이 가능한지부터 LLM과 대화해보았다.
 
-AI로부터 받은 피드백은 아주 훌륭했다.  
-내가 궁금했던 질문에 대해서 깔끔한 대답과 그것을 바탕으로 내 기능을 어떤 식으로 구현해야할지를 상세히 설명해주었다.  
-먼저, **Ip 기반 사용자 추적**에 대한 답변으로, **가능은 하나, 날씨용으로는 부정확하다**는 답변이 돌아왔다.  
-
-`request-ip`나 Next.js의 `req.headers.get('x-forwarded-for')`를 통해서 사용자의 ip를 얻고 `geoip-lite`와 같은 DB나
-`ipapi`와 같은 외부 API를 통해서 대략적인 위치(위도/경도)를 알 수 있긴 하다.  
-문제는 이런 식으로 제공되는 위도 경도는 대부분 <strong>시/군/구</strong>단위까지만 정확하고 내가 구현하고픈 **동**단위까지는 맞지 않는다.
-
-또한, 이 기능을 설계하면서 중요하게 생각했던 것 중 하나가 **모바일** 환경에 대한 고려였다.  
-두 플랫폼으로 모두 제대로된 기능을 제공하기 위해선 모바일 환경의 네트워크와 PC 환경의 네트워크의 차이점을 알 필요가 있었다.  
-
-<strong>PC(WiFi/LAN)</strong>은 비교적 통신사 기지국이나 인터넷 교환 노드 위치와 가까워서 '시' 단위까지는 맞을 가능성이 있다.  
-하지만 <strong>모바일(LTE/5G)</strong>은 통신사의 <strong>NAT(Gateway) Ip</strong> 를 사용하기 때문에 ip 위치가 사용자의 위치가 아닌
-라우터의 위치가 될 것이었다.
-
-따라서 동단위의 정확도와 성능(캐싱)을 모두 잡기 위해선 **클라이언트의 GPS** **서버 캐싱**을 잘 설계할 필요가 있었다.
 

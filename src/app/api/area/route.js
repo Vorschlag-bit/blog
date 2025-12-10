@@ -8,8 +8,7 @@ export async function GET(request) {
     const SERVICE_KEY = process.env.VWORLD_API_KEY;
 
     const url = `https://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=${lng},${lat}&format=json&type=PARCEL&zipcode=true&simple=false&key=${SERVICE_KEY}`
-    console.log(`위치 지역 url: ${url}`);
-    
+    // console.log(`위치 지역 url: ${url}`);
 
     try {
         const res = await fetch(url);
