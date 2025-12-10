@@ -119,6 +119,8 @@ export default function WeatherWidget() {
             (position) => {
                 // 성공 시, 내 위치로 api 다시 호출
                 const { latitude, longitude } = position.coords;
+                // console.log(`경도: ${longitude}, 위도: ${latitude}}`);
+                const currentPosition = "내 위치"
 
                 // 위/경도 -> 격자(x,y)로 변환
                 const rs = dfs_xy_conv("toXY", latitude, longitude);
