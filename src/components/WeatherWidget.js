@@ -121,9 +121,9 @@ export default function WeatherWidget() {
 
     return (
         // 일단 보여주고 싶은 건 온도, 위치, 날씨만 해보기
-        <div className="retro-box p-4 w-[120%] -ml-5 min-h-[160px] bg-gray-100 relative">
+        <div className="retro-box p-4 w-[120%] -ml-5 min-h-[160px] relative">
             {/** Header */}
-            <div className="flex justify-between items-center mb-2 border-b-2 border-black/10 pb-2">
+            <div className="flex justify-between items-center border-b-2 border-black/10 pb-2">
                 <span className="font-bold text-sm tracking-widest">WEATHER.APP</span>
                             {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
@@ -132,12 +132,9 @@ export default function WeatherWidget() {
                     title="내 위치 날씨 보기"
                 >
                     {/* GPS 아이콘 */}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
+                    <svg className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 2v4h5v5h4v2h-4v5h-5v4h-2v-4H6v-5H2v-2h4V6h5V2h2zM8 8v8h8V8H8zm2 2h4v4h-4v-4z" fill="currentColor"/> </svg>
                 </button>
             </div>
-
             <div className="flex justify-center min-h-[100px]">
                 {loading ? (
                     // 로딩 중일 때
@@ -145,28 +142,27 @@ export default function WeatherWidget() {
                 ) : weather ? (
                     // 날씨 정보 표시
                     <div className="flex flex-col">
-                        <div className="relative w-40 h-40 flex-shrink-0 drop-shadow-sm">
+                        <div className="relative w-50 h-50 flex-shrink-0 drop-shadow-sm">
                             <WeatherIcon 
                                 pty={weather.PTY}
                                 sky={weather.SKY}
                                 lgt={weather.LGT}
                             />
                         </div>
-                        <div className="">
-                            <div className="text-3xl font-[Galmuri9] mb-1">
-                                {weather.temperature}℃
+                        <div className="flex items-center gap-4">
+                            <div className="flex-col">
+                                <div className="text-4xl font-[Galmuri9] mb-2 tracking-tighter min-w-[5rem]">
+                                    {weather.temperature}℃
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                    {weather.locationName} {/* 예: 서울특별시 중구 */}
+                                </div>
                             </div>
-                            <div className="text-xs text-gray-500">
-                                {weather.locationName} {/* 예: 서울특별시 중구 */}
-                            </div>
-                            <div className="text-xs mt-2 flex items-center">
-                                <span>습도 {weather.humidity}</span>
-                                <Image 
-                                    src="/icons/humidity.svg"
-                                    alt="습도 아이콘"
-                                    width={50}
-                                    height={50}
-                                />
+                            <div className="flex items-start">
+                                <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
+                                    <span className="text-blue-400 font-bold mr-1">습도</span>
+                                    {weather.humidity} %
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -205,7 +201,7 @@ function parseWeatherData(liveItems, fcstItems) {
     })
     
     return {
-        temperature: liveMap['T1H'], // 실황 기온
+        temperature: liveMap['T1H'].toFixed(1), // 실황 기온
         humidity: liveMap['REH'],    // 실황 습도
         wind: liveMap['WSD'],        // 실황 풍속
         PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)

@@ -115,7 +115,44 @@ const baseTime = kstDate.toISOString().slice(11, 13) + "00";
 이렇게 복잡하고 다양한 상황에 맞춰서 최적의 아이콘을 제공하려면, 지옥의 <code>if-else</code> 분기 처리를 최대한 깔끔하게 만들고 싶었다.
 
 이를 위해 **우선 순위**를 정하고, `case`문을 활용해 가시적이고 유지보수에 편리한 코드를 구현하였다.
+```javascript
+export default function getWeatherIcon(pty, sky, lgt, isNight) {
+    const suffix = isNight ? 'night' : 'day'
 
+    // 1. 낙뢰(LGT)가 최우선
+    if (lgt) {
+        if (pty === 0 ) return `thunderstorms-${suffix}` // 마늘하늘 벼락
+        if (pty === 3 || pty === 7) return `thunderstorms-snow` // 눈 + 벼락
+        return 'thunderstorms-rain' // 그외에는 비 + 벼락
+    }
+
+    // 2. 강수(PTY) > 0일 때
+    if (pty > 0) {
+        switch(pty) {
+            case 1: return 'rain'     // 비
+            case 2: return 'sleet'    // 비/눈
+            case 3: return 'snow'     // 눈
+            case 5: return 'drizzle'  // 빗방울(약한 비)
+            case 6: return 'sleet'    // 빗방울/눈날림(진눈깨비)
+            case 7: return 'snow'     // 눈날림(눈)
+            default: return 'rain'    // 기본은 비
+        }
+    }
+
+    // 3. 맑음/흐름(SKY)일 때 (PTY == 0)
+    switch(sky) {
+        case 1: return `clear-${suffix}`            // 맑음 (clear-day, clear-night)
+        case 3: return `partly-cloudy-${suffix}`    // 구름많음
+        case 4: return `overcast-${suffix}`         // 흐름
+        default: return `clear-${suffix}`
+    }
+}
+```
+아이콘 이름을 각 경우에 맞게 `return`하도록 설정했고, 낮/밤은 prefix로 결정하였다.  
+#### 대강 완성된 UI 모습
+!["대강 완성된 날씨 UI 버전1"](/images/weather_t1.png)
+
+만들면서 많은 수정 작업들이
 
 여기서 고민이 생겼다.  
 - **1. 새로 들어오는 사람마다 fetch를 통해 실시간 정보를 보여준다.**
