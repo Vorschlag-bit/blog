@@ -1,6 +1,8 @@
 "use client"
 import { useEffect,useState } from "react"
 import { dfs_xy_conv } from "@/app/utils/positionConverter";
+import WeatherIcon from "./WeatherIcon";
+import Image from "next/image";
 
 // 종로 3가 좌표
 const SEOUL_CODE = { nx: '60', ny: '127' }
@@ -15,7 +17,7 @@ export default function WeatherWidget() {
     const [location, setLocation] = useState({lat: null, lng: null, x: null, y: null})
 
     // 날씨 가져오는 함수
-    const fetchWeather = async (nx,ny) => {
+    const fetchWeather = async (nx,ny, locationName = "서울 종로구") => {
         setLoading(true)
         setErrorMsg("")
         try {
@@ -63,16 +65,19 @@ export default function WeatherWidget() {
             const res = await fetch(`/api/weather?${queryParams.toString()}`)
             if (!res.ok) throw new Error("❌ API 요청 실패!")
 
-            const data = await res.json()
-            console.log("data: ", data);
-            
+            const data = await res.json()            
 
             // 데이터 파싱
             const parsedData = parseWeatherData(data.live, data.fcst);
+            console.log("parsedDate: ", parsedData);
+            
 
             // 날씨 아이콘 정하기
 
-            setWeather(parsedData)
+            setWeather({
+                ...parsedData,
+                locationName: locationName
+            })
         } catch (e) {
             console.debug(e);
             setErrorMsg("날씨 정보를 불러오지 못했습니다.")
@@ -83,7 +88,7 @@ export default function WeatherWidget() {
 
     // 1. 처음엔 반드시 서울(종로)날씨 로딩
     useEffect(() => {
-        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny)
+        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny, "서울 종로구")
     },[])
 
     // 2. '내 위치 찾기' 버튼 핸들러
@@ -105,7 +110,7 @@ export default function WeatherWidget() {
                 setLocation({ lat: latitude, lng: longitude, x: rs.x, y: rs.y })
 
                 // 변환된 좌표로 날씨 API 호출
-                fetchWeather(rs.x, rs.y);
+                fetchWeather(rs.x, rs.y, "내 위치");
             },
             (error) => {
                 console.error(error);
@@ -115,36 +120,56 @@ export default function WeatherWidget() {
     };
 
     return (
-<div className="retro-box p-4 w-full">
+        // 일단 보여주고 싶은 건 온도, 위치, 날씨만 해보기
+        <div className="retro-box p-4 w-[120%] -ml-5 min-h-[160px] bg-gray-100 relative">
+            {/** Header */}
             <div className="flex justify-between items-center mb-2 border-b-2 border-black/10 pb-2">
-                <span className="font-bold text-sm">WEATHER.APP</span>
-                {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
+                <span className="font-bold text-sm tracking-widest">WEATHER.APP</span>
+                            {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
                     onClick={handleMyLocation}
                     className="hover:bg-gray-200 p-1 rounded transition-colors"
                     title="내 위치 날씨 보기"
                 >
-                    📍
+                    {/* GPS 아이콘 */}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
                 </button>
             </div>
 
-            <div className="flex flex-col items-center justify-center min-h-[100px]">
+            <div className="flex justify-center min-h-[100px]">
                 {loading ? (
-                    // 로딩 중일 때 (아까 만든 픽셀 로더 재활용 가능!)
+                    // 로딩 중일 때
                     <div className="animate-pulse text-xs">SEARCHING...</div>
                 ) : weather ? (
                     // 날씨 정보 표시
-                    <>
-                        <div className="text-3xl font-[Galmuri9] mb-1">
-                            {weather.temp}℃
+                    <div className="flex flex-col">
+                        <div className="relative w-40 h-40 flex-shrink-0 drop-shadow-sm">
+                            <WeatherIcon 
+                                pty={weather.PTY}
+                                sky={weather.SKY}
+                                lgt={weather.LGT}
+                            />
                         </div>
-                        <div className="text-xs text-gray-500">
-                            {weather.locationName} {/* 예: 서울특별시 중구 */}
+                        <div className="">
+                            <div className="text-3xl font-[Galmuri9] mb-1">
+                                {weather.temperature}℃
+                            </div>
+                            <div className="text-xs text-gray-500">
+                                {weather.locationName} {/* 예: 서울특별시 중구 */}
+                            </div>
+                            <div className="text-xs mt-2 flex items-center">
+                                <span>습도 {weather.humidity}</span>
+                                <Image 
+                                    src="/icons/humidity.svg"
+                                    alt="습도 아이콘"
+                                    width={50}
+                                    height={50}
+                                />
+                            </div>
                         </div>
-                        <div className="text-xs mt-2">
-                            {weather.sky} / 습도 {weather.humidity}%
-                        </div>
-                    </>
+                    </div>
                 ) : (
                     // 에러 표시
                     <div className="text-xs text-red-500 text-center">
@@ -168,28 +193,23 @@ function parseWeatherData(liveItems, fcstItems) {
     // 1. 실황 데이터
     const liveMap = {}
     liveItems.forEach(item => {
-        liveMap[item.category] = Number(item.category);
+        liveMap[item.category] = Number(item.obsrValue);
     });
 
     // 2. 예보 데이터(SKY,LGT 추출)
-    let skyValue = 1 // 기본 맑음
-    let lgtValue = 0 // 기본 맑음
-    const skyItem = fcstItems.find(item => item.category === 'SKY')
-    const lgtItem = fcstItems.find(items => items.category === 'LGT')
-    if (skyItem) {
-        skyValue = Number(skyItem.fcstValue);
-    }
-    if (lgtItem) {
-        lgtValue = Number(lgtItem.fcstValue);
-    }
-    console.log(`skyValue: ${skyValue}, lgtValue: ${lgtValue}`);
+    const fcstMap = {}
+    // 예보 데이터에서 가장 빠른 시간대만 추출
+    fcstItems.forEach((item) => {
+        // 이미 있다면 pass
+        if (!fcstMap[item.category]) fcstMap[item.category] = Number(item.fcstValue);
+    })
     
     return {
         temperature: liveMap['T1H'], // 실황 기온
         humidity: liveMap['REH'],    // 실황 습도
         wind: liveMap['WSD'],        // 실황 풍속
         PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
-        SKY: skyValue,
-        LGT: lgtValue
-    }
+        SKY: fcstMap['SKY'],         // 예보 하늘 상태
+        LGT: fcstMap['LGT'] > 0      // 예보 낙뢰 여부
+    };
 }

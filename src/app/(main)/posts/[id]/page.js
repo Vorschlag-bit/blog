@@ -5,8 +5,6 @@ import CodeBlockManager from "@/components/CodeBlockManager";
 import PostRemoteControl from "@/components/PostRemoteController";
 import Link from "next/link";
 import PostImageLoader from "@/components/PostImageLoader";
-// 테스트
-import WeatherWidget from "@/components/WeatherWidget";
 
 // 동적 메타데이터 생성 함수
 export async function generateMetaData({ params }) {
@@ -43,8 +41,6 @@ export default async function Post({params}) {
     return (
         <article className="max-w-4xl mx-auto p-4 relative">
             <PostRemoteControl />
-            {/** 날씨 위젯 테스트 */}
-            <WeatherWidget />
             {/** img 태그 미리 다운로드 체크 확인 컴포넌트 추가 */}
             <PostImageLoader>
                 <RetroWindow title={`Reading: ${postData.title}.txt`}>

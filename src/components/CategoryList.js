@@ -6,7 +6,7 @@ export default function CategoryList() {
 
     return (
         // 위치: 화면 중앙 기준 왼쪽 + 약간 아래(mt-14)
-        <aside className="hidden xl:block w-52 shrink-0 mr-6 mt-14 font-[Galmuri11]">
+        <aside className="w-full mr-4 font-[Galmuri11]">
             
             {/* 1. 가장 바깥 박스 (그림자 효과) */}
             <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]">
