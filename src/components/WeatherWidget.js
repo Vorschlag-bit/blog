@@ -218,18 +218,11 @@ export default function WeatherWidget() {
                     </div>
                 ) : (
                     // 에러 표시
-                    <div className="text-xs text-red-500 text-center">
+                    <div className="text-xs text-red-500 mt-5 text-center bg-red-50 p-2 h-9">
                         {errorMsg || "날씨 정보 없음"}
                     </div>
                 )}
             </div>
-            
-            {/* 에러 메시지 토스트 */}
-            {errorMsg && (
-                <div className="text-[10px] text-red-500 mt-2 text-center bg-red-50 p-1">
-                    ! {errorMsg}
-                </div>
-            )}
         </div>
     )
 }

@@ -25,7 +25,6 @@ export async function GET(request) {
     // 3. 단기 예보 URL
     const url_srt = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${SERVICE_KEY}&pageNo=1&numOfRows=200&dataType=JSON&base_date=${baseDate_Srt}&base_time=${baseTime_Srt}&nx=${nx}&ny=${ny}`;
     // console.log(`단기 예보 URL: ${url_srt}`);
-    
 
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
@@ -47,10 +46,16 @@ export async function GET(request) {
             liveData.response.body.items.item,
             fcstData.response.body.items.item,
             srtData.response.body.items.item,
-            baseDate_Srt
         )
 
-        return NextResponse.json(parsedData)
+        return NextResponse.json(parsedData, {
+            headers: {
+                // public: 모든 사람(브라우저, CDN)이 캐싱 가능
+                // s-maxage=900: CDN(Vercel) 서버에 900초(15분) 동안 저장
+                // stale-while-revalidate=30: 캐시가 만료돼도 30초 동안은 일단 옛날 거 보여주고 뒤에서 갱신 (속도 향상)
+                'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=30'
+            }
+        })
     } catch (e) {
         console.debug(e)
         return NextResponse.json({ error: '❌ Failed to fetch weather data' }, { status: 500 })
@@ -58,7 +63,12 @@ export async function GET(request) {
 }
 
 // data를 기반으로 날씨를 판별하는 함수
-function parseWeatherData(liveItems, fcstItems, srtItems, baseDate) {
+function parseWeatherData(liveItems, fcstItems, srtItems) {
+    const now = new Date()
+    const kstAbs = now.getTime() + (9 * 60 * 60 * 1000)
+    
+    const baseDate = new Date(kstAbs).toISOString().slice(0,10).replace(/-/g, "")
+
     // 1. 실황 데이터
     const liveMap = {}
     liveItems.forEach(item => {
@@ -76,14 +86,24 @@ function parseWeatherData(liveItems, fcstItems, srtItems, baseDate) {
     // 3. 단기 예보 데이터(TMX(최고), TMN(최저))
     let tmxValue = 0
     let tmnValue = 0
+    console.log("baseDate: ", baseDate);
+    
     srtItems.forEach((item) => {
         // 오늘 날짜만 확인
         if (item.fcstDate === baseDate) {
-            if (item.category === 'TMX') tmxValue = Number(item.fcstValue);
-            if (item.category === 'TMN') tmnValue = Number(item.fcstValue);
+            if (item.category === 'TMX') {
+                tmxValue = Number(item.fcstValue);
+                console.log("tmx: ", item.fcstValue);
+                
+            }
+            if (item.category === 'TMN') {
+                tmnValue = Number(item.fcstValue);
+                console.log("tmn: ", item.fcstValue);
+                
+            }
         }
     })
-
+    
     return {
         temperature: liveMap['T1H'].toFixed(1), // 실황 기온
         tmx: tmxValue.toFixed(1),               // 최고 기온
