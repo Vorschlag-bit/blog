@@ -62,8 +62,8 @@ export async function GET(request) {
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
         const [resLive, resFcst, resSrt] = await Promise.all([
-            fetch(url_live, { next: { revalidate: 900 } }),
-            fetch(url_fcst, { next: { revalidate: 900 } }),
+            fetch(url_live, { next: { revalidate: 600 } }),
+            fetch(url_fcst, { next: { revalidate: 600 } }),
             fetch(url_srt, { next: { revalidate: 900 } })
         ]);
 
@@ -71,7 +71,7 @@ export async function GET(request) {
         const errorCheck = async (res, name) => {
             if (!res.ok) {
                 const errorText = await res.text();
-                console.error(`🚨 ${name} API Error (${res.status}):`, errorText);
+                console.error(`${name} API Error (${res.status}):`, errorText);
                 throw new Error(`${name} API 요청 실패: ${res.status}`);
             }
             const text = await res.text();
@@ -106,9 +106,9 @@ export async function GET(request) {
         return NextResponse.json(parsedData, {
             headers: {
                 // public: 모든 사람(브라우저, CDN)이 캐싱 가능
-                // s-maxage=900: CDN(Vercel) 서버에 900초(15분) 동안 저장
+                // s-maxage=600: CDN(Vercel) 서버에 900초(15분) 동안 저장
                 // stale-while-revalidate=30: 캐시가 만료돼도 30초 동안은 일단 옛날 거 보여주고 뒤에서 갱신 (속도 향상)
-                'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=30'
+                'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=30'
             }
         })
     } catch (e) {

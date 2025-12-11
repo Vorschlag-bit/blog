@@ -1,8 +1,8 @@
 ---
-title: "날씨 및 미세먼지 UI를 만들어보자"
+title: "날씨 UI를 만들어보자"
 date: "2025-12-08 16:43:20"
 category: "개발"
-description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보여주는 UI를 만들어보가"
+description: "블로그에 사용자 위치 기반 날씨를 보여주는 UI를 만들어보가"
 ---
 
 ## 공공기관 API를 활용한 날씨 UI 만들기
@@ -632,8 +632,9 @@ Vercel은 한국의 경우 인천 지역을 지원하기 때문에 인천으로 
     - 정석적인 개발의 의미라면 이 방식이 무조건 맞다고 생각한다. 다만 이렇게될 경우 cache에 있는 $$x,y$$좌표들을 기반으로
     fetch를 통해 <strong>최신화(lazy Loading)</strong>를 거치기.
 
-2번 방식을 선택하되, 캐싱을 저장할 곳을 어찌할지도 문제였다.  
-Vercel에서는 다양한 storage들을 제공해준다. 특히 <strong>upStash</strong>가 적당히 빠른 속도와 무료 티어에선
+2번 방식을 선택하되, 캐싱을 저장할 곳을 어찌할지도 문제였다.
+
+하지만 Vercel에서는 다양한 storage들을 제공해준다. 특히 <strong>upStash</strong>가 적당히 빠른 속도와 무료 티어에선
 <strong>월 50만의 cmd</strong>라는 양이 있어서 매력적인 선택이 될 수 있겠지만, 이후에 내가 만들 기능에게 양보하고 싶었다.
 
 따라서 나는 **Next.js**의 자체 캐시 기능을 사용하기로 했다. Next.js는 `fetch()` 자체에 캐싱 기능을 내장시키고 있다.  
@@ -683,10 +684,9 @@ const formatDate = (date) => {
 !["cache key 문자열 비교(결과 동일)"](/images/str_comp.png)
 key로 사용된 두 문자열은 일치!
 
+#### 위치 데이터 캐싱
 마지막으로 **위치 조회 API**에 대한 Cache 로직을 수정할 필요도 있었는데
 return으로 `navigator.geolocation.getCurrentPosition()`으로 가져오는 위/경도는 소수점 14자리까지 지원한다.
-
-#### 위치 데이터 캐싱
 
 처음에는 이걸 그대로 조회 API에 사용을 했었는데 그렇다보니 당연히 Cache HIT 비율이 말도 안 되게 적을 수밖에 없었다.  
 내가 설계한 기능인 **시군구 읍면동** 단위의 정확도를 지킬 수 있으면서 적절한 Cache HIT를 할 수 있는 소수점을 얼마까지일까가
@@ -732,3 +732,19 @@ const lat = Number(rawLat).toFixed(3)
 
 #### 위치 데이터 캐싱 결과
 !["vercel 위치 cache 적용 후 사진 miss 남"](/images/ver-c3.png)
+URL을 보니 소수점 3자리가 찍혀있다. 당연히 cache는 miss
+
+!["vercel 위치 cache 적용 후 사진 hit"](/images/ver-c4.png)
+다시 재요청을 해보니 URL이 일치하고 Cache도 깔끔하게 HIT된 걸 볼 수 있다!
+
+#### Node.js의 Proxy fetch 사용 시 기준 key값은?
+나는 앞서 말했듯이 클라이언트는 Node.js에게 요청을 보내고, 실제 API 요청은 Node.js가 보내도록 설계되어있다.
+
+이 실제 API 요청 `fetch()`에 `next` option을 걸어뒀기 때문에 이 **실제 URL이 Key가 된다.**  
+당연한 거 같아 보이지만 사실 처음에 위/경도를 `route.js`에서 후처리하도록 했는데, 이 경우에 네트워크 창에서
+Cache-Hit가 관찰되지 않아서 알게된 사실이었다.
+
+네트워크 창에선 Cache-Hit가 안 나올지라도 내부적으로는 분명 나고 있으니 당황하지 않도록 하자! 
+
+물론 나는 네트워크 창에서도 Cache-Hit를 보기 위해서 클라이언트에서 queryParams에 대한 처리를 수행하고
+`route.js`에선 넘어온 params에 대한 유효성 검사를 진행하는 식으로 구현했다.
