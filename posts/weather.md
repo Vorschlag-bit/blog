@@ -91,9 +91,9 @@ description: "블로그에 사용자 위치 기반 날씨를 보여주는 UI를 
     *   이 좌표를 서버 API (`/api/weather?lat=...&lon=...`)로 보낸다.
 2.  **Server (Next.js Route Handler):**
     *   받은 위도/경도를 기상청 격자 좌표 **(nx, ny)로 변환**. (변환 공식 함수 필요)
-    *   **Redis 조회:** Key `weather:${nx}:${ny}`가 존재하는지 확인.
+    *   **Cache 조회:** Key `weather:${nx}:${ny}` 같은 문자열로 데이터가 존재하는지 확인.
         *   **Hit:** 저장된 날씨 데이터를 바로 `return`.
-        *   **Miss:** 기상청 API를 요청 -> 결과를 Redis에 저장(TTL 1시간) -> `return`.
+        *   **Miss:** 기상청 API를 요청 -> 결과를 Cache에 저장(TTL 15분 정도) -> `return`.
 3.  **Client (UI):**
     *   받은 데이터를 예쁘게 보여주기.
 
