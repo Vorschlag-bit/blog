@@ -39,7 +39,7 @@ export async function GET(request) {
         baseTime_Live,
         12
     )
-    console.log(`초단기 실황 URL: ${url_live}`)
+    // console.log(`초단기 실황 URL: ${url_live}`)
 
     // 2. 초단기 예보 URL
     const url_fcst = makeUrl(
@@ -57,7 +57,7 @@ export async function GET(request) {
         baseTime_Srt,
         200
     )
-    console.log(`단기 예보 URL: ${url_srt}`);
+    // console.log(`단기 예보 URL: ${url_srt}`);
 
     try {
         // Promise.all로 두 요청을 동시에 보냄(병렬)
