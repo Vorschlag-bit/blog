@@ -653,7 +653,7 @@ try {
 ```
 
 이후에 개발자도구의 네트워크 탭에서 내 `weather` api 요청이 cache-hit가 발생하는지 보면 된다.
-#### 결과
+#### 초기 결과
 !["Vercel_Cache가 HIT된 사진"](/images/vercel_cache.png)
 잘 동작하는 걸 볼 수 있다.  
 다만 한 가지 아쉬운 점이 있었다.
@@ -671,3 +671,63 @@ const formatDate = (date) => {
     }
 }
 ```
+
+#### 10분 단위로 수정한 후 cache-hit
+
+!["vercel cache 16:42분 hit된 사진"](/images/ver-c1.png)
+**16:42** 기준 Cache가 HIT된 걸 볼 수 있다. (baseTime= hh:40)
+
+!["vercel cache 16:48분 hit된 사진"](/images/ver-c2.png)
+**16:42** 기준 Cache가 HIT된 것도 볼 수 있었다.
+
+!["cache key 문자열 비교(결과 동일)"](/images/str_comp.png)
+key로 사용된 두 문자열은 일치!
+
+마지막으로 **위치 조회 API**에 대한 Cache 로직을 수정할 필요도 있었는데
+return으로 `navigator.geolocation.getCurrentPosition()`으로 가져오는 위/경도는 소수점 14자리까지 지원한다.
+
+#### 위치 데이터 캐싱
+
+처음에는 이걸 그대로 조회 API에 사용을 했었는데 그렇다보니 당연히 Cache HIT 비율이 말도 안 되게 적을 수밖에 없었다.  
+내가 설계한 기능인 **시군구 읍면동** 단위의 정확도를 지킬 수 있으면서 적절한 Cache HIT를 할 수 있는 소수점을 얼마까지일까가
+너무 궁금해졌다. 이를 수학적으로 계산해보자.  
+
+지구가 완벽한 구는 아니지만, 계산 편의상 둘레를 약 **40,000km**로 잡고 계산해보면  
+<strong>위도(Latitude, 세로)</strong>는 어디서나 간격이 일정하다. 따라서 계산하면 $$ 40000km % 360 ≈ 111km(111,195m)$$.
+
+<strong>경도(Longitude, 가로)</strong>는 적도에서는 위도와 비슷하나, 극지방으로 갈수록 좁아진다. 한국은 약 북위 <strong>37도</strong>에
+위치하고 있다.
+
+따라서 <strong>경도 1°</strong> = 위도 1° 길이 * Cos(37°)로 $$ 111,195 * 0.798 ≈ 88.8km(88,800m) $$.  
+즉, **한국에서 위도 1°는 약 111km, 경도 1°는 약 89km**이다.
+
+이제 이 값을 10씩 나누어가면서 소수점 자릿수가 의미하는 바가 얼마나 큰지 확인해보면
+
+| 소수점 자리 | 값의 크기 | 위도 거리 (세로) | 경도 거리 (가로) | 비유적 크기 |
+| :--- | :--- | :--- | :--- | :--- |
+| 1자리 (0.1) | 1/10 | 11.1 km | 8.9 km | 하나의 '시/군' 전체 크기 |
+| 2자리 (0.01) | 1/100 | 1.1 km | 890 m | 큰 동네, 혹은 작은 '동' 1개 크기 |
+| **3자리 (0.001)** | **1/1000** | **111 m** | **89 m** | **아파트 단지 하나, 운동장 크기** |
+| 4자리 (0.0001) | 1/10000 | 11 m | 8.9 m | 도로 폭, 건물 한 채 |
+| 5자리 (0.00001)| 1/100000 | 1.1 m | 0.89 m | 사람 한 명 |
+| ... | ... | ... | ... | ... |
+| 14자리 | - | 나노미터 단위 | - | 원자/분자 단위 (의미 없음) |
+
+3자리부터는 약 **100m**의 오차를 갖게된다. 이로 인해 행정동이 바뀔 가능성은 경계에 위치한 유저가 아니고서야 거의 없을 거라고 판단!  
+소수점 3자리까지 버림처리를 통해서 URL Cache 비율을 높이도록 수정했다.
+
+```javascript
+const { searchParams } = new URL(request.url)
+const rawLng = searchParams.get('lng')
+const rawLat = searchParams.get('lat')
+
+if (!rawLng || !rawLat) {
+    console.error("좌표 누락: lng/lat이 없음.");
+    return NextResponse.json({ error: '좌표값 누락' }, { status: 400 });
+}
+
+const lng = Number(rawLng).toFixed(3)
+const lat = Number(rawLat).toFixed(3)
+```
+
+#### 위치 데이터 캐싱 결과
