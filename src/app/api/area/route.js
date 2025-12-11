@@ -24,9 +24,18 @@ export async function GET(request) {
     url.searchParams.append("key", `${SERVICE_KEY}`)
     console.log(`위치 지역 url: ${url}`);
     // console.log("🔥 위치 API 호출됨! (캐시가 없거나 만료됨)");
+
+    // header 추가
+    const header = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "*/*"
+    }
     
     try {
-        const res = await fetch(url, { next: { revalidate: 600 } });
+        const res = await fetch(url, { 
+            headers: header,
+            next: { revalidate: 3600 } 
+        });
 
         if (!res.ok) {
             const errorText = await res.text();
