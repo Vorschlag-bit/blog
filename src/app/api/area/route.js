@@ -34,7 +34,7 @@ export async function GET(request) {
     try {
         const res = await fetch(url, { 
             headers: header,
-            next: { revalidate: 3600 } 
+            next: { revalidate: 900 } 
         });
 
         if (!res.ok) {

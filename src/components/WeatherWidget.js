@@ -54,7 +54,7 @@ export default function WeatherWidget() {
                 return {
                     date: iso.slice(0, 10).replace(/-/g, ""),
                     // 시간을 10분 단위로 만들어서 cache hit 높이기
-                    time: iso.slice(11, 16).replace(':',"")
+                    time: iso.slice(11, 15).replace(':',"") + "0"
                 }
             }
 

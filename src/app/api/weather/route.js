@@ -113,7 +113,7 @@ export async function GET(request) {
         })
     } catch (e) {
         console.debug(e)
-        return NextResponse.json({ error: e.message }, { status: 500 })
+        return NextResponse.json({ error: "날씨 API 조회 실패" }, { status: 500 })
     }
 }
 
@@ -141,7 +141,7 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
     // 3. 단기 예보 데이터(TMX(최고), TMN(최저))
     let tmxValue = 0
     let tmnValue = 0
-    console.log("baseDate: ", baseDate);
+    // console.log("baseDate: ", baseDate);
     
     srtItems.forEach((item) => {
         // 오늘 날짜만 확인

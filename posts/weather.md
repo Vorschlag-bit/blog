@@ -5,7 +5,7 @@ category: "개발"
 description: "블로그 UI에 사용자 Ip 기반 날씨와 미세먼지를 보여주는 UI를 만들어보가"
 ---
 
-## 공공기관 API를 활용한 날씨/미세먼지 UI 만들기
+## 공공기관 API를 활용한 날씨 UI 만들기
 ### 1. 날씨 어플 기능 설계하기
 먼저 공공기관 API에서 항상 최상위권으로 사용되는 <strong>기상청_단기예보 조회서비스</strong> API를 활용해서 날씨를 보여줄 생각이었다.
 내가 원하는 기능은 **현재 날씨에 대한 조회**이므로 조회서비스가 제공하는 4가지 API 중 **초단기 실황조회** API를 사용할 예정이었다.
@@ -476,14 +476,161 @@ const handleMyLocation = () => {
 ```
 그렇게 장소도 제대로 반영되는 날씨 UI를 만들었다. 장소는 개인 정보이므로 따로 사진을 준비하지 않았다.
 
+<details>
+<summary>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
+<span className="text-red-400">트러블 슈팅(Json 파싱)</span>
+</summary>
+
+기상청 API 요청이 분명 제대로 오는데(`status 200`) 자꾸 어디선가 문제가 생겨서 날씨 정보를 못 가져오는 에러 처리로직이
+실행되고 있었다.  
+
+```javascript
+return NextResponse.json({ error: '❌ Failed to fetch weather data' }, { status: 500 })
+```
+자꾸 이 Json 응답만 돌아와서 여러 가지를 수정하고 상세한 디버깅용 로그를 찍어봤다.
+
+**1. 디코용된 서비스 키 + URLComponent 객체 사용**  
+나는 이전까지는 백틱 **문자열**로 url을 만들어서 `${}`을 활용해 변수를 주입시킨 후 `fetch()`를 호출했었다.  
+여기에는 **인코딩된 키**를 사용했었다. 로컬 환경에서는 문제없이 돌아가서 그대로 배포를 했었는데, `Node.js`의 최신 라이브 러리들
+(`fetch()`, `URLComponent`, `axios` 등)은 보안과 전송 안정성을 위해서 **자동으로 인코딩**하는 기능을 내제하고 있다.
+
+따라서 **이중 인코딩**이 발생해. 제대로된 서비스 Key를 사용하지 않게 될 수 있었다.  
+이를 해결하기 위해서 정석적인 방식인 **디코딩 키 + URLSearchParams** 조합을 사용해서 URL 객체를 만들었다.
+```javascript
+const makeUrl = (baseUrl, baseDate, baseTime, rows) => {
+    const url = new URL(baseUrl);
+
+    // searchParams.append로 조합하기
+    url.searchParams.append("serviceKey", SERVICE_KEY)
+    url.searchParams.append("pageNo", "1")
+    url.searchParams.append("numOfRows", rows.toString())
+    url.searchParams.append("dataType", "JSON")
+    url.searchParams.append("base_date", baseDate)
+    url.searchParams.append("base_time", baseTime)
+    url.searchParams.append("nx", nx)
+    url.searchParams.append("ny", ny)
+
+    return url.toString()
+};
+```
+이 과정에서 디코딩 키는 자연스럽게 인코딩되어 사용되기 떄문에 이중 인코딩을 최대한 피할 수 있었다.  
+
+하지만 이래도 정확한 원인을 못 찾은 채, 날씨 조회에 실패했기 때문에 에러를 검증하는 함수를 만들어서 디버깅을 했다.
+```javascript
+// res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
+const errorCheck = async (res, name) => {
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`🚨 ${name} API Error (${res.status}):`, errorText);
+        throw new Error(`${name} API 요청 실패: ${res.status}`);
+    }
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("API 응답이 JSON 형식이 아님: ", text.subString(0,100));
+        throw new Error('잘못 형식의 응답 도착(Not Json)')
+    }
+}
+```
+이 함수를 통해서 `status 200`은 아니라는 걸 알았고, 3개의 기상청 조회 동시 검증 조건문에서 나오는 에러가 Json응답으로 돌아오고 있다는 걸 파악했고
+원문(text)를 보고 분석하기 위해서 `res`를 문자열로 바꿔서 로그를 찍어봤고, text를 다시 `JSON.parse()`를 사용해 Json으로 만들었다.
+
+이렇게 하니 날씨 조회가 성공하는 걸 볼 수 있었다.. 아무래도 기상청 API에서 돌아온 형식이 묘하게 JSON과 안 맞았었나보다.  
+URL 로그를 찍어서 주소창에서 직접 본 응답에는 딱히 문제점을 못 느꼈었는데, 뭔가 잘못된 형식이 껴있던 게 아닐까 싶다.
+
+어쨌든 허망하지만 어찌저찌 문제 해결..
+
+</details>
+
+<details>
+<summary>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
+<span className="text-red-400">트러블 슈팅(브이월드 차단)</span>
+</summary>
+
+날씨를 제대로 가져오고나서, 내 위치를 가져오는 로직도 똑같이 수정해서 문제를 원천 차단하고 문제가 발생하더라도
+상세한 디버깅 로깅 로직을 통해서 원인을 밝힐 수 있도록 만들었다.
+```javascript
+try {
+    const res = await fetch(url, { 
+        headers: header,
+        next: { revalidate: 900 } 
+    });
+    // 응답 자체에 대한 검증
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`브이월드 위치 정보 API Error (${res.status}):`, errorText);
+        throw new Error("위치 정보 API 요청 실패")
+    }
+
+    // 마찬가지로 text -> json으로 수정
+    const text = await res.text();
+    let data;
+
+    try {
+        // 안전한 파싱
+        data = JSON.parse(text);
+    } catch (e) {
+        // 파싱 도중 에러 검증
+        console.error("VWORLD 파싱 에러 원본: ", text)
+        throw new Error("위치 조회 API 응답 형식 오류(Not Json)")
+    }
+
+    if (data.response?.status !== "OK") {
+        // 파싱된 데이터 검증
+        console.error("위치 정보 API status != OK", data.response?.status)
+        return NextResponse.json({ error: '장소 조회 실패' }, { status: 404 })
+    }
+
+    const addr = parseAreaData(data)
+
+    if (!addr)
+        // 장소 자체가 없는 경우
+        return NextResponse.json({error: '장소 조회 결과 없음'}, { status: 500 })
+
+    return NextResponse.json({ addr: addr }, {
+        headers: {
+            'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=30'
+        }
+    })
+} catch(e) {
+    // 에러 처리 로직
+}
+```
+
+
+나의 위치 찾는 API를 호출했을 때도 섭섭하지 않게 바로 실패를 했다.  
+Vercel에선 **Logs** 탭을 통해서 Production의 로그를 실시간으로 볼 수 있다.(Live 버튼을 누르면 됌)
+
+그렇게 날라온 로그를 보니 VWORLD로부터 <span style="color: red">차단</span>을 당했다는 로그가 나왔다...
+
+!["VWORLD 차단 로그"](/images/blocked.png)
+`[Socket Error]: other side closed`로 애초에 브이월드에서 나의 요청을 차단시켰다.  
+너무 당황스러워서 Ip 벤이라도 먹었나 싶었지만, 그럴리없었다.  
+
+처음에는 내 요청을 봇으로 생각한 건 줄 알고, header에 `User_Agent` 같은 것도 넣어봤으나 소용이 없었다.
+
+문제의 원인은 내 Vercel Function이 <strong>미국(워싱턴)</strong>에서 돌아가기 때문에 **해외 Ip 차단**을 한 것이였다.
+왜 그런 정책이 있는 건지는 모르겠지만 다행히 Vercel 무료 티어에서도 Function의 지역을 바꿀 수 있었다.
+
+!["vercel function 지역 설정"](/images/vercel-fun.png)
+
+혹시라도 브이월드 API를 사용하는 서버를 만든다면 반드시 Region을 <span style="color: red">한</span><span style="color: blue">국</span>으로 하자!  
+Vercel은 한국의 경우 인천 지역을 지원하기 때문에 인천으로 설정했다.
+
+</details>
+
+
 ### 3. 데이터 캐싱 설계하기
 
-이젠 데이터 캐싱을 고민할 차례였다. 크게 2가지 방법으로 정리할 수 있었다.  
-- **1. 새로 들어오는 사람마다 fetch를 통해 실시간 정보를 보여준다.**
+이젠 데이터 캐싱을 고민할 차례였다. 애초에 할지 말지를 고민을 했었다.
+- **1. 캐싱 안 하기: 새로 들어오는 사람마다 fetch를 통해 실시간 정보를 보여준다.**
     - 내 블로그에는 하루에 1만명이 들어올리가 없었다. 새로고침 횟수를 고려하더라도, 큰 문제는 없을 지도 모른다.
-- **2. 상태 저장과 redis를 통한 캐시를 적극 활용한다.**
+- **2. 저장소를 통한 캐시를 적극 활용한다.**
     - 정석적인 개발의 의미라면 이 방식이 무조건 맞다고 생각한다. 다만 이렇게될 경우 cache에 있는 $$x,y$$좌표들을 기반으로
-    fetch를 통해 <strong>최신화(lazy Loading)</strong>를 거쳐야 했었다.
+    fetch를 통해 <strong>최신화(lazy Loading)</strong>를 거치기.
 
 2번 방식을 선택하되, 캐싱을 저장할 곳을 어찌할지도 문제였다.  
 Vercel에서는 다양한 storage들을 제공해준다. 특히 <strong>upStash</strong>가 적당히 빠른 속도와 무료 티어에선
@@ -506,4 +653,21 @@ try {
 ```
 
 이후에 개발자도구의 네트워크 탭에서 내 `weather` api 요청이 cache-hit가 발생하는지 보면 된다.
-#### 결과 (대기)
+#### 결과
+!["Vercel_Cache가 HIT된 사진"](/images/vercel_cache.png)
+잘 동작하는 걸 볼 수 있다.  
+다만 한 가지 아쉬운 점이 있었다.
+
+초단기 실황이나, 초단기 예보는 1분단위로 요청을 시도하기 때문에 `url`을 key로 사용하는 Next.js의 캐시가 캐시의 의미를 잃을 정도로 자주 데이터가 쌓였다.
+따라서 모든 요청을 10분 단위로 요청을 하도록 수정해서, 최소 10분 간의 캐싱을 이뤄지도록 코드를 수정했다.
+
+```javascript
+const formatDate = (date) => {
+    const iso = date.toISOString();
+    return {
+        date: iso.slice(0, 10).replace(/-/g, ""),
+        // 시간을 10분 단위로 만들어서 cache hit 높이기
+        time: iso.slice(11, 15).replace(':',"") + "0"
+    }
+}
+```
