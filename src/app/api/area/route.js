@@ -22,8 +22,8 @@ export async function GET(request) {
     url.searchParams.append("zipcode", "true")
     url.searchParams.append("simple", "false")
     url.searchParams.append("key", `${SERVICE_KEY}`)
-    // console.log(`위치 지역 url: ${url}`);
-    console.log("🔥 위치 API 호출됨! (캐시가 없거나 만료됨)");
+    console.log(`위치 지역 url: ${url}`);
+    // console.log("🔥 위치 API 호출됨! (캐시가 없거나 만료됨)");
     
     try {
         const res = await fetch(url, { next: { revalidate: 600 } });
