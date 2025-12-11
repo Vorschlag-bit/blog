@@ -679,7 +679,7 @@ const formatDate = (date) => {
 **16:42** 기준 Cache가 HIT된 걸 볼 수 있다. (baseTime= hh:40)
 
 !["vercel cache 16:48분 hit된 사진"](/images/ver-c2.png)
-**16:42** 기준 Cache가 HIT된 것도 볼 수 있었다.
+**16:48** 기준 Cache가 HIT된 것도 볼 수 있었다.
 
 !["cache key 문자열 비교(결과 동일)"](/images/str_comp.png)
 key로 사용된 두 문자열은 일치!
