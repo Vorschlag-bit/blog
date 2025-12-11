@@ -12,9 +12,6 @@ export default function WeatherWidget() {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
-    // 디버깅 용 위치정보
-    const [location, setLocation] = useState({lat: null, lng: null, x: null, y: null})
-
     // 날씨 가져오는 함수
     const fetchWeather = async (nx,ny, locationName = "종로구 송월동") => {
         setLoading(true)
@@ -148,8 +145,6 @@ export default function WeatherWidget() {
 
                 // 위/경도 -> 격자(x,y)로 변환
                 const rs = dfs_xy_conv("toXY", latitude, longitude);
-
-                setLocation({ lat: latitude, lng: longitude, x: rs.x, y: rs.y })
 
                 // 변환된 좌표로 날씨 API 호출
                 fetchWeather(rs.x, rs.y, locationName);
