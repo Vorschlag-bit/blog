@@ -148,12 +148,11 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
         if (item.fcstDate === baseDate) {
             if (item.category === 'TMX') {
                 tmxValue = Number(item.fcstValue);
-                console.log("tmx: ", item.fcstValue);
-                
+                // console.log("tmx: ", item.fcstValue);
             }
             if (item.category === 'TMN') {
                 tmnValue = Number(item.fcstValue);
-                console.log("tmn: ", item.fcstValue);
+                // console.log("tmn: ", item.fcstValue);
                 
             }
         }

@@ -731,3 +731,4 @@ const lat = Number(rawLat).toFixed(3)
 ```
 
 #### 위치 데이터 캐싱 결과
+!["vercel 위치 cache 적용 후 사진 miss 남"](/images/ver-c3.png)

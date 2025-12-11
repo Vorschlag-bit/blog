@@ -122,12 +122,15 @@ export default function WeatherWidget() {
             async (position) => {
                 // 성공 시, 내 위치로 api 다시 호출
                 const { latitude, longitude } = position.coords;
+                // cache hit 관측을 위해 애초에 클라이언트에서 소수점 3자리(버림)으로 params 보내기
+                const lat = latitude.toFixed(3)
+                const lng = longitude.toFixed(3)
                 let locationName = "내 위치"
 
                 try {
                     const queryParams = new URLSearchParams({
-                    lng: longitude.toString(),
-                    lat: latitude.toString()
+                    lng: lng,
+                    lat: lat
                     })
 
                     // 블로그 API로 요청

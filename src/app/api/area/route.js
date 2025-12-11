@@ -2,16 +2,15 @@ import { NextResponse } from "next/server";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url)
-    const rawLng = searchParams.get('lng')
-    const rawLat = searchParams.get('lat')
+    const lng = searchParams.get('lng')
+    const lat = searchParams.get('lat')
 
-    if (!rawLng || !rawLat) {
+    if (!lng || !lat) {
         console.error("좌표 누락: lng/lat이 없음.");
         return NextResponse.json({ error: '좌표값 누락' }, { status: 400 });
     }
 
-    const lng = Number(rawLng).toFixed(3)
-    const lat = Number(rawLat).toFixed(3)
+    // console.log(`lng: ${lng}, lat: ${lat}`)
 
     const SERVICE_KEY = process.env.VWORLD_API_KEY.trim();
     const url = new URL("https://api.vworld.kr/req/address")
@@ -25,7 +24,7 @@ export async function GET(request) {
     url.searchParams.append("zipcode", "true")
     url.searchParams.append("simple", "false")
     url.searchParams.append("key", `${SERVICE_KEY}`)
-    console.log(`위치 지역 url: ${url}`);
+    // console.log(`위치 지역 url: ${url}`);
     // console.log("🔥 위치 API 호출됨! (캐시가 없거나 만료됨)");
 
     
