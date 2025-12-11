@@ -601,8 +601,7 @@ try {
 }
 ```
 
-
-나의 위치 찾는 API를 호출했을 때도 섭섭하지 않게 바로 실패를 했다.  
+배포 환경에서 나의 위치 찾기 API를 호출했을 때도 섭섭하지 않게 바로 실패를 했다.  
 Vercel에선 **Logs** 탭을 통해서 Production의 로그를 실시간으로 볼 수 있다.(Live 버튼을 누르면 됌)
 
 그렇게 날라온 로그를 보니 VWORLD로부터 <span style="color: red">차단</span>을 당했다는 로그가 나왔다...
@@ -687,7 +686,7 @@ key로 사용된 두 문자열은 일치!
 
 #### 위치 데이터 캐싱
 마지막으로 **위치 조회 API**에 대한 Cache 로직을 수정할 필요도 있었는데
-return으로 `navigator.geolocation.getCurrentPosition()`으로 가져오는 위/경도는 소수점 14자리까지 지원한다.
+`navigator.geolocation.getCurrentPosition()`으로 가져오는 위/경도는 소수점 14자리까지 지원한다.
 
 처음에는 이걸 그대로 조회 API에 사용을 했었는데 그렇다보니 당연히 Cache HIT 비율이 말도 안 되게 적을 수밖에 없었다.  
 내가 설계한 기능인 **시군구 읍면동** 단위의 정확도를 지킬 수 있으면서 적절한 Cache HIT를 할 수 있는 소수점을 얼마까지일까가
