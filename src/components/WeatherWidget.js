@@ -53,6 +53,7 @@ export default function WeatherWidget() {
                 const iso = date.toISOString();
                 return {
                     date: iso.slice(0, 10).replace(/-/g, ""),
+                    // 시간을 10분 단위로 만들어서 cache hit 높이기
                     time: iso.slice(11, 16).replace(':',"")
                 }
             }
@@ -160,9 +161,9 @@ export default function WeatherWidget() {
 
     return (
         // 일단 보여주고 싶은 건 온도, 위치, 날씨만 해보기
-        <div className="retro-box p-4 w-[120%] -ml-5 min-h-[160px] relative">
+        <div className="retro-box p-4 w-[140%] ml-1 min-h-[160px] relative">
             {/** Header */}
-            <div className="flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2 ml-2">
+            <div className="flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2">
                 <span className="font-bold text-sm tracking-widest ml-1">WEATHER.APP</span>
                             {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
