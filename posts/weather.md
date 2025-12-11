@@ -606,8 +606,10 @@ Vercel에선 **Logs** 탭을 통해서 Production의 로그를 실시간으로 �
 
 그렇게 날라온 로그를 보니 VWORLD로부터 <span style="color: red">차단</span>을 당했다는 로그가 나왔다...
 
-!["VWORLD 차단 로그"](/images/blocked.png)
-`[Socket Error]: other side closed`로 애초에 브이월드에서 나의 요청을 차단시켰다.  
+<figure>
+    <img src="/images/blocked.png" alt="VWORLD 차단 로그" />
+    <figcaption><code>[Socket Error]: other side closed</code>로 애초에 브이월드에서 나의 요청을 차단시켰다.</figcaption>
+</figure>
 너무 당황스러워서 Ip 벤이라도 먹었나 싶었지만, 그럴리없었다.  
 
 처음에는 내 요청을 봇으로 생각한 건 줄 알고, header에 `User_Agent` 같은 것도 넣어봤으나 소용이 없었다.
@@ -655,9 +657,10 @@ try {
 
 이후에 개발자도구의 네트워크 탭에서 내 `weather` api 요청이 cache-hit가 발생하는지 보면 된다.
 #### 초기 결과
-!["Vercel_Cache가 HIT된 사진"](/images/vercel_cache.png)
-잘 동작하는 걸 볼 수 있다.  
-다만 한 가지 아쉬운 점이 있었다.
+<figure>
+    <img src="/images/vercel_cache.png" alt="Vercel_Cache가 HIT된 사진" />
+    <figcaption>잘 동작하는 걸 볼 수 있다.</figcaption>
+</figure>
 
 초단기 실황이나, 초단기 예보는 1분단위로 요청을 시도하기 때문에 `url`을 key로 사용하는 Next.js의 캐시가 캐시의 의미를 잃을 정도로 자주 데이터가 쌓였다.
 따라서 모든 요청을 10분 단위로 요청을 하도록 수정해서, 최소 10분 간의 캐싱을 이뤄지도록 코드를 수정했다.
@@ -675,14 +678,20 @@ const formatDate = (date) => {
 
 #### 10분 단위로 수정한 후 cache-hit
 
-!["vercel cache 16:42분 hit된 사진"](/images/ver-c1.png)
-**16:42** 기준 Cache가 HIT된 걸 볼 수 있다. (baseTime= hh:40)
+<figure>
+    <img src="/images/ver-c1.png" alt="vercel cache 16:42분 hit된 사진" />
+    <figcaption><strong>16:42</strong> 기준 Cache가 HIT된 것도 볼 수 있다</figcaption>
+</figure>
 
-!["vercel cache 16:48분 hit된 사진"](/images/ver-c2.png)
-**16:48** 기준 Cache가 HIT된 것도 볼 수 있었다.
+<figure>
+    <img src="/images/ver-c2.png" alt="vercel cache 16:48분 hit된 사진" />
+    <figcaption><strong>16:48</strong> 기준 Cache가 HIT된 것도 볼 수 있었다.</figcaption>
+</figure>
 
-!["cache key 문자열 비교(결과 동일)"](/images/str_comp.png)
-key로 사용된 두 문자열은 일치!
+<figure>
+    <img src="/images/str_comp.png" alt="cache key 문자열 비교(결과 동일)" />
+    <figcaption>key로 사용된 두 문자열은 일치!</figcaption>
+</figure>
 
 #### 위치 데이터 캐싱
 마지막으로 **위치 조회 API**에 대한 Cache 로직을 수정할 필요도 있었는데
@@ -732,11 +741,16 @@ const lat = Number(rawLat).toFixed(3)
 ```
 
 #### 위치 데이터 캐싱 결과
-!["vercel 위치 cache 적용 후 사진 miss 남"](/images/ver-c3.png)
-URL을 보니 소수점 3자리가 찍혀있다. 당연히 cache는 miss
 
-!["vercel 위치 cache 적용 후 사진 hit"](/images/ver-c4.png)
-다시 재요청을 해보니 URL이 일치하고 Cache도 깔끔하게 HIT된 걸 볼 수 있다!
+<figure>
+    <img src="/images/ver-c3.png" alt="vercel 위치 cache 적용 후 사진 miss 남" />
+    <figcaption>URL을 보니 소수점 3자리가 찍혀있다. 당연히 cache는 miss</figcaption>
+</figure>
+
+<figure>
+    <img src="/images/ver-c4.png" alt="vercel 위치 cache 적용 후 사진 hit" />
+    <figcaption>다시 재요청을 해보니 URL이 일치하고 Cache도 깔끔하게 HIT된 걸 볼 수 있다!</figcaption>
+</figure>
 
 #### Node.js의 Proxy fetch 사용 시 기준 key값은?
 나는 앞서 말했듯이 클라이언트는 Node.js에게 요청을 보내고, 실제 API 요청은 Node.js가 보내도록 설계되어있다.
