@@ -43,13 +43,19 @@ export default function GlobalLoader() {
                 {Array(10).fill(0).map((_, index) => {
                     // 현재 인덱스가 count(%)를 10으로 나눈 몫보다 작다면 채움
                     const isFilled = index < Math.floor(count / 10)
+                    let barColor = "bg-green-400"
+                    if (count <= 33) {
+                        barColor = "bg-red-500"
+                    } else if (count <= 66) {
+                        barColor = "bg-yellow-400"
+                    }
 
                     return (
                         <div 
                             key={index}
                             className={`w-4 h-10 transition-all duration-100
                             ${isFilled 
-                                ? "bg-green-400 shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.4)]"
+                                ? `${barColor} shadow-[inset_2px_2px_0px_0px_rgba(255,255,255,0.4)]`
                                 : "bg-transparent opacity-30"}`} />
                     )
                 })}
