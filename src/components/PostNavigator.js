@@ -50,7 +50,6 @@ function PostCard({ post, type }) {
                 </div>
 
                 {/* 2. 텍스트 정보 */}
-                {/* min-w-0은 flex 자식에서 truncate가 작동하기 위한 필수 조건 */}
                 <div className="flex flex-col min-w-0 flex-1">
                     <span className="text-xs font-bold text-gray-500 mb-1">
                         {isNext ? '다음 포스트' : '이전 포스트'}

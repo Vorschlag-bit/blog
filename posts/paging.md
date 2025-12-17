@@ -111,7 +111,7 @@ export function Pagination({ currentPage, totalPages }) {
 `<`(꺽쇠) 모양을 넣기 위해서 HTML Entity를 넣어서 표현했다.  
 HTML에선 `<`와 `>`는 <b>태그</b>의 의미를 갖기 때문에 아무리 태그 내부에 넣는다고 해도, Parser가 제대로 파싱을 못 하게 방해하기 때문에
 별도의 코드로 작성해야 한다.
-
+#### 완성된 페이징 UI (전체 및 카테고리 조회 시)
 <figure>
     <img src="/images/page_t1.png" alt="틀만 잡은 페이지 UI 모습">
     <figcaption>CSS를 대충 적용해본 페이지 UI 모습</figcaption>
@@ -220,5 +220,76 @@ export function getPreNextPost(currentId) {
 
 그 다음엔 실제로 보여줄 컴포넌트를 만들었다.
 ```javascript
+export default function PostNavigator({ prev, next }) {
+    return (
+        <div className="flex w-full gap-4 mt-10 mb-8 font-[Galmuri11]">
+            {/* 이전 글 (Prev) */}
+            {prev ? (
+                <PostCard post={prev} type="prev" />
+            ) : (
+                <div className="flex-1 invisible" />
+            )}
 
+            {/* 다음 글 (Next) */}
+            {next ? (
+                <PostCard post={next} type="next" />
+            ) : (
+                <div className="flex-1 invisible" />
+            )}
+        </div>
+    );
+}
 ```
+이전/이후의 CSS가 방향만 다르고 똑같았기 때문에 공용 컴포넌트인 PostCard 함수를 통해서 구현하였다.
+```javascript
+function PostCard({ post, type }) {
+    const isNext = type === 'next';
+
+    return (
+        <Link 
+            href={`/posts/${post.id}`} 
+            className=""
+        >
+            <div className={`
+                다른 css들...
+                ${isNext ? 'flex-row-reverse text-right' : 'flex-row text-left'}
+            `}>
+                
+                {/* 1. 아이콘 (원형 테두리) */}
+                <div className={`
+                    ${!isNext && 'rotate-180'} /* Prev일 때 화살표 180도 회전 */
+                `}>
+                    {/* SVG 삽입 */}
+                    <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> 
+                        <path d="M6 4h2v2h2v2h2v2h2v4h-2v2h-2v2H8v2H6V4zm12 0h-2v16h2V4z" fill="currentColor"/> 
+                    </svg>
+                </div>
+
+                {/* 2. 텍스트 정보 */}
+                <div className="">
+                    <span className="">
+                        {isNext ? '다음 포스트' : '이전 포스트'}
+                    </span>
+                    <h3 className="">
+                        {post.title}
+                    </h3>
+                </div>
+
+            </div>
+        </Link>
+    );
+}
+```
+핵심은 `isNext`라는 상수를 통해서 내가 사용한 방향 아이콘을 180도 뒤집고, flex를 통한 정렬 역시 isNext 삼항연산자를
+통해서 `flex-row-reverse`와 `flex-row` 중 선택하도록 구현하였다.
+
+#### 완성된 PostNavigator UI (상세 조회 시)
+<figure>
+    <img src="/images/page_t4.png" alt="이전 글 버튼만 있는 UI 사진">
+    <figcaption>이전 글 버튼만 있을 경우 모습</figcaption>
+</figure>
+
+<figure>
+    <img src="/images/page_t5.png" alt="이전/이후 글 모두 있는 UI 사진">
+    <figcaption>이전/이후 버튼 모두 있을 경우 모습</figcaption>
+</figure>
