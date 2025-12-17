@@ -46,7 +46,11 @@ export function getPaginatedPosts(page = 1, limit = 10) {
     }
 }
 ```
-계산 로직이 왜 저렇게 되는 건지 + 시작,끝 인덱스도 왜 저렇게 되는 건지 추가
+현재 페이지는 `searchParams`로 넘겨받은 <b>page값에 대한 에러 핸들링</b>을 위해 저렇게 작성되었다.  
+사용자가 <b>악의적으로 최대 페이지 수이상의 수</b>를 URL에 입력할 경우, totalCount와 최소 비교를 통해서 막을 수 있고,
+반대로 <b>음수</b>를 넣었을 경우에도 1과의 최대 비교를 통해서 최소 1을 보장하도록 했다.
+
+인덱스를 계산할 때는 배열과 페이지가 서로 `0-based`와 `1-based`로 다르기 때문에 $$-1$$을 해줌으로써 알맞게 슬라이싱이 된다.
 
 그 후엔 페이지 번호를 누를 수 있는 <b>리모컨 UI</b>를 만들어야 했다.  
 Next.js의 `<Link>` 태그를 활용해서 <b>URL 쿼리스트링(`?page=n`)</b>을 변경하기 위함이다.
@@ -103,6 +107,11 @@ export function Pagination({ currentPage, totalPages }) {
     )
 }
 ```
+`<`(꺽쇠) 모양을 넣기 위해서 HTML Entity를 넣어서 표현했다.  
+HTML에선 `<`와 `>`는 <b>태그</b>의 의미를 갖기 때문에 아무리 태그 내부에 넣는다고 해도, Parser가 제대로 파싱을 못 하게 방해하기 때문에
+별도의 코드로 작성해야 한다.
 
-&lt, &gt는 무엇인가?
-
+<figure>
+    <img src="/images/page_t1.png" alt="틀만 잡은 페이지 UI 모습">
+    <figcaption>CSS를 대충 적용해본 페이지 UI 모습</figcaption>
+</figure>
