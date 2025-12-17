@@ -123,9 +123,7 @@ export function getAllCategories() {
 }
 
 // 모두 보기 화면에서 사용할 페이징 로직
-export function getPaginatedPosts(page = 1, limit = 10) {
-    console.log(`page: ${page}, limit: ${limit}`);
-    
+export function getPaginatedPosts(page = 1, limit = 10) {    
     // 1. 모든 글 가져오기 (기존 함수 활용)
     const allPosts = getSortedPostsData()
     
@@ -190,7 +188,7 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
 }
 
 // 상세 조회에서 사용할 이전/이후 포스팅 nav 로직
-export function getPreNextPost(currentId) {
+export async function getPreNextPost(currentId) {
     const allPosts = getSortedPostsData()
 
     // 현재 글 idx 찾기

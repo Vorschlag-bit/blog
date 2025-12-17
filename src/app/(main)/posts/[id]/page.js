@@ -5,11 +5,16 @@ import CodeBlockManager from "@/components/CodeBlockManager";
 import PostRemoteControl from "@/components/PostRemoteController";
 import Link from "next/link";
 import PostImageLoader from "@/components/PostImageLoader";
+// 현재 id를 기반으로 이전,이후 글 정보를 가져오는 함수
+import { getPreNextPost } from "@/lib/posts";
+import PostNavigator from "@/components/PostNavigator";
 
 // 동적 메타데이터 생성 함수
 export async function generateMetadata({ params }) {
     const { id } = await params
     const post = await getPostData(id)
+
+    const imageUrl = "/images/og-image.png"
 
     return {
         title: post.title,
@@ -19,7 +24,7 @@ export async function generateMetadata({ params }) {
             description: post.description,
             images: [
                 {
-                    url: "/Users/a./Downloads/og-image.png",
+                    url: imageUrl,
                     width: 1200,
                     height: 630,
                 },
@@ -37,6 +42,7 @@ export default async function Post({params}) {
 
     // 2. id를 바탕으로 데이터 구하기
     const postData = await getPostData(id)
+    const { prev,next } = await getPreNextPost(id)
 
     return (
         <article className="max-w-4xl mx-auto p-4 relative">
@@ -63,6 +69,8 @@ export default async function Post({params}) {
                     {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
                     <Comments />
                 </RetroWindow>
+            {/* 이전/이후 글 Navigator 추가 */}
+            <PostNavigator prev={prev} next={next} />
             </PostImageLoader>
         </article>
     )
