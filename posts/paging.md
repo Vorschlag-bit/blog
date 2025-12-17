@@ -183,4 +183,42 @@ export default async function CategoryPage({ params, searchParams }) {
     `/categories/HTML?page=3`으로 이동하게 된다.
 
 
+### 상세조회에서 이전 이후 글 적용하기
+전체에 대한 페이징을 적용하고 나니, 이를 활용해 상세조회 시 <b>이전/이후</b> 글로 바로 이동할 수 있는 컴포넌트를 만들어도
+괜찮겠다고 생각이 들었다.
 
+
+카테고리 분류를 통해 들어온 상세 조회건 전체 조회에서 들어온 상세 조회건 현재 url은 `/posts/title`이다.  
+물론 Paging 배열 속 인덱스 정보 같은 걸 queryString으로 받아서 이전/이후를 판별하는 로직에 사용할 수도 있겠지만
+그렇게되면 카테고리 분류로 들어올 때랑 전체 조회에서 들어올 때랑 url이 달라지고, 계산 로직도 복잡해질 거 같아서
+단순히 내 post의 `id`를 바탕으로 이전/이후를 계산해 존재 유무에 따라 보여주는 컴포넌트를 만들기로 했다.
+
+먼저 `lib/posts.js`에 현재 id를 바탕으로 이전/이후 글 id 및 글 정보를 return하는 함수를 만들었다.
+```javascript
+// 상세 조회에서 사용할 이전/이후 포스팅 nav 로직
+export function getPreNextPost(currentId) {
+    const allPosts = getSortedPostsData()
+
+    // 현재 글 idx 찾기
+    const idx = allPosts.findIndex((post) => post.id === currentId)
+
+    // 예외처리
+    if (idx === -1) return { prev: null, next: null }
+
+    // idx - 1 == 더 최신 글 -> Next
+    // idx + 1 == 더 이전 글 -> Prev
+    const next = idx - 1 >= 0 ? allPosts[idx - 1] : null;
+    const prev = idx + 1 < allPosts.length ? allPosts[idx + 1] : null;
+
+    return {
+        prev: prev,     // 이전 글
+        next: next,     // 이후 글
+    }
+}
+```
+이전/이후 글을 스스로 결정하는 게 좀 헷갈렸는데 그냥 문자 그대로 이전은 이전, 이후는 이후의 글을 보여주기로 결정했다.
+
+그 다음엔 실제로 보여줄 컴포넌트를 만들었다.
+```javascript
+
+```

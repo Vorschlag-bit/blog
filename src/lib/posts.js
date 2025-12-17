@@ -122,6 +122,7 @@ export function getAllCategories() {
     return [allCategory, ...sortedCategories]
 }
 
+// 모두 보기 화면에서 사용할 페이징 로직
 export function getPaginatedPosts(page = 1, limit = 10) {
     console.log(`page: ${page}, limit: ${limit}`);
     
@@ -157,6 +158,7 @@ export function getPaginatedPosts(page = 1, limit = 10) {
     }
 }
 
+// 카테고리 분류 화면에서 사용할 페이징 로직
 export function getPaginatedCategories(page = 1, limit = 10, category ="기타") {
     // 1. queryParams로 받은 category로 해당 카테고리 글만 추출
     const allCategoriesPosts = getPostsByCategory(category);
@@ -184,5 +186,26 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
         totalCount,
         hasNext: curPage < totalPages,
         hasPrev: curPage > 1,
+    }
+}
+
+// 상세 조회에서 사용할 이전/이후 포스팅 nav 로직
+export function getPreNextPost(currentId) {
+    const allPosts = getSortedPostsData()
+
+    // 현재 글 idx 찾기
+    const idx = allPosts.findIndex((post) => post.id === currentId)
+
+    // 예외처리
+    if (idx === -1) return { prev: null, next: null }
+
+    // idx - 1 == 더 최신 글 -> Next
+    // idx + 1 == 더 이전 글 -> Prev
+    const next = idx - 1 >= 0 ? allPosts[idx - 1] : null;
+    const prev = idx + 1 < allPosts.length ? allPosts[idx + 1] : null;
+
+    return {
+        prev: prev,     // 이전 글
+        next: next,     // 이후 글
     }
 }
