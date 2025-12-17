@@ -140,13 +140,10 @@ export function getPaginatedPosts(page = 1, limit = 10) {
     // 5. 배열 자르기
     const startIdx = (currentPage - 1) * limit
     const endIdx = startIdx + limit
-    console.log(`curPage: ${currentPage}, stIdx: ${startIdx}, edIdx: ${endIdx}`);
     
 
     // slice를 통해서 원본 배열의 범위만큼 복사해서 가져오기
     const paginatedPosts = allPosts.slice(startIdx, endIdx)
-    
-    console.log("페이징이 적용된 포스트 리스트: ", paginatedPosts);
     
 
     // 6. Java Page 객체처럼 return
@@ -157,5 +154,35 @@ export function getPaginatedPosts(page = 1, limit = 10) {
         totalCount,                             // 전체 글 수
         hasNext: currentPage < totalPages,      // 다음 페이지 존재 여부
         hasPrev: currentPage > 1,               // 이전 페이지 존재 여부
+    }
+}
+
+export function getPaginatedCategories(page = 1, limit = 10, category ="기타") {
+    // 1. queryParams로 받은 category로 해당 카테고리 글만 추출
+    const allCategoriesPosts = getPostsByCategory(category);
+
+    // 2. 해당 카테고리 글 총 개수
+    const totalCount = allCategoriesPosts.length;
+
+    // 3. 전체 페이지 수
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // 4. 현재 페이지
+    const curPage = Math.max(1,Math.min(totalPages,page));
+
+    // 5. 페이지 인덱스 계산
+    const startIdx = (curPage - 1) * limit;
+    const endIdx = startIdx + limit;
+
+    // 6. 슬라이싱된 배열
+    const paginatedCategories = allCategoriesPosts.slice(startIdx,endIdx);
+
+    return {
+        posts: paginatedCategories,
+        curPage,
+        totalPages,
+        totalCount,
+        hasNext: curPage < totalPages,
+        hasPrev: curPage > 1,
     }
 }

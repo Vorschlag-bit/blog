@@ -1,15 +1,22 @@
 /** main과 비슷하지만 전체가 아니라 필터링된 데이터만 가져오는 함수 */
 import LoadingLink from "@/components/LoadingLink";
-import { getPostsByCategory } from "@/lib/posts";
+import { getPaginatedCategories } from "@/lib/posts";
+import Pagination from "@/components/Pagination";
 
-export default async function CategoryPage({ params }) {
+// paging을 위한 searchParams와 라우팅을 위한 카테고리 params
+export default async function CategoryPage({ params, searchParams }) {
     // url에서 카테고리 이름 갖고 오기 (ex: "개발")
     // 한글을 깨지므로 decodeURIComponent 사용
     const { slug } = await params
     const category = decodeURIComponent(slug)
     
     // 해당 카테고리 글만 가져오기
-    const categoryPosts = getPostsByCategory(category)
+    const query = await searchParams
+    const page = Number(query?.page) || 1
+    const LIMIT = 10
+
+    // return 받은 객체 fields
+    const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
 
     return (
         <section className="p-10">
@@ -22,11 +29,11 @@ export default async function CategoryPage({ params }) {
                 <span className="text-blue-600 ml-2 mr-1.5">{category} </span>관련 글
             </h1>
 
-            { categoryPosts.length === 0 ? (
+            { posts.length === 0 ? (
                 <p>이 카테고리에는 아직 글이 없습니다.</p>
             ) : (
                 <ul className="space-y-4">
-                    {categoryPosts.map(({ id,title,date,description }) => (
+                    {posts.map(({ id,title,date,description }) => (
                         <li key={id} className="border p-4 shadow-sm hover:shadow-md transition">
                             <p className="text-gray-500 text-sm mb-1">{date}</p>
                             <LoadingLink href={`/posts/${id}`}>
@@ -37,6 +44,7 @@ export default async function CategoryPage({ params }) {
                     ))}
                 </ul>
             ) }
+            <Pagination currentPage={curPage} totalPages={totalPages} basePath={`/categories/${slug}`} />
         </section>
     )
 }
