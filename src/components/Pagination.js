@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function Pagination({ currentPage, totalPages }) {
+export default function Pagination({ currentPage, totalPages }) {
     // 페이지 번호 배열 만들기
     const pages = Array.from({ length: totalPages }, (_, i) => i+1);
 

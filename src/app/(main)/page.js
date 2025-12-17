@@ -1,11 +1,18 @@
 import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
 import RetroWindow from "@/components/RetroWindow";
-import { getSortedPostsData } from "@/lib/posts";
+// pagination을 위한 함수 및 리모컨 컴포넌트
+import { getPaginatedPosts } from "@/lib/posts";
+import Pagination from "@/components/Pagination";
 
-export default function Home() {
-  const allPostsData = getSortedPostsData();
-
+export default async function Home({ searchParams }) {
+  // Next.js 15부턴 searchParams에 await
+  const params = await searchParams;
+  const page = Number(params?.page) || 1;
+  // 최대 보여줄 개수
+  const LIMIT = 10;
+  // 데이터 가져오기
+  const { posts, totalPages, currentPage } = getPaginatedPosts(page,LIMIT);
   return (
     <div className="p-10 max-w-4xl mx-auto">
       {/** RetroWindow로 감싸기 */}
@@ -19,7 +26,7 @@ export default function Home() {
           </h1>
         
           <ul className="space-y-6 list-none">
-            {allPostsData.map(({ id, title, date, description, category }) => (
+            {posts.map(({ id, title, date, description, category }) => (
               <li
                 key={id}
                 // 2. text-black을 줘서 currentColor가 검은색을 잡도록 명시
@@ -44,6 +51,8 @@ export default function Home() {
               </li>
             ))}
           </ul>
+          {/* Pagination UI 추가 */}
+          <Pagination currentPage={currentPage} totalPages={totalPages} />
         </section>
       </RetroWindow>
     </div>

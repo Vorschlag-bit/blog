@@ -46,7 +46,63 @@ export function getPaginatedPosts(page = 1, limit = 10) {
     }
 }
 ```
+계산 로직이 왜 저렇게 되는 건지 + 시작,끝 인덱스도 왜 저렇게 되는 건지 추가
 
 그 후엔 페이지 번호를 누를 수 있는 <b>리모컨 UI</b>를 만들어야 했다.  
 Next.js의 `<Link>` 태그를 활용해서 <b>URL 쿼리스트링(`?page=n`)</b>을 변경하기 위함이다.
+
+```javascript
+import Link from "next/link";
+
+export function Pagination({ currentPage, totalPages }) {
+    // 페이지 번호 배열 만들기
+    const pages = Array.from({ length: totalPages }, (_, i) => i+1);
+
+    return (
+        <div>
+            {/** 이전 버튼 */}
+            {currentPage > 1 ? (
+                <Link
+                    href={`/?page=${currentPage - 1}`}
+                    className="px-3 py-1 border-2 border-black"
+                >
+                    &lt; PREV
+                </Link>
+            ) : (
+                <span className="px-3 py-1 border-2 border-gray-300">
+                    &lt; PREV
+                </span>
+            )}
+            {/** 페이지 번호들*/}
+            <div>
+                {pages.map((p) => (
+                    <Link
+                        key={p}
+                        href={`/?page=${p}`}
+                        className={`px-3 py-1 border-2
+                            ${p == currentPage ? 'bg-blue-600 text-white' : 'border-black'}`}
+                    >
+                        {p}
+                    </Link>
+                ))}
+            </div>
+            {/** 이후 버튼 */}
+            {currentPage < totalPages ? (
+                <Link
+                    href={`/?page=${currentPage + 1}`}
+                    className="px-3 py-1 border-2 border-black"
+                >
+                    NEXT &gt;
+                </Link>
+            ) : (
+                <span className="px-3 py-1 border-2 border-gray-300">
+                    NEXT &gt;
+                </span>
+            )}
+        </div>
+    )
+}
+```
+
+&lt, &gt는 무엇인가?
 
