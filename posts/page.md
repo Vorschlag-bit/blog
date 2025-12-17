@@ -13,4 +13,40 @@ description: "Js에서 직접 page 객체 기능을 만들어보기"
 먼저 난 기존이 `lib/posts.js`에 `getSortedPostsData()` 함수를 통해서 정렬된 Post 리스트를 가져오는 함수가 존재했다.  
 이걸 활용해서 <b>특정 페이지의 글만 잘라서 주는 함수</b>를 만들기로 했다.
 
+```javascript
+
+export function getPaginatedPosts(page = 1, limit = 10) {
+    // 1. 모든 글 가져오기 (기존 함수 활용)
+    const allPosts = getSortedPostsData()
+
+    // 2. 모든 글 개수
+    const totalCount = allPosts.length
+
+    // 3. Paging 계산 로직 (10개씩 보여주되, 41개면 5페이지이므로 올림처리)
+    const totalPages = Math.ceil(totalCount / limit)
+
+    // 4. 현재 페이지가 범위를 벗어나지 않도록 보정
+    const currentPage = Math.max(1,Math.min(page,totalPages))
+
+    // 5. 배열 자르기
+    const startIdx = (currentPage - 1) * limit
+    const endIdx = startIdx + limit
+
+    // slice를 통해서 원본 배열의 범위만큼 복사해서 가져오기
+    const paginatedPosts = allPosts.slice(startIdx, endIdx)
+
+    // 6. Java Page 객체처럼 return
+    return {
+        posts: paginatedPosts,                  // 현재 페이지 글 목록(content)
+        currentPage,                            // 현재 페이지 번호
+        totalPages,                             // 전체 페이지 수
+        totalCount,                             // 전체 글 수
+        hasNext: currentPage < totalPages,      // 다음 페이지 존재 여부
+        hasPrev: currentPage > 1,               // 이전 페이지 존재 여부
+    }
+}
+```
+
+그 후엔 페이지 번호를 누를 수 있는 <b>리모컨 UI</b>를 만들어야 했다.  
+Next.js의 `<Link>` 태그를 활용해서 <b>URL 쿼리스트링(`?page=n`)</b>을 변경하기 위함이다.
 
