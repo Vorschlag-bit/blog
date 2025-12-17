@@ -17,6 +17,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import rehypeExternalLinks from 'rehype-external-links';
+import { start } from 'repl';
 
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
@@ -118,4 +119,35 @@ export function getAllCategories() {
 
     // 스프레드 연산자로 합쳐서 리턴
     return [allCategory, ...sortedCategories]
+}
+
+export function getPaginatedPosts(page = 1, limit = 10) {
+    // 1. 모든 글 가져오기 (기존 함수 활용)
+    const allPosts = getSortedPostsData()
+
+    // 2. 모든 글 개수
+    const totalCount = allPosts.length
+
+    // 3. Paging 계산 로직 (10개씩 보여주되, 41개면 5페이지이므로 올림처리)
+    const totalPages = Math.ceil(totalCount / limit)
+
+    // 4. 현재 페이지가 범위를 벗어나지 않도록 보정
+    const currentPage = Math.max(1,Math.min(page,totalPages))
+
+    // 5. 배열 자르기
+    const startIdx = (currentPage - 1) * limit
+    const endIdx = startIdx + limit
+
+    // slice를 통해서 원본 배열의 범위만큼 복사해서 가져오기
+    const paginatedPosts = allPosts.slice(startIdx, endIdx)
+
+    // 6. Java Page 객체처럼 return
+    return {
+        posts: paginatedPosts,                  // 현재 페이지 글 목록(content)
+        currentPage,                            // 현재 페이지 번호
+        totalPages,                             // 전체 페이지 수
+        totalCount,                             // 전체 글 수
+        hasNext: currentPage < totalPages,      // 다음 페이지 존재 여부
+        hasPrev: currentPage > 1,               // 이전 페이지 존재 여부
+    }
 }
