@@ -1,55 +1,66 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-export default function PostNavigator({ prev,next }) {
+export default function PostNavigator({ prev, next }) {
     return (
-        <div className="mt-8 flex w-full gap-4 ">
-            {/* 이후 글 */}
+        <div className="flex w-full gap-4 mt-10 mb-8 font-[Galmuri11]">
+            {/* 이전 글 (Prev) */}
             {prev ? (
                 <PostCard post={prev} type="prev" />
             ) : (
-                // 없을 경우 invisible로 자리만 차지
                 <div className="flex-1 invisible" />
             )}
-            {/* 이전 글 */}
+
+            {/* 다음 글 (Next) */}
             {next ? (
                 <PostCard post={next} type="next" />
             ) : (
                 <div className="flex-1 invisible" />
             )}
         </div>
-    )
+    );
 }
 
-function PostCard({ post,type }) {
-    // type이 'next'면 텍스를 오른쪽 정렬할지 선택
-    const isNext = type === "next";
+function PostCard({ post, type }) {
+    const isNext = type === 'next';
+
     return (
-        <Link
-            href={`/posts/${post.id}`}
-            // flex-1 = 50% 공간 차지
+        <Link 
+            href={`/posts/${post.id}`} 
             className="flex-1 min-w-0 group"
         >
             <div className={`
-                h-full p-4 border-2 border-black dark:border-gray-500
-                bg-white dark:bg-gray-900
-                shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]
-                transition-transform hover:-translate-y-1 
-                flex items-center gap-3
-                ${isNext 
-                    ? `flex-row-reverse` 
-                    : `flex-row`}
+                h-full p-4 rounded-lg
+                bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700
+                hover:bg-gray-100 dark:hover:bg-gray-800
+                transition-colors duration-200
+                flex items-center gap-4
+                ${isNext ? 'flex-row-reverse text-right' : 'flex-row text-left'}
             `}>
-                {/* 상단: 날짜/라벨 */}
-                <div className={``}>
-                    <span className="font-bold text-gray-400 uppercase shrink-0">
-                        {isNext ? 'Next >' : '< Prev'}
-                    </span>
+                
+                {/* 1. 아이콘 (원형 테두리) */}
+                <div className={`
+                    flex items-center justify-center w-10 h-10 rounded-full border-2 shrink-0
+                    border-blue-500 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors
+                    ${!isNext && 'rotate-180'} /* Prev일 때 화살표 180도 회전 */
+                `}>
+                    {/* SVG 삽입 */}
+                    <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> 
+                        <path d="M6 4h2v2h2v2h2v2h2v4h-2v2h-2v2H8v2H6V4zm12 0h-2v16h2V4z" fill="currentColor"/> 
+                    </svg>
                 </div>
-                {/* 제목: 말 줄임표 */}
-                <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400 font-[Galmuri9] truncate">
-                    {post.title}
-                </h3>
+
+                {/* 2. 텍스트 정보 */}
+                {/* min-w-0은 flex 자식에서 truncate가 작동하기 위한 필수 조건 */}
+                <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-xs font-bold text-gray-500 mb-1">
+                        {isNext ? '다음 포스트' : '이전 포스트'}
+                    </span>
+                    <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 truncate">
+                        {post.title}
+                    </h3>
+                </div>
+
             </div>
         </Link>
-    )
+    );
 }
