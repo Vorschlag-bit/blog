@@ -30,7 +30,14 @@ export default async function Home({ searchParams }) {
               <li
                 key={id}
                 // 2. text-black을 줘서 currentColor가 검은색을 잡도록 명시
-                className="relative p-4 bg-white dark:bg-gray-800 shadow-pixel hover:translate-x-1 hover:translate-y-1 transition-transform text-black dark:text-gray-100"
+                className={`
+                  relative p-4 border-2 transition-all duration-200 group
+                  bg-white text-black border-black shadow-pixel
+                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-500
+                  hover:bg-blue-50 dark:hover:bg-gray-800
+                  hover:border-blue-600 dark:hover:border-blue-400
+                  hover:shadow-[4px_6px_0px_0px_rgba(37,99,235,0.2)]
+                `}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Link href={`categories/${category}`}>
