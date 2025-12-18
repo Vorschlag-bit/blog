@@ -81,7 +81,14 @@ export default function PostRemoteControl() {
 
     // 4. 맨 아래로 가기 함수
     const scrollToBottom = () => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })
+        // footer 위치로 이동
+        const footer = document.querySelector('footer');
+
+        if (footer) {
+            footer.scrollIntoView({ behavior: "smooth", block: "end" });
+        } else {
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })
+        }
     }
 
     // 5. 목차 클릭 시 이동 함수

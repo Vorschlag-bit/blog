@@ -66,11 +66,11 @@ export default async function Post({params}) {
                     />
                     {/** CodeBlockManager 추가 */}
                     <CodeBlockManager />
+                    {/* 이전/이후 글 Navigator 추가 */}
+                    <PostNavigator prev={prev} next={next} />
                     {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
                     <Comments />
                 </RetroWindow>
-            {/* 이전/이후 글 Navigator 추가 */}
-            <PostNavigator prev={prev} next={next} />
             </PostImageLoader>
         </article>
     )
