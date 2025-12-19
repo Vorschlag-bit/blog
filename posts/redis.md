@@ -22,6 +22,16 @@ description: "Upstash Redis를 활용한 방문자 지표 UI를 만들어보자.
 먼저 Vercel에서 <b>storage</b>에 들어가서 upstash for redis를 create하고, region에 한국이 없길래 그나마 가장 가까운
 도쿄를 선택했다.
 
+<figure>
+    <img src="/images/redis1.png" alt="upstash Redis를 생성한 모습" />
+    <figcaption>생성하고 나면 정말 편리하게 다양한 환경에서 설정법을 알려준다.</figcaption>
+</figure>
+
+<figure>
+    <img src="/images/redis2.png" alt="자동으로 환경 변수를 등록해준 모습" />
+    <figcaption><b>Connect Project</b>를 눌러서 사용할 프로젝트와 연결하면 환경변수로서 자동으로 넣어주기까지 한다.</figcaption>
+</figure>
+
 무료 티어에서는 <b>월 최대 50만 번의 cmd</b>가 가능하다. 보통 이런 방문자 수 같은 경우에는 매번 조회를 하지 않고
 Caching을 적용한다. 나 역시 1시간 간격의 Caching을 적용할 것이고, 그렇게되면 하루 24 * 30 = 720번이라는 아주 사소한 횟수가 나온다.  
 30분 Caching으로 해도 1440번이라는 만 번이 채 안 되는 작은 횟수이다. 개발 환경에서 캐싱을 적용하지 않고 테스트를 하는 것을 감안하더라도
@@ -49,8 +59,12 @@ Caching을 적용한다. 나 역시 1시간 간격의 Caching을 적용할 것�
 
 #### API 설계 (`route.js` 흐름도)
 클라이언트에 Redis가 직접 붙는 것은 보안상 위험하므로, 이번에도 API Route를 만들 예정이었다. (`/api/visit`)  
+기능 명세로는 <b>사용자 지표는 조회(GET)과 수 증가(POST?) 동시적으로 발생</b>하는 것으로 보인다.
 
-대략적인 API의 흐름은 아래와 같다.
+하지만 이렇게 구현하는 것보다 `INCR`을 활용한 <b>통합 방식</b>이 가장 적절하다고 생각했다. 
+2번의 네트워크 통신을 1번으로 줄일 수 있고, `POST`로 데이터를 추가시키는 찰나에 `GET`으로 조회하면 데이터 불일치가 발생할 수 있기 때문이다.
+
+원자적인 API의 흐름은 대략 아래와 같다.
 
 - 1. <b>Ip 추출</b> : 요청 헤더(<code>request.headers.get('x-forwarded-for')</code>)에서 사용자의 Ip를 추출한다.
 - 2. <b>오늘 날짜 생성</b> : <code>YYYY-mm-dd</code>형식으로 키를 만들기 위한 날짜를 <code>Date</code> 객체를 통해서 가져올 예정. 
@@ -59,4 +73,3 @@ Caching을 적용한다. 나 역시 1시간 간격의 Caching을 적용할 것�
     <code>SADD</code>의 리턴값은 <b>새로 추가될 경우 1, 이미 있으면 0</b>이다.
 - 4. <b>조건부 증가</b> : 만약 <code>SADD</code>의 값이 1이라면(처음 방문자) <code>INCR</code> 명령어로 전체 방문자 수를 1 증가시킨다.
 - 5. <b>결과 반환</b> : total의 값과 당일의 <code>SCARD</code>(오늘 방문자 수)를 <b>JSON</b>으로 return한다.
-
