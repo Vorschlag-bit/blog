@@ -17,8 +17,13 @@ export async function POST(request) {
     const now = new Date();
     const kstAbs = now.getTime() + (9 * 60 * 60 * 1000);
     const today = new Date(kstAbs);
-    const tomorrow = today.setUTCDate(today.getUTCDate() + 1).setUTCHours(0).setUTCMinutes(0)
+    const tomorrow = today.setUTCDate(today.getUTCDate() + 1).setUTCHours(0).setUTCMinutes(0);
     const iso = today.toISOString().slice(0,10).replace(/-/g, "");
+    
+    console.log("오늘 날짜(Num): ", today);
+    console.log("오늘 날짜(Num): ", today);
+    console.log("오늘 남은 시간(tom - tod): ", tomorrow - today);
+    console.log("오늘 날짜(iso): ", iso);
     
 
     // 3. 일일 방문자 수
@@ -30,7 +35,7 @@ export async function POST(request) {
 
     // 4. 전체 방문자 수
     // 해당 일일 방문이 유니크하면 INCR
-    if (isNew) {
+    if (isNew === 1) {
         const currentTotal = await Redis.incr(TOTAL_PREFIX)
         // 오늘 날짜 키는 24시간까지 유효
         const diff = tomorrow.getTime() - today.getTime()

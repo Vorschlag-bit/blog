@@ -73,3 +73,129 @@ Caching을 적용한다. 나 역시 1시간 간격의 Caching을 적용할 것�
     <code>SADD</code>의 리턴값은 <b>새로 추가될 경우 1, 이미 있으면 0</b>이다.
 - 4. <b>조건부 증가</b> : 만약 <code>SADD</code>의 값이 1이라면(처음 방문자) <code>INCR</code> 명령어로 전체 방문자 수를 1 증가시킨다.
 - 5. <b>결과 반환</b> : total의 값과 당일의 <code>SCARD</code>(오늘 방문자 수)를 <b>JSON</b>으로 return한다.
+
+#### Redis에 대해서, Redis 핵심 데이터 타입 & 명령어 정리
+나는 이전에 <b>Spring</b>의 <code>RedisTemplate</code>를 통해서 Redis를 사용했었다.  
+그 때는 주로 <code>OpsForValue().get/set</code>를 통해서 특정 문자열이 있는지 없는지에 판단하는 용도로만 사용했었다.
+
+하지만 Redis는 훨씬 다양한 타입들을 지원하며, 심지어는 <b>"어떤 명령어를 쓰느냐에 따라서 데이터 타입이 자동으로 결정"</b>된다. (해당 Key가 없다면 알아서 해당 명령어에 맞는 타입 기본값으로 초기화)  
+즉, 미리 <b>"이 키는 Set이다!"</b>라고 선언할 필요 없이, <b>그냥 Set 명령어만 날리면 알아서 Set</b>으로 만들어진다.  
+
+<table>
+    <caption>Redis 핵심 데이터 타입 & 명령어 정리</caption>
+    <thead>
+        <tr>
+            <th><b>타입 (DataTyp)</b></th>
+            <th><b>설명 (Description)</b></th>
+            <th><b>주요 명령어 (Commands)</b></th>
+            <th><b>사용 예시들 (Examples)</b></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><b>String</b><br>(문자열)</td>
+            <td>가장 기본적인 1:1 구조.<br>문자열,숫자,바이너리 데이터 저장 가능</td>
+            <td><code>SET</code>: 저장<br><code>GET</code>: 조회<br><code>INCR</code>: 1증가(숫자일 경우)<br><code>DECR</code>: 1감소</td>
+            <td>단순 캐싱(Json 문자열)<br>방문자 수 카운터(<code>INCR</code>)<br>세션 저장소</td>
+        </tr>
+        <tr>
+            <td><b>Set</b><br>(집합)</td>
+            <td><b>순서가 없고, 중복 허용 안 하는</b> 자료 구조.<br>데이터 존재 여부 확인에 최적화</td>
+            <td><code>SADD</code>: 데이터 추가(중복 시 무시)<br><code>SREM</code>: 데이터 삭제<br><code>SISMEMBER</code>: 존재 여부 확인(1/0)<br><code>SCARD</code>: 전체 개수 조회</td>
+            <td><b>유니크 방문자 IP 저장</b><br>태그 관리<br>팔로우/좋아요 목록</td>
+        </tr>
+        <tr>
+            <td><b>List</b><br>(리스트)</td>
+            <td><b>순서가 있는</b> 문자열 목록. (Linked List)<br>앞,뒤에서 데이터를 넣거나 제거할 수 있음.</td>
+            <td><code>LPUSH</code>/<code>RPUSH</code> : 맨 앞/뒤에 데이터 추가<br><code>LPOP</code>/<code>RPOP</code>:  맨 앞/뒤에서 꺼내기<br><code>LRANGE</code>: 범위 조회</td>
+            <td>메세지 큐 (Queue)<br>최근 본 게시글 목록<br>타임라인 가능</td>
+        </tr>
+        <tr>
+            <td><b>Hash</b><br>(해시)</td>
+            <td><b>Field-Value</b> 쌍으로 이뤄진 구조.<br>하나의 Key 안에 여러 필드를 가짐(객체와 유사)</td>
+            <td><code>HSET</code>: 필드 값 저장<br><code>HGET</code>: 특정 필드 조회<br><code>HGETALL</code>: 전체 필드 조회<br><code>HDEL</code>: 필드 삭제</td>
+            <td>사용자 프로필(이름,나이,이메일)<br>상품 상세 정보<br>설정값 그룹 관리</td>
+        </tr>
+        <tr>
+            <td><b>Sorted Set</b><br>(ZSet)</td>
+            <td>Set과 같지만 <b>점수(Score)</b>를 가짐.<br>점수를 기준으로 자동 정렬됨.</td>
+            <td><code>ZADD</code>: 데이터와 점수 추가<br><code>ZRANGE</code>: 순위별 조회<br><code>ZRANK</code>: 내 순위 확인</td>
+            <td>실시간 랭킹/리더보드<br>인기 검색어 순위<br>우선순위 큐</td>
+        </tr>
+    </tbody>
+</table>
+
+<b>공통 명령어 (Key 관리)</b>  
+모든 타입에 공통적으로 사용 가능한 명령어들
+
+- 1. `DEL` : 키 삭제
+- 2. `EXPIRE` : 키의 유효 시간 설정(sec 단위)
+- 3. `TTL` : 남은 유효 시간 확인
+- 3. `EXISTS` : 키 존재 여부 확인
+
+#### Redis를 호출 API 로직
+```javascript
+import { NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
+
+// INCR을 통해서 값 return받을 걸 그대로 response로 보내줄 예정
+export async function POST(request) {
+    const DATE_PREFIX = "blog-visit-date"
+    const TOTAL_PREFIX = "blog-visit-total"
+    const redis = new Redis({
+        url: process.env.KV_REST_API_URL,
+        token: process.env.KV_REST_API_TOKEN,
+    })
+
+    // 1. 유저 Ip 추출
+    const Ip = request.ip;
+
+    // 2. 오늘 날짜 계산
+    const now = new Date();
+    const kstAbs = now.getTime() + (9 * 60 * 60 * 1000);
+    const today = new Date(kstAbs);
+    const tomorrow = today.setUTCDate(today.getUTCDate() + 1).setUTCHours(0).setUTCMinutes(0);
+    const iso = today.toISOString().slice(0,10).replace(/-/g, "");
+    
+    console.log("오늘 날짜(Num): ", today);
+    console.log("오늘 날짜(Num): ", today);
+    console.log("오늘 남은 시간(tom - tod): ", tomorrow - today);
+    console.log("오늘 날짜(iso): ", iso);
+    
+
+    // 3. 일일 방문자 수
+    const dateKey = `${DATE_PREFIX}:${iso}`
+    const isNew = await Redis.sadd(dateKey, `${Ip}`);
+    console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
+    
+
+
+    // 4. 전체 방문자 수
+    // 해당 일일 방문이 유니크하면 INCR
+    if (isNew === 1) {
+        const currentTotal = await Redis.incr(TOTAL_PREFIX)
+        // 오늘 날짜 키는 24시간까지 유효
+        const diff = tomorrow.getTime() - today.getTime()
+        await redis.expire(dateKey, diff)
+
+        console.log(`새로운 전체 방문자인지 확인: ${currentTotal}`);
+    }
+
+    // 5. 현재 데이터 조회(pipeline 사용해서 한 번에 여러 명령어 보내기)
+    const pipeline = redis.pipeline();
+    pipeline.get(TOTAL_PREFIX)      // 전체 방문자 수 조회
+    pipeline.scard(dateKey)         // 일일 방문자 수 조회
+
+    const [total, date] = await pipeline.exec();
+
+    return NextResponse.json({
+        total: total || 0,
+        date: date || 0
+    })
+}
+```
+
+일일 방문자의 경우 `SADD` 명령어를 사용해 자료형을 <b>Set</b>으로 만들었고, 전체 방문자는 String이기 때문에 `INCR` 명령어를 통해서
+동시성을 보장했다. 
+
+이제 이 API를 호출 <b>Client Component</b>를 만들고 테스트를 가볍게 해보았다.
