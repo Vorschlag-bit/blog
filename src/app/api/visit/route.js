@@ -36,13 +36,11 @@ export async function POST(request) {
     console.log("오늘 날짜(iso): ", iso);
     console.log("내일 날짜(iso): ", tomorrow.toISOString());
     console.log("오늘 남은 시간(sec): ", diff);
-    
 
     // 3. 일일 방문자 수
     const dateKey = `${DATE_PREFIX}:${iso}`
     const isNew = await redis.sadd(dateKey, `${Ip}`);
     console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
-    
 
 
     // 4. 전체 방문자 수
