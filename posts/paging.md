@@ -147,7 +147,7 @@ export default function Pagination({ currentPage, totalPages, basePath = "/" }) 
 }
 ```
 
-다음으로 `categories/[slug]page.js`의 파라미터를 이젠 params뿐만 아니라 searchParams(queryString)도 받게 했다.
+다음으로 `categories/[slug]/page.js`의 파라미터를 이젠 params뿐만 아니라 searchParams(queryString)도 받게 했다.
 ```javascript
 // paging을 위한 searchParams와 라우팅을 위한 카테고리 params
 export default async function CategoryPage({ params, searchParams }) {
@@ -294,6 +294,7 @@ function PostCard({ post, type }) {
     <figcaption>이전/이후 버튼 모두 있을 경우 모습</figcaption>
 </figure>
 
+### 후기
 이제 페이징 기능까지 추가하면서 블로그가 정말 여타 플랫폼과 비교해도 손색이 없을 만큼  
 그럴 듯해 보인다. 다음 번엔 <b>DB를 활용한 조회 수</b> 기능을 만들어볼까 한다.
 

@@ -131,7 +131,7 @@ Caching을 적용한다. 나 역시 10분 간격의 Caching을 적용할 것이�
 - 3. `TTL` : 남은 유효 시간 확인
 - 3. `EXISTS` : 키 존재 여부 확인
 
-#### Redis를 호출 API 로직
+#### Redis를 호출 API 로직 (캐싱 적용 이전)
 ```javascript
 import { NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
