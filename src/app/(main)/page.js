@@ -14,7 +14,7 @@ export default async function Home({ searchParams }) {
   // 데이터 가져오기
   const { posts, totalPages, currentPage } = getPaginatedPosts(page,LIMIT);
   return (
-    <div className="p-10 max-w-4xl mx-auto">
+    <div className="p-4 w-full mx-auto">
       {/** RetroWindow로 감싸기 */}
       <RetroWindow title="C:\Users\DevLog\posts_list.exe">
         <section>

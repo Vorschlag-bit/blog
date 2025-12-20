@@ -1,15 +1,38 @@
 import { NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
+import { unstable_cache } from "next/cache";
+
+const redis = new Redis({
+    url: process.env.KV_REST_API_URL,
+    token: process.env.KV_REST_API_TOKEN,
+})
+
+const DATE_PREFIX = "blog-visit-date"
+const TOTAL_PREFIX = "blog-visit-total"
+
+// unstable_cache는 함수 인자에 따라 자동으로 별도의 캐싱 (Ip 기반)
+const getCachedCounts = unstable_cache(
+    async (dateKey) => {
+        // Pipeline으로 1번의 통신
+        const pipeline = redis.pipeline()
+        pipeline.get(TOTAL_PREFIX);
+        pipeline.scard(dateKey);
+
+        console.log(`[Redis Read] 캐시가 만료되어 DB에서 새로 조회`);
+        const [total, date] = await pipeline.exec();
+
+        return {
+            total: total || 0,
+            date: date || 0,
+            cachedAt: new Date().toLocaleTimeString()
+        };
+    },
+    ['visitor-counts'],     // 캐시 키(고유한 문자열)
+    { revalidate: 600 }             // 10분 TTL
+);
 
 // INCR을 통해서 값 return받을 걸 그대로 response로 보내줄 예정
 export async function POST(request) {
-    const DATE_PREFIX = "blog-visit-date"
-    const TOTAL_PREFIX = "blog-visit-total"
-    const redis = new Redis({
-        url: process.env.KV_REST_API_URL,
-        token: process.env.KV_REST_API_TOKEN,
-    })
-
     // 1. 유저 Ip 추출
     let Ip = request.headers.get('x-forwarded-for');
     if (Ip) {
@@ -33,35 +56,33 @@ export async function POST(request) {
     // redis ttl은 '초' 단위이므로, ms -> s
     const diff = Math.floor((tomorrow.getTime() - today.getTime()) / 1000)
 
-    console.log("오늘 날짜(iso): ", iso);
-    console.log("내일 날짜(iso): ", tomorrow.toISOString());
-    console.log("오늘 남은 시간(sec): ", diff);
+    // console.log("오늘 날짜(iso): ", iso);
+    // console.log("내일 날짜(iso): ", tomorrow.toISOString());
+    // console.log("오늘 남은 시간(sec): ", diff);
 
     // 3. 일일 방문자 수
     const dateKey = `${DATE_PREFIX}:${iso}`
-    const isNew = await redis.sadd(dateKey, `${Ip}`);
-    console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
 
+    // 조회를 먼저 하고 중복이 아닐 경우 incr,sadd 추가
+    let { total, date: todayCount } = await getCachedCounts(dateKey)
+
+    const isNew = await redis.sadd(dateKey, Ip);
+    console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
 
     // 4. 전체 방문자 수
     // 해당 일일 방문이 유니크하면 INCR
     if (isNew === 1) {
-        const currentTotal = await redis.incr(TOTAL_PREFIX)
-        // 오늘 날짜 키는 24시간까지 유효
-        const diff = tomorrow.getTime() - today.getTime()
-        await redis.expire(dateKey, diff)
-        console.log(`새로운 전체 방문자인지 확인: ${currentTotal}`);
+        const writePipe = redis.pipeline();
+        writePipe.incr(TOTAL_PREFIX);
+        writePipe.expire(dateKey, diff);
+        await writePipe.exec();
+
+        total += 1
+        todayCount += 1
     }
 
-    // 5. 현재 데이터 조회(pipeline 사용해서 한 번에 여러 명령어 보내기)
-    const pipeline = redis.pipeline();
-    pipeline.get(TOTAL_PREFIX)      // 전체 방문자 수 조회
-    pipeline.scard(dateKey)         // 일일 방문자 수 조회
-
-    const [total, date] = await pipeline.exec();
-
     return NextResponse.json({
-        total: total || 0,
-        date: date || 0
-    })
+        total: total,
+        date: todayCount
+    });
 }
