@@ -1,16 +1,20 @@
 "use client"
-
+import { useCounter } from "@/app/hooks/UseCounter"
 import { useState,useEffect,useRef } from "react"
 
 export default function VisitorCounter() {
     const [isLoading,setIsLoading] = useState('true')
     // 당일과 전체 모두 객체로 받기 위해 null
-    const [visitors,setVisitors] = useState(null)
+    const [visitors,setVisitors] = useState({ date: 0, total: 0 })
     // api 실패 시, errMsg
     const [errMsg, setErrMsg] = useState("")
 
     // 개발 모드(Strict Mode)에서 중복 방지용 Ref
     const hasFetched = useRef(false)
+
+    // 애니메이션 적용된 숫자 (duration: 2초 동안 촤라락)
+    const animatedToday = useCounter(visitors.date, 2000);
+    const animatedTotal = useCounter(visitors.total, 2000)
 
     const fetchVisitors = async () => {
         setIsLoading(true)
@@ -41,13 +45,21 @@ export default function VisitorCounter() {
     useEffect(() => {
         // 중복 호출 방지
         if (!hasFetched.current) {
-            fetchVisitors()
+            // fetchVisitors()
+
+            // 임시 데이터로 테스트
+            setTimeout(() => {
+                setVisitors({ date: 123, total: 15420 });
+                setIsLoading(false);
+            }, 500);
             hasFetched.current = true;
         }
     },[])
 
     return (
-        <div className="retro-box p-8 w-30 h-29 mt-12 bg-black text-green-500 font-mono border-2 border-gray-600">
+        <div className="retro-box p-6 w-full mt-12 bg-white dark:bg-gray-800 border-2 border-black
+            dark:border-gray-500 shadow-pixel flex-col gap-6 items-center
+        ">
             <div>
                 {isLoading ? (
                     // 조회 중일 경우
@@ -58,20 +70,16 @@ export default function VisitorCounter() {
                         // 데이터 가져온 경우
                         <div className="flex flex-col items-center">
                             {/* header */}
-                            <div className="font'bold text-sm tracking-widest">VISITORS</div>
+                            <div className="font-bold text-lg tracking-widest border-dashed">VISITORS</div>
                             {/* 당일 방문자 */}
                             <div className="flex flex-col items-center">
                                 <span className="text-gray-400 mb-1">TODAY</span>
-                                <span className="text-lg font-bold">
-                                    {visitors.date?.toString().padStart(6,'0')}
-                                </span>
+                                <NumberBoard number={animatedToday} length={6} color="bg-green-100 text-green-700 border-green-600" />
                             </div>
                             {/* 전체 방문자 */}
                             <div className="flex flex-col items-center">
                                 <span className="text-gray-400 mb-1">TOTAL</span>
-                                <span className="text-lg font-bold text-red-500">
-                                    {visitors.total?.toString().padStart(6,'0')}
-                                </span>
+                                <NumberBoard number={animatedTotal} length={6} color="bg-blue-100 text-blue-700 border-blue-600" />
                             </div>
                         </div>
                     ) : (
@@ -82,6 +90,32 @@ export default function VisitorCounter() {
                     )
                 )}
             </div>
+        </div>
+    )
+}
+
+// 날짜 숫자 공용 컴포넌트
+function NumberBoard({ number, length, color }) {
+    // 숫자 문자열로 바꾸고 0채우기
+    const strNum = number.toString().padStart(length,'0');
+    // 문자열을 배열로 변환
+    const digits = strNum.split('')
+
+    return (
+        <div className="flex justify-between gap-1 sm:gap-2">
+            {digits.map((digit, idx) => (
+                <div 
+                key={idx}
+                className={`
+                    flex-1 aspect-[3/4] flex items-center justify-center
+                    text-xl sm:text-2xl font-bold font-mono rounded-lg border-2
+                    shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]
+                    transition-all duration-300
+                    ${color}
+                `}>
+                    {digit}
+                </div>
+            ))}
         </div>
     )
 }
