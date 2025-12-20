@@ -101,6 +101,7 @@ export default function RootLayout({ children }) {
               {/** 일반 페이지면 main/layout.js, 404면 not-fount.js */}
               <div className="flex-1 w-full">
                 {children}
+                <SpeedInsights />
               </div>
               {/** footer 추가 */}
               <footer className="max-w-5xl mx-auto px-4 border-t py-4 mt-10 text-center text-gray-500 text-sm">
