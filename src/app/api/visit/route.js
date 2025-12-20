@@ -11,7 +11,14 @@ export async function POST(request) {
     })
 
     // 1. 유저 Ip 추출
-    const Ip = request.ip;
+    const Ip = request.headers.get('x-forwarded-for');
+    if (Ip) {
+        // 프록시를 거쳐서 여려 Ip가 있을 경우 맨 앞이 사용자의 것
+        Ip = Ip.split(',')[0].trim();
+    } else {
+        console.log(`사용자 ip가 없음`);
+        Ip = '127.0.0.1';
+    }
 
     // 2. 오늘 날짜 계산
     const now = new Date();
