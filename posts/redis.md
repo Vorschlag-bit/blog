@@ -332,7 +332,7 @@ export function useCounter(target, duration = 1200) {
 HTML METHOD만 다를 뿐 URL을 고정되어 있다는 게 문제였다. 
 
 우선 Cache는 당연히 GET 요청에 대해서 주로 이뤄진다. 하지만 월 50만이라는 cmd를 최대한 아끼고 싶다는 생각으로 어떻게든 최적화를 하고 싶은 마음이
-있었다. 따라서 POST 하기 전에 GET 요청을 먼저 날려서 Cache를 확인하고 있을 경우엔 해당 값을 그대로 사용 없다면 POST를 하고 + 1의 값을 보여주도록 했다.
+있었다. 따라서 POST 하기 전에 GET 요청을 먼저 날려서 Cache를 확인하고 있을 경우엔 해당 값을 그대로 사용 없다면 POST를 하도록 했다.
 
 이 과정에서 Next.js의 <code>unstable_cache</code>를 사용했다.  
 unstable_cache는 parameter와 key list에 담긴 값들을 기반으로 고유한 Key를 생성해 Caching한다.  
@@ -379,16 +379,16 @@ if (isNew === 1) {
     writePipe.incr(TOTAL_PREFIX);
     writePipe.expire(dateKey, diff);
     await writePipe.exec();
-
-    total += 1
-    todayCount += 1
 }
 ```
 이 Cache가 유효하게 hit되는지 확인하기 위해선 vercel log를 확인해보거나 배포 환경에서 Response에서 확인할 만한 캐시 적용 시간을
 필드에 넣어서 확인해보면 된다. (`cachedAt`)
 
 #### 캐시 적용 확인
-
+<figure>
+    <img src="/images/redis_t4.png" alt="46분 기준 43분의 캐시 데이터가 return된 모습" />
+    <figcaption>46분에 요청을 했으나 return된 캐시 데이터는 43분의 데이터이다.</figcaption>
+</figure>
 
 ### 후기
 이젠 정말 타 블로그와 비교해도 손색이 없을만큼 너무 맘에 드는 블로그의 형태를 갖추었다.  

@@ -64,7 +64,7 @@ export async function POST(request) {
     const dateKey = `${DATE_PREFIX}:${iso}`
 
     // 조회를 먼저 하고 중복이 아닐 경우 incr,sadd 추가
-    let { total, date: todayCount } = await getCachedCounts(dateKey)
+    let { total, date: todayCount, cachedAt } = await getCachedCounts(dateKey)
 
     const isNew = await redis.sadd(dateKey, Ip);
     console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
@@ -76,13 +76,11 @@ export async function POST(request) {
         writePipe.incr(TOTAL_PREFIX);
         writePipe.expire(dateKey, diff);
         await writePipe.exec();
-
-        total += 1
-        todayCount += 1
     }
 
     return NextResponse.json({
         total: total,
-        date: todayCount
+        date: todayCount,
+        cachedAt: cachedAt
     });
 }
