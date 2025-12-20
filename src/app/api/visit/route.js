@@ -23,8 +23,7 @@ const getCachedCounts = unstable_cache(
 
         return {
             total: total || 0,
-            date: date || 0,
-            cachedAt: new Date().toLocaleTimeString()
+            date: date || 0
         };
     },
     ['visitor-counts'],     // 캐시 키(고유한 문자열)
@@ -64,7 +63,7 @@ export async function POST(request) {
     const dateKey = `${DATE_PREFIX}:${iso}`
 
     // 조회를 먼저 하고 중복이 아닐 경우 incr,sadd 추가
-    let { total, date: todayCount, cachedAt } = await getCachedCounts(dateKey)
+    let { total, date: todayCount } = await getCachedCounts(dateKey)
 
     const isNew = await redis.sadd(dateKey, Ip);
     console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
@@ -80,7 +79,6 @@ export async function POST(request) {
 
     return NextResponse.json({
         total: total,
-        date: todayCount,
-        cachedAt: cachedAt
+        date: todayCount
     });
 }
