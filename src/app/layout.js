@@ -109,6 +109,7 @@ export default function RootLayout({ children }) {
             </ThemeProvider>
           </LoadingProvider>
         </Suspense>
+        <SpeedInsights />
       </body>
     </html>
   );
