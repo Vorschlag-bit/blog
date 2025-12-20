@@ -1,5 +1,6 @@
 import CategoryList from "@/components/CategoryList";
 import WeatherWidget from "@/components/WeatherWidget";
+import VisitorCounter from "@/components/VisitorCounter";
 
 export default function HomeLayout({ children }) {
     return (
@@ -21,6 +22,7 @@ export default function HomeLayout({ children }) {
         
         {/** 3. 오른쪽 균형을 맞추기 위한 투명한 유령 박스 */}
         <div className="hidden xl:block w-52 mr-2 shrink-0" aria-hidden="true" />
+            <VisitorCounter />
     </div>
     )
 }
