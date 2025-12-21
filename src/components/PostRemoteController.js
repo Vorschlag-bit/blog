@@ -123,8 +123,10 @@ export default function PostRemoteControl() {
                 {/** 1. 목차 박스 (레트로 스타일) */}
                 <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900
                 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] mb-4 p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                    <div className="flex items-center gap-2 mb-4 text-base font-bold border-b-2 border-dashed border-gray-300 pb-2">
-                        <svg className="w-6 h-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M18 2H6v2h12v16h-2v-2h-2v-2h-4v2H8v2H6V2H4v20h4v-2h2v-2h4v2h2v2h4V2h-2z" fill="currentColor"/></svg>
+                    <div className="flex items-center gap-1 mb-4 text-base font-bold border-b-2 border-dashed border-gray-300 pb-2"
+                        aria-level="목차"
+                    >
+                        <svg className="w-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h12v20H4V2h4zm4 8h-2v2H8V4H6v16h12V4h-4v8h-2v-2z" fill="currentColor"/> </svg>
                         목차
                     </div>
                     <ul className="space-y-2">
@@ -139,6 +141,8 @@ export default function PostRemoteControl() {
                                         ? "text-blue-600 font-bold dark:text-blue-400"
                                         : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                                     }`}
+                                    title={`${heading.text}`}
+                                    aria-level={`${heading.text}`}
                                 >
                                     {activeId === heading.id && <span className="mr-1">
                                         <svg className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 5v2h2V5H8zm4 4V7h-2v2h2zm2 2V9h-2v2h2zm0 2h2v-2h-2v2zm-2 2v-2h2v2h-2zm0 0h-2v2h2v-2zm-4 4v-2h2v2H8z" fill="currentColor"/> </svg>
@@ -154,13 +158,13 @@ export default function PostRemoteControl() {
                 <div className="flex justify-center gap-2">
                     <button
                         onClick={scrollToTop}
-                        className="flex items-center bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-500 p-2 hover:bg-gray-300 transition shadow-pixel active:transition-y-1 active:shadow-none"
+                        className="flex items-center bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-500 p-2 hover:bg-gray-300 transition shadow-pixel active:transition-y-1 active:shadow-none" title="맨 위로"
                     aria-label="맨 위로">
                         <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 6h16V4H4v2zm7 14h2v-8h2v2h2v-2h-2v-2h-2V8h-2v2H9v2H7v2h2v-2h2v8z" fill="currentColor"/> </svg>
                     </button>
                     <button
                         onClick={scrollToBottom}
-                        className="flex items-center bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-500 p-2 hover:bg-gray-300 transition shadow-pixel active:transition-y-1 active:shadow-none"
+                        className="flex items-center bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-500 p-2 hover:bg-gray-300 transition shadow-pixel active:transition-y-1 active:shadow-none" title="맨 아래로"
                     aria-label="맨 아래로">
                         <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 4h2v8h2v2h-2v2h-2v-2H9v-2h2V4zm-2 8H7v-2h2v2zm6 0v-2h2v2h-2zM4 18h16v2H4v-2z" fill="currentColor"/> </svg>
                     </button>

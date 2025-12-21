@@ -166,11 +166,11 @@ export default function WeatherWidget() {
                             {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
                     onClick={handleMyLocation}
-                    className="hover:bg-gray-200 p-1 rounded transition-colors"
+                    className="hover:bg-gray-200 dark:hover:bg-gray-500 p-1 rounded transition-colors"
                     title="내 위치 날씨 보기"
                 >
                     {/* GPS 아이콘 */}
-                    <svg className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 2v4h5v5h4v2h-4v5h-5v4h-2v-4H6v-5H2v-2h4V6h5V2h2zM8 8v8h8V8H8zm2 2h4v4h-4v-4z" fill="currentColor"/> </svg>
+                    <svg className="w-4 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 2v4h5v5h4v2h-4v5h-5v4h-2v-4H6v-5H2v-2h4V6h5V2h2zM8 8v8h8V8H8zm2 2h4v4h-4v-4z" fill="currentColor"/> </svg>
                 </button>
             </div>
             <div className="flex justify-center min-h-[100px]">
