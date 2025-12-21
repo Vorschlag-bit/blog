@@ -55,7 +55,10 @@ return (
             <div className="flex flex-col gap-4">
                 {/* 헤더 */}
                 <div className="flex justify-between items-end border-b-2 border-black/10 pb-1">
-                    <span className="font-bold text-xs tracking-widest">VISITORS</span>
+                    <div className="flex items-center gap-1">
+                        <svg className="w-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 0H5v2H3v6h2v2h6V8H5V2h6V0zm0 2h2v6h-2V2zM0 14h2v4h12v2H0v-6zm2 0h12v-2H2v2zm14 0h-2v6h2v-6zM15 0h4v2h-4V0zm4 8h-4v2h4V8zm0-6h2v6h-2V2zm5 12h-2v4h-4v2h6v-6zm-6-2h4v2h-4v-2z" fill="currentColor"/> </svg>
+                        <span className="font-bold text-xs tracking-widest">VISITORS</span>
+                    </div>
                     <div className="flex gap-1 items-center">
                         <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
                         <span className="text-[10px] text-gray-500">LIVE</span>
