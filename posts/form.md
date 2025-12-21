@@ -7,7 +7,6 @@ description: "사용자로부터 입력을 받는 form을 만들 때 사용하�
 
 ## Form 관련 태그들에 대해서 (<label\>, <input\>, <form\>)
 웹 페이지에서 <b>사용자의 입력</b>을 받을 때는 form을 사용한다. 하나의 웹 페이지 안에는 다양한 form들이 존재한다.  
-많은 초보 웹 개발자들이 단순히 `<input>`만 덩그러니 사용하는 실수를 저지를 때가 있다. 
 
 이 글은 이러한 form과 관련된 태그와 그 태그들의 속성에 대해서 자세히 다루는 글.
 
@@ -406,7 +405,7 @@ number와 range에서 사용 가능한 속성은 아래와 같다.
     </tbody>
 </table>
 
-`type="number"`와 `type="range"`는 최신 HTML에 새로 추가된 것이기 때문에 웹 브라우저마다 화면에 그려지는 모습이 다르다.  
+`type="number"`와 `type="range"`는 최신 HTML에 새로 추가된 것이기 때문에 웹 브라우저마다 화면에 그려지는 모습이 다르다. 
 현재 나는 <b>크롬</b>을 기준으로 설명한다.
 
 <label>number 예시<input type="number" min="1" max="123" step="2" style="border: 2px solid black"></label>
@@ -442,7 +441,7 @@ number와 range에서 사용 가능한 속성은 아래와 같다.
 <label>week 예시<input type="week" style="border: 2px solid black"></label>
 
 #### 4-1-6. 시간 입력 필드들 (time, datetime-local)
-<b>시간을 지정</b>할 때는 보통 `type="time"`을 사용하고, <b>날짜와 시간을 함꼐 지정</b>할 때는 `type="datetime-local"`을 사용한다.
+<b>시간을 지정</b>할 때는 보통 `type="time"`을 사용하고, <b>날짜와 시간을 함께 지정</b>할 때는 `type="datetime-local"`을 사용한다.
 ```HTML
 <!-- time은 '시간'을 입력하게 함. 필드는 웹브라우저마다 조금씩 다르다, '오전/오후', '시', '분'으로 구성된다. -->
 <input type="time">
