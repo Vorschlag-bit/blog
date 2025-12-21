@@ -29,7 +29,7 @@ export default function VisitorCounter() {
             }
 
             const data = await res.json()
-            console.log("데이터 파싱 결과: ", data);
+            // console.log("데이터 파싱 결과: ", data);
             
             setVisitors(data)
 
