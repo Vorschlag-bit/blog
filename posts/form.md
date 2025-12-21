@@ -1,5 +1,5 @@
 ---
-title: "<label>과 <input>: 폼을 만들 때 label을 꼭 써야 하는 이유"
+title: "폼 태그 완전 정리: <form>, <label>, <input>"
 date: "2025-12-21 15:19:38"
 category: "HTML"
 description: "사용자로부터 입력을 받는 form을 만들 때 사용하는 태그와 속성에 대해서 알아보자."
