@@ -34,6 +34,7 @@ description: "python으로 풀어보는 백준 ${pNum}"
 
 ### 정답 코드
 \`\`\`python
+
 \`\`\`
 `;
 
