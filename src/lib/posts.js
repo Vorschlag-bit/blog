@@ -17,8 +17,6 @@ import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import rehypeExternalLinks from 'rehype-external-links';
 
-import { notFound } from 'next/navigation';
-
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
 const postsDirectory = path.join(process.cwd(), 'posts')
