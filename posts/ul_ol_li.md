@@ -59,12 +59,8 @@ description: "정보를 그룹핑(Grouping)하는 태그인 <ul>, <ol>, <li> 태
 디자인 상, 점(•)이 없어서 헷갈릴 수도 있겠지만 의미상 명백히 <b>메뉴의 목록</b>이기 때문에 `<ul>`를 사용하는 게 알맞다.  
 물론 점을 없애는 것은 단순히 CSS의 영역이다. (`list-style: none`)
 
-<div class="flex items-center gap-2">
-    <svg class="w-10 h-10 text-gray-800" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z" fill="currentColor"/> </svg>
-    <span class="font-bold text-2xl">
-        글 요약
-    </span>
-</div>
+<div class="flex items-center gap-2"><svg class="w-10 h-10 text-gray-800" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z" fill="currentColor"/></svg><span class="font-bold text-2xl">글 요약</span></div>
+
 
 1. 순서 없으면 `<ul>`, 순서 있으면 `<ol>`을 쓴다.
 2. 항목은 무조건 `<li>`로 감싼다.

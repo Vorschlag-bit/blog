@@ -9,6 +9,8 @@ import PostImageLoader from "@/components/PostImageLoader";
 import { getPreNextPost } from "@/lib/posts";
 import PostNavigator from "@/components/PostNavigator";
 import { getSortedPostsData } from "@/lib/posts";
+// mermaid Util
+import MermaidInit from "@/app/utils/mermaidInit";
 
 // 존재하는 모든 글의 ID 목록 생성 함수 -> 404.js로 처리하기 위함
 export async function generateStaticParams() {
@@ -56,6 +58,8 @@ export default async function Post({params}) {
 
     return (
         <article className="max-w-4xl mx-auto p-4 relative">
+            {/* mermaidUtil 추가 */}
+            <MermaidInit />
             <PostRemoteControl />
             {/** img 태그 미리 다운로드 체크 확인 컴포넌트 추가 */}
             <PostImageLoader>
