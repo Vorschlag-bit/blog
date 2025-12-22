@@ -86,6 +86,8 @@ export async function getPostData(id) {
 
 여기서 등장하는 것이 바로 <b>Next.js의 예약어 기능</b>이다.
 
+---
+
 ## 2. 해결책: 미리 명단을 제출 (generateStaticParams)
 
 Next.js에는 <b>빌드 타임(Build Time)</b>에 정적 경로를 미리 생성하는 `generateStaticParams`라는 함수가 존재한다.
@@ -122,6 +124,8 @@ export async function generateStaticParams() {
 
 이제 Next.js는 빌드할 때 이 함수들을 실행해서 존재하는 모든 글과 카테고리에 대한 HTML을 미리 만들어둔다. <b>(SSG: Static Site Generation)</b>
 
+---
+
 ## 3. 핵심: 문지기 세우기 (dynamicParams)
 
 단순히 `generateStaticParams`만 쓴다면, 명단에 없는 손님이 왔을 때 Next.js는 "혹시 모르니까 서버에서 찾아볼게"라며 렌더링을 시도한다. (SSR 동작).
@@ -140,6 +144,8 @@ export default async function Post({ params }) {
 만약 명단에 없는 `id`나 `slug`라면?  
 <b>컴포넌트를 실행조차 하지 않고 즉시 404 페이지로 보내버린다.</b>
 
+---
+
 ## 4. 왜 이 방식이 최적의 해결책인가?
 단순히 사이드바를 없애기 위해서라기엔 거창해 보일 수 있지만, 내 블로그 환경(Markdown + Vercel)에서 이 방식은 세 가지 결정적인 장점이 있다.
 
@@ -157,7 +163,13 @@ export default async function Post({ params }) {
 
 굳이 사용자가 접속할 때마다 서버(Serverless Function)를 깨워서 연산할 필요 없이, 빌드 타임에 HTML을 다 구워놓고 서빙만 하는 것이 가장 빠르고 효율적이다.
 
+---
+
 ## 5. 결론
+<figure>
+    <img src="/images/wr_posts3.png" alt="깔끔하게 404 페이지만 나오는 모습">
+    <figcaption>편-안하다.</figcaption>
+</figure>
 처음엔 단순히 "잘못된 URL 입력 시 404 띄우기"로 시작했지만, 결과적으로 <b>Next.js의 렌더링 전략(SSG)</b>을 제대로 활용하는 구조로 개선하게 되었다.
 
 이제 내 블로그는 이상한 URL로 공격을 시도하거나 실수를 해도, 입구컷을 할 수 있는 블로그가 되었다.
