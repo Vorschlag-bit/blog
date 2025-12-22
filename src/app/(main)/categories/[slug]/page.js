@@ -2,6 +2,7 @@
 import LoadingLink from "@/components/LoadingLink";
 import { getPaginatedCategories } from "@/lib/posts";
 import Pagination from "@/components/Pagination";
+import { notFound } from "next/navigation";
 
 // paging을 위한 searchParams와 라우팅을 위한 카테고리 params
 export default async function CategoryPage({ params, searchParams }) {
@@ -17,6 +18,9 @@ export default async function CategoryPage({ params, searchParams }) {
 
     // return 받은 객체 fields
     const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
+
+    // 올바른 카테고리가 아니라면 404 return
+    if (!posts || posts.length === 0) notFound();
 
     return (
         <section className="p-10">
@@ -34,7 +38,7 @@ export default async function CategoryPage({ params, searchParams }) {
             ) : (
                 <ul className="space-y-4">
                     {posts.map(({ id,title,date,description }) => (
-                        <li key={id} className="border p-4 shadow-sm hover:shadow-md transition">
+                        <li key={id} className="border p-4 shadow-sm hover:shadow-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                             <p className="text-gray-500 text-sm mb-1">{date}</p>
                             <LoadingLink href={`/posts/${id}`}>
                                 <h2 className="text-2xl font-bold text-blue-600">{title}</h2>
