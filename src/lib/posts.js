@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
-import exp from 'constants';
 
 // 수학 공식 이쁘게 표현하기 위한 라이브러리 import
 import remarkMath from 'remark-math';
@@ -17,6 +16,8 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import rehypeExternalLinks from 'rehype-external-links';
+
+import { notFound } from 'next/navigation';
 
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
@@ -53,36 +54,44 @@ export function getSortedPostsData() {
 
 // id(파일 이름)을 받아서 해당 글의 데이터를 가져오는 함수 (remark 비동기)
 export async function getPostData(id) {
-    const fullPath = path.join(postsDirectory, `${id}.md`)
-    const fileContents = fs.readFileSync(fullPath, 'utf8')
+    // Path Traversal 방지 (id에 슬래시나 파일 시스템 탐색 시도 차단)
+    if (id.includes('/') || id.includes('\\') || id.includes('..')) return null;
 
-    // 메타 데이터 파싱 (gray-matter)
-    const matterResult = matter(fileContents)
-    // 마크다운 본문을 HTML로 파싱 (remark)
-    const processedContent = await remark()
-    .use(remarkMath)
-    .use(remarkGfm)
-    .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
-    .use(rehypeRaw)
-    .use(rehypeExternalLinks, {
-        target: '_blank',
-        rel: ['noopener', 'noreferrer'],
-    })
-    .use(rehypeSlug) // HTML 변환 시 id 추가
-    .use(rehypeKatex)
-    .use(rehypeHighlight) // 코드 하이라이팅 적용
-    .use(rehypeStringify) // HTML 문자열로 변경
-    .process(matterResult.content)
+    try {
+        const fullPath = path.join(postsDirectory, `${id}.md`)
+        const fileContents = fs.readFileSync(fullPath, 'utf8')
 
-    const htmlContent = processedContent.toString()
+        // 메타 데이터 파싱 (gray-matter)
+        const matterResult = matter(fileContents)
+        // 마크다운 본문을 HTML로 파싱 (remark)
+        const processedContent = await remark()
+        .use(remarkMath)
+        .use(remarkGfm)
+        .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
+        .use(rehypeRaw)
+        .use(rehypeExternalLinks, {
+            target: '_blank',
+            rel: ['noopener', 'noreferrer'],
+        })
+        .use(rehypeSlug) // HTML 변환 시 id 추가
+        .use(rehypeKatex)
+        .use(rehypeHighlight) // 코드 하이라이팅 적용
+        .use(rehypeStringify) // HTML 문자열로 변경
+        .process(matterResult.content)
 
-    // console.log(htmlContent)
+        const htmlContent = processedContent.toString()
 
-    // 데이터와 HTML 내용을 합쳐서 반환
-    return {
-        id,
-        htmlContent,
-        ...matterResult.data,
+        // console.log(htmlContent)
+
+        // 데이터와 HTML 내용을 합쳐서 반환
+        return {
+            id,
+            htmlContent,
+            ...matterResult.data,
+        }
+    } catch (error) {
+        console.error(`Error reading post id -> ${id}: `, error);
+        return null;
     }
 }
 

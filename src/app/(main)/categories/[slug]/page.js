@@ -1,8 +1,14 @@
 /** main과 비슷하지만 전체가 아니라 필터링된 데이터만 가져오는 함수 */
 import LoadingLink from "@/components/LoadingLink";
-import { getPaginatedCategories } from "@/lib/posts";
+import { getAllCategories, getPaginatedCategories } from "@/lib/posts";
 import Pagination from "@/components/Pagination";
-import { notFound } from "next/navigation";
+
+export async function generateStaticParams() {
+    const categories = getAllCategories();
+    return categories.map((item) => ({ slug: item.category }))
+}
+
+export const dynamicParams = false;
 
 // paging을 위한 searchParams와 라우팅을 위한 카테고리 params
 export default async function CategoryPage({ params, searchParams }) {
@@ -18,9 +24,6 @@ export default async function CategoryPage({ params, searchParams }) {
 
     // return 받은 객체 fields
     const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
-
-    // 올바른 카테고리가 아니라면 404 return
-    if (!posts || posts.length === 0) notFound();
 
     return (
         <section className="p-10">
