@@ -30,7 +30,12 @@ description: "python으로 풀어보는 백준 ${pNum}"
 
 백준 ${pNum}번 문제 풀이에 대한 해설.
 
-`
+### 나의 접근
+
+### 정답 코드
+\`\`\`python
+\`\`\`
+`;
 
 const filePath = path.join(process.cwd(), 'posts', fileName)
 
