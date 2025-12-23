@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@upstash/redis": "^1.35.8",
+    "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.2.0",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.25",
