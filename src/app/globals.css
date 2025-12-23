@@ -168,11 +168,8 @@ body:has(#global-not-found) main {
     max-width: 100% !important;  /* 최대 너비 제한 해제 */
     width: 100% !important;      /* 전체 너비 사용 */
     margin: 0 !important;        /* 여백 제거 */
-    padding: 0 !important;       /* 패딩 제거 */
-    
-    /* 화면 정중앙 정렬을 위해 Flex 적용 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;           /* 높이 꽉 채우기 */
+    padding-top: 0 !important;    /* 위쪽 여백 제거 */
+    padding-bottom: 0 !important; /* 아래쪽 여백 제거 */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }

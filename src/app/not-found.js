@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Notfound() {
     return (
-        <div id="global-not-found" className="min-h-[70vh] flex flex-col items-center justify-center text-center p-10 font-[Galmuri11]">
+        <div id="global-not-found" className="min-full h-full flex flex-col items-center justify-center text-center p-10 font-[Galmuri11]">
             <h1 className="text-9xl text-blue-600 mb-4">404</h1>
             <h2 className="text-2xl mb-8">FILE_NOT_FOUND_EXCEPTION</h2>
             <div className="mb-8 flex items-center gap-2">
