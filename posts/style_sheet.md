@@ -79,14 +79,8 @@ CSS를 사용하지 않은 웹 문서일지라도 브라우저에 표시될 때 
 <link rel="stylesheet" href="외부 스타일 시트 파일 경로">
 ```
 
-<div class="flex items-center gap-2">
-    <svg class="w-10 h-10 text-gray-800" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z" fill="currentColor"/>
-    </svg>
-    <span class="font-bold text-2xl">
-        글 요약
-    </span>
-</div>
+<div class="flex items-center gap-2"><svg class="w-10 h-10 text-gray-800" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z" fill="currentColor"/></svg><span class="font-bold text-2xl">글 요약</span></div>
+
 
 - **스타일(Style)의 정의와 중요성**
     - 웹 문서의 내용(HTML)과 별개로 디자인(겉모습)을 결정하는 요소.
