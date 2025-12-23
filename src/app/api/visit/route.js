@@ -18,7 +18,7 @@ const getCachedCounts = unstable_cache(
         pipeline.get(TOTAL_PREFIX);
         pipeline.scard(dateKey);
 
-        console.log(`[Redis Read] 캐시가 만료되어 DB에서 새로 조회`);
+        // console.log(`[Redis Read] 캐시가 만료되어 DB에서 새로 조회`);
         const [total, date] = await pipeline.exec();
 
         return {
@@ -66,7 +66,7 @@ export async function POST(request) {
     let { total, date: todayCount } = await getCachedCounts(dateKey)
 
     const isNew = await redis.sadd(dateKey, Ip);
-    console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
+    // console.log(`새로운 일일 방문자인지 확인: ${isNew}`);
 
     // 4. 전체 방문자 수
     // 해당 일일 방문이 유니크하면 INCR

@@ -91,6 +91,7 @@ export default function WeatherWidget() {
                 ...data,
                 locationName: locationName
             })
+            // console.log("setWeather로 데이터를 넣은 이후 로그: ", weather);
         } catch (e) {
             console.debug(e);
             setErrorMsg("날씨 정보를 불러오지 못했습니다.")
