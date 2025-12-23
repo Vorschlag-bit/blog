@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import Image from "next/image";
 import { LoadingProvider } from "@/context/LoadingContext";
@@ -102,6 +103,7 @@ export default function RootLayout({ children }) {
               <div className="flex-1 w-full">
                 {children}
                 <Analytics />
+                <SpeedInsights />
               </div>
               {/** footer 추가 */}
               <footer className="max-w-5xl mx-auto px-4 border-t py-4 mt-10 text-center text-gray-500 text-sm">

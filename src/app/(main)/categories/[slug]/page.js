@@ -2,6 +2,7 @@
 import LoadingLink from "@/components/LoadingLink";
 import { getAllCategories, getPaginatedCategories } from "@/lib/posts";
 import Pagination from "@/components/Pagination";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
     const categories = getAllCategories();
@@ -24,6 +25,8 @@ export default async function CategoryPage({ params, searchParams }) {
 
     // return 받은 객체 fields
     const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
+
+    if (!posts || posts.length === 0) return notFound();
 
     return (
         <section className="p-10">
