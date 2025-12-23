@@ -159,3 +159,20 @@ button, .border {
     transform: translate(2px, 2px);
     box-shadow: none;
 }
+
+body:has(#global-not-found) aside {
+    display: none !important;;
+}
+
+body:has(#global-not-found) main {
+    max-width: 100% !important;  /* 최대 너비 제한 해제 */
+    width: 100% !important;      /* 전체 너비 사용 */
+    margin: 0 !important;        /* 여백 제거 */
+    padding: 0 !important;       /* 패딩 제거 */
+    
+    /* 화면 정중앙 정렬을 위해 Flex 적용 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;           /* 높이 꽉 채우기 */
+}

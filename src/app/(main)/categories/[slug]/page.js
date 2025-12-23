@@ -26,7 +26,10 @@ export default async function CategoryPage({ params, searchParams }) {
     // return 받은 객체 fields
     const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
 
-    if (!posts || posts.length === 0) return notFound();
+    // if (!posts || posts.length === 0) {
+    //     console.log(`이 카테고리는 없어용`);
+    //     return notFound();
+    // }
 
     return (
         <section className="p-10">
