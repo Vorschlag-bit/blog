@@ -51,7 +51,7 @@ export default function VisitorCounter() {
     },[])
 
 return (
-        <div className="retro-box p-4 w-[120%] relative -left-[4%] bg-white dark:bg-gray-800 border-2 border-black dark:border-gray-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]">
+        <div className="retro-box p-4 w-[120%] relative -left-[4%] bg-white dark:bg-gray-800 border-2 border-black dark:border-gray-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]">
             <div className="flex flex-col gap-4">
                 {/* 헤더 */}
                 <div className="flex justify-between items-end border-b-2 border-black/10 pb-1">
