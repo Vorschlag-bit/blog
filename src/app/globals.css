@@ -173,3 +173,9 @@ body:has(#global-not-found) main {
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
+
+.mermaid {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
