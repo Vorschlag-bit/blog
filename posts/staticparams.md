@@ -178,7 +178,7 @@ export default async function Post({ params }) {
 하지만 여전히 `/categories/[slug]`의 params로 이상한 값을 넣어도 404가 호출되지 않고 있었다.
 
 <figure>
-    <img src="/image/params_wr.png" alt="여전히 이상한 값을 넣어도 그대로 노출되는 모습">
+    <img src="/images/params_wr.png" alt="여전히 이상한 값을 넣어도 그대로 노출되는 모습">
     <figcaption>아직도 params를 비교없이 그대로 노출하고 있다.</figcaption>
 </figure>
 
