@@ -4,6 +4,7 @@ date: "2025-12-23 16:14:34"
 category: "React"
 description: "React의 핵심인 생명주기와 상태(State), 그리고 흔히 겪는 실수들"
 ---
+<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
 
 ## 컴포넌트는 순수 함수(Pure Function)이다.
 React를 관통하는 가장 중요한 수학 공식이 존재한다.  
@@ -105,11 +106,11 @@ const fetchWeather = async () => {
 1. <b>`useEffect` 사용:</b> `weather`가 바뀌어서 리렌더링이 완료된 시점을 감지한다.
 2. <b>지역 변수 활용:</b> `data` 변수 자체를 확인한다.
 
-### 심화: useEffect 무한 루프의 함정
+### TMI; useEffect 무한 루프의 함정
 `weather` 값이 바뀌는 것을 감지하기 위해 무심코 아래와 같이 코드를 짰다가 브라우저가 멈출 뻔했다.
 
 ```javascript
-// ❌ 잘못된 코드: 무한 루프 발생
+//  잘못된 코드: 무한 루프 발생
 useEffect(() => {
     fetchWeather(); // 내부에서 setWeather를 호출함
 }, [weather]); // weather가 바뀌면 다시 실행
