@@ -9,13 +9,17 @@ export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
     const endPage = Math.min(startPage + PAGE_COUNT - 1, totalPages)
     // 페이지 번호 배열 만들기
     const pages = Array.from({ length: endPage - startPage + 1 }, (_,i) => startPage + i)
+    // prev 눌렀을 때 페이지 수
+    const prevPage = Math.max(1, currentPage - PAGE_COUNT)
+    // next 눌렀을 때 페이지 수
+    const nextPage = Math.min(totalPages, currentPage + PAGE_COUNT)
     return (
         <div className="flex justify-center items-center gap-2 mt-7">
             {/** 이전 버튼 */}
             {currentPage > 1 ? (
                 <Link
                     // basePath 뒤에 queryString 덧붙이기
-                    href={`${basePath}?page=${startPage - 1}`}
+                    href={`${basePath}?page=${prevPage}`}
                     className="px-3 py-1 border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                     &lt; PREV
@@ -43,7 +47,7 @@ export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
             {/** 이후 버튼 */}
             {currentPage < totalPages ? (
                 <Link
-                    href={`${basePath}?page=${endPage + 1}`}
+                    href={`${basePath}?page=${nextPage}`}
                     className="px-3 py-1 border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                     NEXT &gt;

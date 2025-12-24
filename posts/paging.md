@@ -57,24 +57,33 @@ export function getPaginatedPosts(page = 1, limit = 10) {
 Next.js의 `<Link>` 태그를 활용해서 <b>URL 쿼리스트링(`?page=n`)</b>을 변경하기 위함이다.
 
 ```javascript
-import Link from "next/link";
-
-export function Pagination({ currentPage, totalPages }) {
+// 카테고리 화면에도 Paging을 하기 위해 basePath(기본값: 홈) 파라미터 추가
+export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
+    const PAGE_COUNT = 5
+    // curPage = 배열 인덱스 + 1
+    // 현재 페이지 기준 시작 페이지 계산, 3 -> (0 * 5) + 1
+    const startPage = Math.floor((currentPage - 1) / PAGE_COUNT) * PAGE_COUNT + 1
+    // 현재 페이지 기준 마지막 페이지 계산
+    const endPage = Math.min(startPage + PAGE_COUNT - 1, totalPages)
     // 페이지 번호 배열 만들기
-    const pages = Array.from({ length: totalPages }, (_, i) => i+1);
-
+    const pages = Array.from({ length: endPage - startPage + 1 }, (_,i) => startPage + i)
+    // prev 눌렀을 때 페이지 수
+    const prevPage = Math.max(1, currentPage - PAGE_COUNT)
+    // next 눌렀을 때 페이지 수
+    const nextPage = Math.min(totalPages, currentPage + PAGE_COUNT)
     return (
-        <div>
+        <div className="flex justify-center items-center gap-2 mt-7">
             {/** 이전 버튼 */}
             {currentPage > 1 ? (
                 <Link
-                    href={`/?page=${currentPage - 1}`}
-                    className="px-3 py-1 border-2 border-black"
+                    // basePath 뒤에 queryString 덧붙이기
+                    href={`${basePath}?page=${prevPage}`}
+                    className="..."
                 >
                     &lt; PREV
                 </Link>
             ) : (
-                <span className="px-3 py-1 border-2 border-gray-300">
+                <span className="...">
                     &lt; PREV
                 </span>
             )}
@@ -83,9 +92,8 @@ export function Pagination({ currentPage, totalPages }) {
                 {pages.map((p) => (
                     <Link
                         key={p}
-                        href={`/?page=${p}`}
-                        className={`px-3 py-1 border-2
-                            ${p == currentPage ? 'bg-blue-600 text-white' : 'border-black'}`}
+                        href={`${basePath}?page=${p}`}
+                        className={`...`}
                     >
                         {p}
                     </Link>
@@ -94,13 +102,13 @@ export function Pagination({ currentPage, totalPages }) {
             {/** 이후 버튼 */}
             {currentPage < totalPages ? (
                 <Link
-                    href={`/?page=${currentPage + 1}`}
-                    className="px-3 py-1 border-2 border-black"
+                    href={`${basePath}?page=${nextPage}`}
+                    className="..."
                 >
                     NEXT &gt;
                 </Link>
             ) : (
-                <span className="px-3 py-1 border-2 border-gray-300">
+                <span className="...">
                     NEXT &gt;
                 </span>
             )}
@@ -108,6 +116,9 @@ export function Pagination({ currentPage, totalPages }) {
     )
 }
 ```
+내가 한 번에 보여주고 싶은 페이지는 최대 5개이기 때문에 현재 보고 있는 페이지를 기준으로 시작 페이지(startPage)와 끝 페이지(endPage)를 계산하고
+현재 페이지를 기준으로 5페이지씩 이동할 수 있도록 prevPage와 nextPage 변수를 만든 후 이동시키도록 했다.
+
 `<`(꺽쇠) 모양을 넣기 위해서 HTML Entity를 넣어서 표현했다.  
 HTML에선 `<`와 `>`는 <b>태그</b>의 의미를 갖기 때문에 아무리 태그 내부에 넣는다고 해도, Parser가 제대로 파싱을 못 하게 방해하기 때문에
 별도의 코드로 작성해야 한다.
