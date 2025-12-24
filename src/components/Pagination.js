@@ -1,15 +1,21 @@
 import Link from "next/link";
 // 카테고리 화면에도 Paging을 하기 위해 basePath(기본값: 홈) 파라미터 추가
 export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
+    const PAGE_COUNT = 5
+    // curPage = 배열 인덱스 + 1
+    // 현재 페이지 기준 시작 페이지 계산, 3 -> (0 * 5) + 1
+    const startPage = Math.floor((currentPage - 1) / PAGE_COUNT) * PAGE_COUNT + 1
+    // 현재 페이지 기준 마지막 페이지 계산
+    const endPage = Math.min(startPage + PAGE_COUNT - 1, totalPages)
     // 페이지 번호 배열 만들기
-    const pages = Array.from({ length: totalPages }, (_, i) => i+1);
+    const pages = Array.from({ length: endPage - startPage + 1 }, (_,i) => startPage + i)
     return (
         <div className="flex justify-center items-center gap-2 mt-7">
             {/** 이전 버튼 */}
             {currentPage > 1 ? (
                 <Link
                     // basePath 뒤에 queryString 덧붙이기
-                    href={`${basePath}?page=${currentPage - 1}`}
+                    href={`${basePath}?page=${startPage - 1}`}
                     className="px-3 py-1 border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                     &lt; PREV
@@ -37,7 +43,7 @@ export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
             {/** 이후 버튼 */}
             {currentPage < totalPages ? (
                 <Link
-                    href={`${basePath}?page=${currentPage + 1}`}
+                    href={`${basePath}?page=${endPage + 1}`}
                     className="px-3 py-1 border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                     NEXT &gt;
