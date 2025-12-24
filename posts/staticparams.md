@@ -165,7 +165,7 @@ export default async function Post({ params }) {
 
 ---
 
-## 5. 결론
+## 5. 끝?
 <figure>
     <img src="/images/wr_posts3.png" alt="깔끔하게 404 페이지만 나오는 모습">
     <figcaption>편-안하다.</figcaption>
@@ -173,16 +173,75 @@ export default async function Post({ params }) {
 처음엔 단순히 "잘못된 URL 입력 시 404 띄우기"로 시작했지만, 결과적으로 <b>Next.js의 렌더링 전략(SSG)</b>을 제대로 활용하는 구조로 개선하게 되었다.
 
 이제 내 블로그는 이상한 URL로 공격을 시도하거나 실수를 해도, 입구컷을 할 수 있는 블로그가 되었다.
-덕분에 코드는 더 간결해졌고, 404 페이지는 깔끔해졌으며, 마음은 한결 편안해졌다.
+덕분에 코드는 더 간결해졌고, 404 페이지는 깔끔해졌으며, 마음은 한결 편안해질 줄 알았다..
 
+하지만 여전히 `/categories/[slug]`의 params로 이상한 값을 넣어도 404가 호출되지 않고 있었다.
+
+<figure>
+    <img src="/image/params_wr.png" alt="여전히 이상한 값을 넣어도 그대로 노출되는 모습">
+    <figcaption>아직도 params를 비교없이 그대로 노출하고 있다.</figcaption>
+</figure>
+
+도대체 뭐가 문제일까.. 조사 끝에 원인을 파악했다. Next.js의 작동원리에 의한 문제였다.  
+나는 카테고리 모음 화면의 경우 Paging을 도입하기 위해서 `searchParams`를 사용했다.
 ```javascript
-// 이제 page.js 내부에는 불필요한 방어 로직 없이, 본연의 기능만 남았다.
-export default async function Post({ params }) {
-    const { id } = await params
-    const postData = await getPostData(id) // 이미 존재함이 보장됨
+export default async function CategoryPage({ params, searchParams }) {
+    // 카테고리 이름(params)
+    const { slug } = await params
+    const category = decodeURIComponent(slug)
+    // 페이지 수(searchParams)
+    const query = await searchParams
 
     return (
-        <article>...</article>
+        //... 
     )
 }
 ```
+Next.js에선 `searchParams`를 사용하는 순간, <b>해당 페이지는 정적 페이지(Static)이 아니라 동적 페이지(Dynamic Rendering)로 변경된다</b>.  
+즉, `searchParams`와 같은 쿼리 스트링을 사용하면 Next.js는 미리 만들어 두는 것이 아닌 요청 올 때마다 서버에서 돌려주는 SSR으로 판단한다.
+
+<a href="" style="color: #2f9e44; text-decoration: none;">
+  Next.js 공식 문서의 <b>page.js</b>의 <code>searchParams</code> 부분
+</a>을 보면 아래의 사진처럼 나와 있다.
+
+<img src="/images/next_search.png" alt="Next.js의 공식문서 page.js의 searchParams 부분">
+
+참고로 Next.js가 생성하는 페이지가 동적인지 정적인지를 확인해보고 싶다면 <b>build</b>를 해보면 된다.  
+build의 맨 마지막에 모든 페이지들의 상태를 알려준다.
+<figure>
+    <img src="/images/st_pg.png" alt="Next.js가 생성한 페이지들의 상태를 빌드 시 보여주는 그림">
+    <figcaption>Build시 맨 마지막에 사진처럼 나온다.</figcaption>
+</figure>
+<b>○</b>면 <b>정적 페이지</b>, <b>●</b>면 <b>SSG(Static Site Generation )</b>, <b>ƒ</b>면 <b>동적 페이지</b>이다.  
+
+페이가 동적 렌더링 모드로 전환되면, `generateStaticParams`으로 만든 명단은 우선 순위가 되나, 명단에 없는 요청도 일단 서버 컴포넌트에서 실행시키는 경우가 발생한다. 그래서 허용이 됐던 것...
+
+결국 눈물을 머금고 <code>notFound()</code>를 호출시키고, <code>global.css</code>에서 id 선택자와 <code>has()</code>선택자를 이용한 aside 태그 지우기로 화면을 통일시켰다.
+
+```css
+body:has(#global-not-found) aside {
+    display: none !important;;
+}
+
+body:has(#global-not-found) main {
+    max-width: 100% !important;  /* 최대 너비 제한 해제 */
+    width: 100% !important;      /* 전체 너비 사용 */
+    margin: 0 !important;        /* 여백 제거 */
+    padding-top: 0 !important;    /* 위쪽 여백 제거 */
+    padding-bottom: 0 !important; /* 아래쪽 여백 제거 */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+```
+---
+
+## 6. 진짜 끝
+<figure>
+    <img src="/images/params_end.png" alt="slug params에 이상한 값을 넣어도 404가 나오는 모습">
+    <figcaption>그래도 깔끔하게 손질하니까 훨씬 낫다.</figcaption>
+</figure>
+
+여러 우여곡절들이 많았으나, 어찌저찌 사태를 해결할 수 있었다.  
+이번 일을 계기로 정말 다양한 지식들을 배울 수 있었기에 마냥 힘들지만은 않은 경험이었다!
+
+나와 비슷한 일을 겪는 사람들에게 이 글이 도움이 되길 바란다.
