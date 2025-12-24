@@ -200,7 +200,7 @@ export default async function CategoryPage({ params, searchParams }) {
 Next.js에선 `searchParams`를 사용하는 순간, <b>해당 페이지는 정적 페이지(Static)이 아니라 동적 페이지(Dynamic Rendering)로 변경된다</b>.  
 즉, `searchParams`와 같은 쿼리 스트링을 사용하면 Next.js는 미리 만들어 두는 것이 아닌 요청 올 때마다 서버에서 돌려주는 SSR으로 판단한다.
 
-<a href="" style="color: #2f9e44; text-decoration: none;">
+<a href="https://nextjs-ko.org/docs/app/api-reference/file-conventions/page" style="color: #2f9e44; text-decoration: none;">
   Next.js 공식 문서의 <b>page.js</b>의 <code>searchParams</code> 부분
 </a>을 보면 아래의 사진처럼 나와 있다.
 
