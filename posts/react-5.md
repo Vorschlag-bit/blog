@@ -1,5 +1,5 @@
 ---
-title: "로직의 분리와 데이터의 흐름: 리팩토링의 미학"
+title: "로직의 분리(Custom Hooks)와 데이터의 흐름(Composition)"
 date: "2025-12-25 15:41:11"
 category: "React"
 description: "React에서 로직의 재사용(Custom Hooks)과 데이터 전달법(Composition)에 대해 알아보자."

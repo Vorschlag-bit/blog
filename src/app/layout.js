@@ -7,7 +7,6 @@ import GlobalLoader from "@/components/GlobalLoader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
-import { Suspense } from "react";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css";
 import 'katex/dist/katex.min.css';
@@ -68,8 +67,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="dark:bg-gray-900 dark:text-gray-100 font-[Galmuri11]">
-        {/** useSearchParams는 <Suspense> 태그로 감싸야 함. URL 파라미터를 읽는 동안 보여줄 아주 짧은 화면이 필요하나, 전역 로딩이 존재하므로 화면 없어도 됌. */}
-        <Suspense fallback={null}>
           <LoadingProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               {/** 전역 로딩 컴포넌트 배치 */}
@@ -111,7 +108,6 @@ export default function RootLayout({ children }) {
               </footer>
             </ThemeProvider>
           </LoadingProvider>
-        </Suspense>
       </body>
     </html>
   );
