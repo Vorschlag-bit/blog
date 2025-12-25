@@ -48,7 +48,7 @@ export async function GET(request) {
         baseTime_Fcst,
         100
     )
-    console.log(`초단기 예보 URL: ${url_fcst}`)
+    // console.log(`초단기 예보 URL: ${url_fcst}`)
 
     // 3. 단기 예보 URL
     const url_srt = makeUrl(
@@ -85,10 +85,7 @@ export async function GET(request) {
 
         const liveData = await errorCheck(resLive, "초단기실황");
         const fcstData = await errorCheck(resFcst, "초단기예보");
-        const srtData = await errorCheck(resSrt, "단기예보");
-
-        console.log(`초단기 예보: `, fcstData);
-        
+        const srtData = await errorCheck(resSrt, "단기예보");        
 
         // 셋 중 하나라도 실패하면 오류
         if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00') {

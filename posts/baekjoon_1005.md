@@ -8,7 +8,7 @@ description: "python으로 풀어보는 백준 1005"
 ## 코딩 테스트 풀이
 
 !["문제사진"](/images/1005.png)
-<a href="https://www.acmicpc.net/problem/1005" style="color: #2f9e44; text-decoration: none;">
+<a class="plink" href="https://www.acmicpc.net/problem/1005">
   문제링크
 </a>
 

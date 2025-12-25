@@ -13,6 +13,11 @@ html {
     border-radius: 0 !important;
 }
 
+.plink {
+    color: #2f9e44;
+    text-decoration: none;
+}
+
 /* 배경의 격자 */
 body {
     background-size: 40px 40px;
@@ -144,7 +149,7 @@ button, .border {
     box-shadow: 4px 4px 0px currentColor;
 }
 
-/* 👇 오타 수정: 두 번째 줄 끝에 콤마(,) 추가 */
+/* 두 번째 줄 끝에 콤마(,) 추가 */
 .shadow-pixel {
     box-shadow:
         -2px 0 0 0 currentColor,
