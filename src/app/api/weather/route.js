@@ -14,6 +14,8 @@ export async function GET(request) {
     const ny = searchParams.get('ny')
 
     const SERVICE_KEY = process.env.WEATHER_API_KEY?.trim(); // 서버에서만 접근 가능한 환경 변수(디코딩 키)
+    console.log('SERVICEKEY: ', SERVICE_KEY)
+    
     if (!SERVICE_KEY) return NextResponse.json({ error: 'API KEY 없음!' }, {status: 500})
 
     const makeUrl = (baseUrl, baseDate, baseTime, rows) => {
