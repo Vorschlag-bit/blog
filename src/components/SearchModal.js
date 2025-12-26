@@ -57,16 +57,21 @@ export default function SearchModal({ posts }) {
 
     return (
         <div ref={containerRef} className="w-full max-w-md translate-x-20">
-            <input 
-                type="search"
-                placeholder=" 검색어를 입력하세요."
-                className="w-full border p-1 rounded-md" // 스타일 약간 수정
-                onChange={handleOnChange} // 핸들러 교체
-                onFocus={handleOnFocus}   // 포커스 핸들러 추가
-                value={query}
-                size={24}
-                maxLength={24}
-            />
+            <div className="relative flex items-center">
+                <div className="absolute left-3">
+                    <svg className="w-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z" fill="currentColor"/> </svg>
+                </div>
+                <input
+                    type="search"
+                    placeholder="검색어를 입력하세요."
+                    className="w-full border p-1 rounded-md border-gray-400 pl-8"
+                    onChange={handleOnChange} // 핸들러 교체
+                    onFocus={handleOnFocus}   // 포커스 핸들러 추가
+                    value={query}
+                    size={24}
+                    maxLength={24}
+                />
+            </div>
 
             {/* 3. 조건부 렌더링: isOpen이 true이고 검색어가 있을 때만 보여줌 */}
             {isOpen && query.length > 0 && (
@@ -86,7 +91,7 @@ export default function SearchModal({ posts }) {
                                 >
                                     <div className="font-bold text-lg dark:text-white truncate">{post.title}</div>
                                     <div className="text-sm text-gray-500 flex gap-2 mb-1">
-                                        <span className="bg-gray-200 px-1 rounded text-xs flex items-center">{post.category}</span>
+                                        <span className="bg-blue-300 dark:bg-blue-300 text-blue-800 px-1 rounded text-xs flex items-center">{post.category}</span>
                                         <span>{post.date}</span>
                                     </div>
                                     <div className="text-sm text-gray-400 line-camp truncate">
