@@ -50,3 +50,27 @@ function stripMarkdown(content) {
         .replace(/\n/g, '') // 줄바꿈 공백으로
 }
 ```
+
+```javascript
+function getJSONArrayForSearch() {
+    const fileNames = fs.readdirSync(postsDirectory)
+    const data = fileNames.map((file) => {
+    const fullPath = path.join(postsDirectory, file)
+    const content = fs.readFileSync(fullPath, 'utf8')
+    const matterResult = matter(content)
+    
+    return {
+        id: file.replace(/\.mds/, ''),
+        title: matterResult.data.title,
+        category: matterResult.data.category,
+        description: matterResult.data.description,
+        content: stripMarkdown(matterResult.content),
+        date: matterResult.data.date
+    };
+    })
+
+    return data;
+}
+```
+
+그 후에는 위와 같이 파일에 대한 메타데이터를 JSON 객체로 만든 후 배열로 return 시키는 함수를 구현했다.
