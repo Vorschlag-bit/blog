@@ -19,7 +19,6 @@ LCS는 대표적인 DP 문제이다. LCS를 설명하는 건 훌륭한 유튜브
 <a class="plink" href="https://www.youtube.com/watch?v=z8KVLz9BFIo">
     LCS 유튜브 설명 강의(주니온 TV)
 </a>. 이 강의를 보면 LCS에 대한 최적해를 찾아나가는 과정을 최악의 시간 복잡도에서부터 최적의 시간 복잡도로 바꿔나가는데
-
 그 과정에서 가장 중요한 것이 DP의 Memorization을 통한 중복 계산을 없얘는 것이다.
 
 ### 점화식 도출
