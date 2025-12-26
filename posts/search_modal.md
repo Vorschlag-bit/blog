@@ -74,3 +74,4 @@ function getJSONArrayForSearch() {
 ```
 
 그 후에는 위와 같이 파일에 대한 메타데이터를 JSON 객체로 만든 후 배열로 return 시키는 함수를 구현했다.
+
