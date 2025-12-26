@@ -6,6 +6,8 @@ import { LoadingProvider } from "@/context/LoadingContext";
 import GlobalLoader from "@/components/GlobalLoader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import { getJSONArrayForSearch } from "@/lib/posts";
+import SearchModal from "@/components/SearchModal";
 import Link from "next/link";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css";
@@ -57,6 +59,8 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  // 빌드 타임 때 실행되어 JSON 데이터 준지
+  const posts = getJSONArrayForSearch()
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
@@ -72,10 +76,10 @@ export default function RootLayout({ children }) {
               {/** 전역 로딩 컴포넌트 배치 */}
               <GlobalLoader />
               {/* 여기에 헤더 추가 */}
-              <header className="max-w-5xl mx-auto px-4 border-b py-4 flex justify-between items-center">
+              <header className="relative z-50 max-w-5xl mx-auto px-4 border-b py-4 flex justify-between items-center">
                 {/** 마스코트 추가 */}
                 <Link href="/" className="flex items-center gap-3 group">
-                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:-rotate-12">
+                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform">
                     <Image
                       src="/images/icon.png"
                       alt="Mascot"
@@ -88,6 +92,8 @@ export default function RootLayout({ children }) {
                     DevLog
                   </h1>
                 </Link>
+                {/* 검색 모달 추가 */}
+                <SearchModal posts={posts} />
                 <nav className="flex items-center gap-4">
                   <Link href="/about">About</Link>
                   <Link href="https://github.com/Vorschlag-bit">

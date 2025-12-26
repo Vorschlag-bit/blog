@@ -4,7 +4,6 @@ import VisitorCounter from "@/components/VisitorCounter";
 
 export default function HomeLayout({ children }) {
     return (
-
     // justify-center로 전체 덩어리를 가운데 정렬 + gap3로 3개의 div 균일한 거리감 조성
     <div className="flex justify-center max-w-[1920px] mx-auto px-4 gap-3">
 

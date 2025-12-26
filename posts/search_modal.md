@@ -61,7 +61,7 @@ function getJSONArrayForSearch() {
     const matterResult = matter(content)
     
     return {
-        id: file.replace(/\.mds/, ''),
+        id: file.replace(/\.md$/, ''),
         title: matterResult.data.title,
         category: matterResult.data.category,
         description: matterResult.data.description,

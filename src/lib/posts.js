@@ -220,9 +220,11 @@ function stripMarkdown(content) {
         .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 링크 제거
         .replace(/`{3}[\s\S]*?`{3}/g, '') // 코드 블록 제거
         .replace(/\n/g, '') // 줄바꿈 공백으로
+        .replace(/<[^>]*>?/gm, ' ') // HTML 태그 제거
+        .replace(/\s+/g, ' ').trim() // 연속된 공백 제거
 }
 
-function getJSONArrayForSearch() {
+export function getJSONArrayForSearch() {
     const fileNames = fs.readdirSync(postsDirectory)
     const data = fileNames.map((file) => {
     const fullPath = path.join(postsDirectory, file)
@@ -230,7 +232,7 @@ function getJSONArrayForSearch() {
     const matterResult = matter(content)
     
     return {
-        id: file.replace(/\.mds/, ''),
+        id: file.replace(/\.md$/, ''),
         title: matterResult.data.title,
         category: matterResult.data.category,
         description: matterResult.data.description,
