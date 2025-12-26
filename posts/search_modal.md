@@ -31,4 +31,22 @@ description: "Fuse.js를 활용한 검색 UI를 만들어보자."
 너무 거대하다고 생각이 들 때라고 하니 나에게 완전 fit한 선택이었다.
 
 ## 구현 과정
-Fuse.js는 
+Fuse.js는 빌드 타임에 모든 글,제목,카테고리를 긁어서 하나의 거대한 <b>JSON 배열</b>을 만든다.  
+클라이언트는 이 JSON을 받아서 Fuse.js 라이브러리에게 던지고, 사용자가 단어를 검색하면 Fuse.js가 점수 계산 이론(<a href="https://en.wikipedia.org/wiki/Bitap_algorithm" class="plink">
+  bitap 알고리즘
+</a>)을 바탕으로 유사한 글을 찾아준다.
+
+### 1. 인덱스 데이터 만들기
+먼저 JSON 배열을 만드는 작업부터 했다. 이를 위해선 내 블로그 md에 있는 내용을 긁어다가 만들 텐데, 중요한 건 <b>마크다운 문법</b>(**나,## 같은) 기호는 
+검색에 있어서 방해만 될 뿐이니 정규표현식으로 제거하고 순수한 텍스트만 남기는 함수를 만들었다.
+
+```javascript
+function stripMarkdown(content) {
+    return content
+        .replace(/#+\s/g, '') // header 제거
+        .replace(/(\*\*|__)(.*?)\1/g, '$2') // 볼드 제거
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 링크 제거
+        .replace(/`{3}[\s\S]*?`{3}/g, '') // 코드 블록 제거
+        .replace(/\n/g, '') // 줄바꿈 공백으로
+}
+```

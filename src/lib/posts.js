@@ -212,3 +212,13 @@ export async function getPreNextPost(currentId) {
         next: next,     // 이후 글
     }
 }
+
+// Fuse.js에 넘길 JSON 배열을 위한 순수 텍스트 추출 함수
+function stripMarkdown(content) {
+    return content
+        .replace(/#+\s/g, '') // header 제거
+        .replace(/(\*\*|__)(.*?)\1/g, '$2') // 볼드 제거
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 링크 제거
+        .replace(/`{3}[\s\S]*?`{3}/g, '') // 코드 블록 제거
+        .replace(/\n/g, '') // 줄바꿈 공백으로
+}
