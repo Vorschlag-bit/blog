@@ -95,7 +95,7 @@ export default function SearchModal({ posts }) {
                                         <span>{post.date}</span>
                                     </div>
                                     <div className="text-sm text-gray-400 line-camp truncate">
-                                        {post.content.slice(0, 50)}...
+                                        {post.description.slice(0, 50)}...
                                     </div>
                                 </Link>
                             </li>
