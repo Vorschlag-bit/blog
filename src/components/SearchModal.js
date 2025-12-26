@@ -23,6 +23,9 @@ export default function SearchModal({ posts }) {
     // 검색어 결과에 따라 필터링
     const results = useMemo(() => {
         if (!query) return [];
+        const r = fuse.search(query)
+        console.log(`검색결과: `, r);
+        
         return fuse.search(query).map(result => result.item);
     }, [query, fuse])
 
