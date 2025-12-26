@@ -34,7 +34,6 @@ export function getSortedPostsData() {
         const fileContent = fs.readFileSync(fullPath, 'utf8')
         // gray-matter 사용해서 메타데이터(title, date...) 파싱
         const matterResult = matter(fileContent)
-
         // id와 metadata 합쳐서 반환
         return {
             id,
@@ -211,4 +210,36 @@ export async function getPreNextPost(currentId) {
         prev: prev,     // 이전 글
         next: next,     // 이후 글
     }
+}
+
+// Fuse.js에 넘길 JSON 배열을 위한 순수 텍스트 추출 함수
+function stripMarkdown(content) {
+    return content
+        .replace(/#+\s/g, '') // header 제거
+        .replace(/(\*\*|__)(.*?)\1/g, '$2') // 볼드 제거
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 링크 제거
+        .replace(/`{3}[\s\S]*?`{3}/g, '') // 코드 블록 제거
+        .replace(/\n/g, '') // 줄바꿈 공백으로
+        .replace(/<[^>]*>?/gm, ' ') // HTML 태그 제거
+        .replace(/\s+/g, ' ').trim() // 연속된 공백 제거
+}
+
+export function getJSONArrayForSearch() {
+    const fileNames = fs.readdirSync(postsDirectory)
+    const data = fileNames.map((file) => {
+    const fullPath = path.join(postsDirectory, file)
+    const content = fs.readFileSync(fullPath, 'utf8')
+    const matterResult = matter(content)
+    
+    return {
+        id: file.replace(/\.md$/, ''),
+        title: matterResult.data.title,
+        category: matterResult.data.category,
+        description: matterResult.data.description,
+        content: stripMarkdown(matterResult.content),
+        date: matterResult.data.date
+    };
+    })
+
+    return data;
 }
