@@ -32,8 +32,6 @@ description: "python으로 풀어보는 백준 17404"
 
 앞으로도 <b>원형</b> DP를 보게된다면 이 문제처럼 모든 경우의 수를 시도해보는 선형 DP로 바꾸는 걸 잊지 말아야겠다.
 
-
-fddfadf
 ### 정답 코드
 ```python
 from sys import stdin as input
