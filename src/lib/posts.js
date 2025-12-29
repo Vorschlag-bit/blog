@@ -17,9 +17,24 @@ import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import rehypeExternalLinks from 'rehype-external-links';
 
+// mermaid 문법 적용을 위한 커스텀 플러그인을 위한 라이브러리 import
+import { visit } from 'unist-util-visit';
+
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
 const postsDirectory = path.join(process.cwd(), 'posts')
+
+function remarkMermaidToHTML() {
+    return (tree) => {
+        visit(tree, 'code', (node) => {
+            if (node.lang === 'mermaid') {
+                // 노드 타입 html로 바꾸고, 내용 div로 변환
+                node.type = 'html'
+                node.value = `<div class="mermaid">${node.value}</div>`
+            }
+        });
+    };
+}
 
 export function getSortedPostsData() {
     // 1. posts 폴더에 있는 파일 이름들을 가져옴 (['first-post.md, ...])
@@ -62,6 +77,7 @@ export async function getPostData(id) {
         const matterResult = matter(fileContents)
         // 마크다운 본문을 HTML로 파싱 (remark)
         const processedContent = await remark()
+        .use(remarkMermaidToHTML)
         .use(remarkMath)
         .use(remarkGfm)
         .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경

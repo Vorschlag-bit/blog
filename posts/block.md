@@ -30,7 +30,7 @@ CSS 박스 모델은 웹 문서의 내용을 <b>박스 형태</b>로 정의하�
 패딩과 테두리, 마진은 상하좌우로 나뉘어 있어서 각 네 방향에 대한 스타일을 따로 설정할 수 있다. 단, 인라인 레벨 요소는 다른 웹 요소와 함께 표시되므로
 마진과 패딩의 값이 정확하게 적용되지 않는다.
 
-<div class="mermaid">
+```mermaid
     flowchart TB
     subgraph margin ["마진 (margin)"]
         direction TB
@@ -45,5 +45,7 @@ CSS 박스 모델은 웹 문서의 내용을 <b>박스 형태</b>로 정의하�
             end
         end
     end
-</div>
+```
+
+
 

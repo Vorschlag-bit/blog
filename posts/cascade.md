@@ -45,14 +45,14 @@ description: "스타일 시트의 우선순위에 대해서 알아보자"
 }
 ```
 
-<div class="mermaid">
+```mermaid
     flowchart TD
         A(1. !important)
         A --> K(2. 인라인 스타일)
         K -->D(3. id 스타일)
         D -->E(4. 클래스 스타일)
         E -->F(5. 타입 스타일)
-</div>
+```
 
 각 선택자에 대한 내용은 <a href="https://vorschlag-blog.vercel.app/posts/selector" style="color: #2f9e44; text-decoration: none;">
   기본 선택자 정리 글
