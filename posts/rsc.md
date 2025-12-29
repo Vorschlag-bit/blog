@@ -9,42 +9,85 @@ description: "Next.js 등장 이후 React의 변화에 대해서 알아보자."
 원래 React는 브라우저(Client)에서만 실행되는 라이브러리이다. 하지만 <b>Next.js App Router</b>부터는 기본적으로 <b>
 모든 컴포넌트가 서버(Server)에서 먼저 실행</b>된다.
 
+이게 무슨 소리나면, 말 그대로다. 클라이언트 컴포넌트(`use client`로 선언된)조차 <b>서버에서 한 번 더 실행(렌더링)된다</b>.
+이를 초기 HTML Pre-rendering이라고 부른다. 클라이언트 컴포넌트의 완성은 3단계에 거쳐서 발생한다.  
+
+<b>1. 서버에서 1차 실행 (정적 HTML 생성)</b>  
+사용자가 내 블로그에 접속했다고 가정하자, 내 페이지에 버튼을 누르면 1을 증가시키는 `Counter`라는 컴포넌트 버튼이 있다고 치자.  
+```Jsx
+'use client'
+import { useState } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      현재 숫자: {count}
+    </button>
+  );
+}
+```
+코드는 이런 식으로 구현되어 있을 것이다.
+
+서버가 이 코드를 실행할 경우 `use client`가 붙어있지만 <b>일단 실행한다</b>. `useState(0)`가 붙어있지만 초기값인 $0$을 가지고 HTML을 만든다.
+
+생성된 HTML은 `<button>현재 숫자: 0</button>`와 같을 것이다. 하지만 서버는 `onClick` 함수나 `useEffect`와 훅을 실행할 수는 없다.
+(브라우저 API도 없고, 마우스도 없으니까) 완성된 껍데기 HTML(정적 프리뷰)를 브라우저로 보낸다.
+
+이 과정이 반드시 필요한 이유는 <b>UX와 SEO 최적화</b> 때문이다. 만약 서버에서 실행하지 않는다면 브라우저가 이걸 모두 완성할 때까지 사용자는 흰 화면을
+보고 있어야 한다.
+
+Next.js는 초기 로딩 속도를 위해서 이러한 클라이언트 컴포넌트조차 서버에서 미리 HTML로 굽는 셈이다.
+
+<b>2. 브라우저 도착 (기능 X, 보이기만 함)</b>  
+사용자의 브라우저에 서버가 보낸 HTML이 도착한다. 이 시점에서 사용자의 화면에는 `<button>현재 숫자: 0</button>`라는 버튼이 보일 것이다.  
+하지만 이 버튼은 눌러서 전혀 반응이 없는 죽은 버튼이다. 자바스크립트 함수와 연결되지 않았기 때문이다.
+
+<b>3. Hydration</b>  
+이제 뒤따라오던 자바스크립트 함수가 도착한다. (JS Bundle)  
+
+이 시점에서 브라우저에서 React가 깨어난다. React는 일전에 서버가 보낸 HTML(`<button>`)과 이벤트 리스너(`onClick`)와 상태(`useState`)를 연결시킨다.
+(Hydration)
+
+이로써 버튼은 숫자가 올라가는 살아있는 컴포넌트가 될 수 있다.
+
 ### 1-1. Client Component VS Server Component
 이 둘을 구분할 줄 알아야 모든 걸 설명할 수 있다. 표로 요약해 보았다.
 
 <table>
     <thead>
         <tr>
-            <th>구분</th>
-            <th>서버 컴포넌트(Server Component)</th>
-            <th>클라이언트 컴포넌트(Client Component)</th>
+            <th width="20%">구분</th>
+            <th width="40%">서버 컴포넌트(RSC)</th>
+            <th width="40%">클라이언트 컴포넌트(Client Component)</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td><b>기본값</b></td>
-            <td>Default(아무것도 안 적기)</td>
-            <td>파일 맨 위에 <code>use client</code> 선언</td>
+            <td>Default (아무것도 안 적기)</td>
+            <td>파일 맨 위에 <code>"use client"</code> 선언</td>
         </tr>
         <tr>
-            <td><b>실행 위치</b></td>
-            <td>서버 (Node.js)</td>
-            <td>브라우저 (사용자 컴퓨터)</td>
+            <td><b>렌더링 & 실행 위치</b><br/>(Lifecycle)</td>
+            <td><b>Only Server</b><br/>서버에서 실행되고 끝난다.</td>
+            <td><b>Server + Client</b><br/>1. 서버에서 <b>HTML 미리 생성</b> (Pre-rendering)<br/>2. 브라우저에서 <b>하이드레이션</b> (Hydration)</td>
+        </tr>
+        <tr>
+            <td><b>전송되는 것</b><br/>(Network)</td>
+            <td>결과물 HTML + 데이터(JSON)<br/>= <b>JS 번들 크기 0 (Zero Bundle Size)</b></td>
+            <td>초기 HTML + <b>인터랙션을 위한 JS 번들</b><br/>= <b>다운로드 받아야 할 JS 크기 증가</b></td>
+        </tr>
+        <tr>
+            <td><b>하이드레이션</b><br/>(Hydration)</td>
+            <td><b>불필요 (X)</b><br/>그냥 보여주기만 하는 정적 콘텐츠임.</td>
+            <td><b>필수 (O)</b><br/>JS가 로드되어 HTML에 <b>이벤트를 연결</b>해야 함.</td>
         </tr>
         <tr>
             <td><b>가능한 것</b></td>
-            <td>DB 직접 접속, 비밀번호(API KEY) 사용, 파일 시스템 접근(<code>fs</code>)</td>
-            <td><code>useEffect</code>,<code>useState</code>,<code>onClick</code>,브라우저 API(<code>window</code>)</td>
-        </tr>
-        <tr>
-            <td><b>불가능한 것</b></td>
-            <td><code>useState</code>,<code>useEffect</code> 같은 상호작용</td>
-            <td>DB 직접 접속, <code>fs</code> 모듈</td>
-        </tr>
-        <tr>
-            <td><b>전송되는 것</b></td>
-            <td>HTML + JSON (JS 코드 X)</td>
-            <td>HTML + JS 번들 (JS 코드 O)</td>
+            <td>DB/파일시스템(fs) 직접 접근,<br/>보안 키(API Key) 사용</td>
+            <td><code>useState</code>, <code>useEffect</code>, <code>onClick</code>,<br/>브라우저 API (<code>window</code>, <code>localStorage</code>)</td>
         </tr>
     </tbody>
 </table>
