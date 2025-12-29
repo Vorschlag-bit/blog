@@ -122,7 +122,7 @@ export default function PostRemoteControl() {
             <div className="sticky top-10 w-60">
                 {/** 1. 목차 박스 (레트로 스타일) */}
                 <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900
-                shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] mb-4 p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)] mb-4 p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     <div className="flex items-center gap-1 mb-4 text-base font-bold border-b-2 border-dashed border-gray-300 pb-2"
                         aria-level="목차"
                     >
