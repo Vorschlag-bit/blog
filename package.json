@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next-remote watch ./posts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -42,6 +42,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "next-remote-watch": "^2.0.0",
     "tailwindcss": "^4"
   }
 }
