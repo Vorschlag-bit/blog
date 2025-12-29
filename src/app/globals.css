@@ -156,7 +156,6 @@ button, .border {
         2px 0 0 0 currentColor,  /* 콤마 추가됨 */
         0 -2px 0 0  currentColor,
         0 2px 0 0 currentColor;
-    border: none !important;
     margin: 2px; 
 }
 

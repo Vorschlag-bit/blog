@@ -5,7 +5,6 @@ export default async function sitemap() {
     const allPosts = getSortedPostsData()
 
     const posts = allPosts.map((post) => {
-        // [안전장치] 날짜 변환 시도
         let dateObj;
         try {
             dateObj = new Date(post.date);
@@ -20,7 +19,7 @@ export default async function sitemap() {
         return {
             url: `${baseUrl}/posts/${post.id}`,
             lastModified: dateObj, 
-            changeFrequency: 'daily',
+            changeFrequency: 'monthly',
             priority: 0.7, // 게시글은 보통 0.7~0.8
         }
     })
