@@ -155,16 +155,16 @@ export default function PostRemoteControl() {
                     <ScrollProgress />
                 </div>
                 {/** 2. 리모컨 버튼 (맨위/맨아래) */}
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-3">
                     <button
                         onClick={scrollToTop}
-                        className="flex items-center bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-500 p-2 hover:bg-gray-300 transition shadow-pixel active:transition-y-1 active:shadow-none" title="맨 위로"
+                        className="flex items-center border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel" title="맨 위로"
                     aria-label="맨 위로">
                         <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 6h16V4H4v2zm7 14h2v-8h2v2h2v-2h-2v-2h-2V8h-2v2H9v2H7v2h2v-2h2v8z" fill="currentColor"/> </svg>
                     </button>
                     <button
                         onClick={scrollToBottom}
-                        className="flex items-center bg-gray-100 dark:bg-gray-800 border-2 border-black dark:border-gray-500 p-2 hover:bg-gray-300 transition shadow-pixel active:transition-y-1 active:shadow-none" title="맨 아래로"
+                        className="flex items-center border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel" title="맨 아래로"
                     aria-label="맨 아래로">
                         <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 4h2v8h2v2h-2v2h-2v-2H9v-2h2V4zm-2 8H7v-2h2v2zm6 0v-2h2v2h-2zM4 18h16v2H4v-2z" fill="currentColor"/> </svg>
                     </button>
