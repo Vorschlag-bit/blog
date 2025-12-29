@@ -24,7 +24,7 @@ description: "python으로 풀어보는 백준 ${pNum}"
 ## 코딩 테스트 풀이
 
 !["문제사진"](/images/${pNum}.png)
-<a href="https://www.acmicpc.net/problem/${pNum}" class="plink"">
+<a href="https://www.acmicpc.net/problem/${pNum}" class="plink">
   문제링크
 </a>
 
