@@ -151,7 +151,7 @@ ul li {
 <div class="flex items-center gap-2"><svg class="w-10 h-10 text-gray-800 dark:text-gray-200" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z" fill="currentColor"/></svg><span class="font-bold text-2xl">글 요약</span></div>
 
 
-- **`display`**: 요소를 블록이나 인라인 성질로 변경하여 배치 방식을 결정함. 특히 **`inline-block`**은 인라인처럼 한 줄에 나란히 배치되면서도 블록처럼 너비와 높이 값을 지정할 수 있어 유용함.
+- **`display`**: 요소를 블록이나 인라인 성질로 변경하여 배치 방식을 결정함. 특히 `inline-block`은 인라인처럼 한 줄에 나란히 배치되면서도 블록처럼 너비와 높이 값을 지정할 수 있어 유용함.
 - **`float`**: 요소를 문서의 흐름에서 떼어내어 왼쪽이나 오른쪽으로 정렬함. 이미지 주변에 텍스트를 감싸게 하거나, 리스트를 가로로 배치할 때 주로 사용함.
 - **`clear`**: `float` 속성은 이후 요소들에게도 계속 영향을 미치므로, 이를 해제하여 정상적인 배치 흐름으로 되돌릴 때 사용함. (`left`, `right`, `both`)
-- **`inline-block` vs `float`**: 두 방식 모두 가로 배치가 가능하지만, `inline-block`은 요소 간에 기본 여백이 존재하고 `float`는 여백이 없어 별도 지정이 필요하며 반드시 `clear` 처리를 해야 한다는 차이가 있음.
+- `inline-block` vs `float`: 두 방식 모두 가로 배치가 가능하지만, `inline-block`은 요소 간에 기본 여백이 존재하고 `float`는 여백이 없어 별도 지정이 필요하며 반드시 `clear` 처리를 해야 한다는 차이가 있음.
