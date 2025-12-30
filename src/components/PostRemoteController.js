@@ -164,7 +164,7 @@ export default function PostRemoteControl() {
                     </button>
                     <button
                         onClick={scrollToBottom}
-                        className="flex items-center border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel" title="맨 아래로"
+                        className="flex items-center border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel" title="맨 아래로"
                     aria-label="맨 아래로">
                         <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 4h2v8h2v2h-2v2h-2v-2H9v-2h2V4zm-2 8H7v-2h2v2zm6 0v-2h2v2h-2zM4 18h16v2H4v-2z" fill="currentColor"/> </svg>
                     </button>
