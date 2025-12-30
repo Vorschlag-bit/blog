@@ -4,6 +4,7 @@ date: "2025-12-25 15:41:11"
 category: "React"
 description: "React에서 로직의 재사용(Custom Hooks)과 데이터 전달법(Composition)에 대해 알아보자."
 ---
+<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
 
 ## 1. 커스텀 훅(Custom Hooks): 로직을 조립하는 레고 블록
 React가 함수형 컴포넌트 시대로 넘어오면서 가장 강력해진 기능 중 하나다.

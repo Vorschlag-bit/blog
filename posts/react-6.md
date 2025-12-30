@@ -4,6 +4,7 @@ date: "2025-12-26 21:26:07"
 category: "React"
 description: "렌더링 최적화에 자주 쓰이는 훅들(useMemo, useCallback, React.memo)에 대해서 알아보자."
 ---
+<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
 
 ## 1. React가 렌더링되는 조건(복습)
 React 컴포넌트는 언제 다시 그려질까?
@@ -97,4 +98,3 @@ Memorization 역시 결국 <b>메모리에 저장하고 비교하는 연산을 �
 1. <b>화면이 버벅일 때 (Profilling 후)</b>  
 2. <b>데이터 시각화(차트, 그래프)처럼 한 번 그리는 비용이 비싼 컴포넌트일 때</b>  
 3. <b><code>useEffect</code>의 의존성 배열에 객체나 함수를 넣어야 할 때 (무한 루프 방지)</b>  
-

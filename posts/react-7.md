@@ -4,6 +4,7 @@ date: "2025-12-29 14:45:56"
 category: "React"
 description: "Next.js 등장 이후 React의 변화에 대해서 알아보자."
 ---
+<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
 
 ## 1. React가 서버로 갔다. (RSC: React Server Component)
 원래 React는 브라우저(Client)에서만 실행되는 라이브러리이다. 하지만 <b>Next.js App Router</b>부터는 기본적으로 <b>
