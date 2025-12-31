@@ -12,8 +12,8 @@ export default function SearchModal({ posts }) {
         return new Fuse(posts, {
             keys: [
                 { name: 'title', weight: 1 },       // 가중치 1
-                { name: 'content', weight: 0.3 },   // 가중치 0.3
-                { name: 'category', weight: 0.5 }
+                { name: 'content', weight: 0.6 },   // 가중치 0.3
+                { name: 'category', weight: 0.6 }
             ],
             includeScore: true, // 유사도 점수 포함
             threshold: 0.4
