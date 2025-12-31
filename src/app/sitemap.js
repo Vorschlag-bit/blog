@@ -1,10 +1,9 @@
-import { getSortedPostsData } from "@/lib/posts";
+import { dateSortedAllPosts } from "@/lib/posts";
 
 export default async function sitemap() {
     const baseUrl = 'https://vorschlag-blog.vercel.app'
-    const allPosts = getSortedPostsData()
 
-    const posts = allPosts.map((post) => {
+    const posts = dateSortedAllPosts.map((post) => {
         let dateObj;
         try {
             dateObj = new Date(post.date);

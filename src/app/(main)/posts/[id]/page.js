@@ -8,14 +8,13 @@ import PostImageLoader from "@/components/PostImageLoader";
 // 현재 id를 기반으로 이전,이후 글 정보를 가져오는 함수
 import { getPreNextPost } from "@/lib/posts";
 import PostNavigator from "@/components/PostNavigator";
-import { getSortedPostsData } from "@/lib/posts";
+import { dateSortedAllPosts } from "@/lib/posts";
 // mermaid Util
 import MermaidInit from "@/app/utils/mermaidInit";
 
 // 존재하는 모든 글의 ID 목록 생성 함수 -> 404.js로 처리하기 위함
 export async function generateStaticParams() {
-    const posts = getSortedPostsData();
-    return posts.map((post) => ({
+    return dateSortedAllPosts.map((post) => ({
         id : post.id
     }))
 }

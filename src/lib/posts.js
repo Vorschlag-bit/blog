@@ -24,6 +24,9 @@ import { visit } from 'unist-util-visit';
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
 const postsDirectory = path.join(process.cwd(), 'posts')
 
+// 날짜순으로 정렬된 post list 전역 변수
+export const dateSortedAllPosts = getSortedPostsData();
+
 function remarkMermaidToHTML() {
     return (tree) => {
         visit(tree, 'code', (node) => {
@@ -109,17 +112,14 @@ export async function getPostData(id) {
 }
 
 export function getPostsByCategory(category) {
-    const allPosts = getSortedPostsData()
     // filter 함수로 조건에 맞는 것만 남기기
-    return allPosts.filter((post) => post.category === category)
+    return dateSortedAllPosts.filter((post) => post.category === category)
 }
 
 // 왼쪽 사이드 바 카테고리 리스트를 만들기 위한 카테고리 추출 함수
 export function getAllCategories() {
-    const allPosts = getSortedPostsData()
-    
     // 1. 개수 세기 (reduce 함수 활용)
-    const countMap = allPosts.reduce((acc, post) => {
+    const countMap = dateSortedAllPosts.reduce((acc, post) => {
         // category 없으면 '기타'로
         const category = post.category || "기타"
 
@@ -144,11 +144,8 @@ export function getAllCategories() {
 
 // 모두 보기 화면에서 사용할 페이징 로직
 export function getPaginatedPosts(page = 1, limit = 10) {    
-    // 1. 모든 글 가져오기 (기존 함수 활용)
-    const allPosts = getSortedPostsData()
-    
     // 2. 모든 글 개수
-    const totalCount = allPosts.length
+    const totalCount = dateSortedAllPosts.length
 
     // 3. Paging 계산 로직 (10개씩 보여주되, 41개면 5페이지이므로 올림처리)
     const totalPages = Math.ceil(totalCount / limit)
@@ -162,7 +159,7 @@ export function getPaginatedPosts(page = 1, limit = 10) {
     
 
     // slice를 통해서 원본 배열의 범위만큼 복사해서 가져오기
-    const paginatedPosts = allPosts.slice(startIdx, endIdx)
+    const paginatedPosts = dateSortedAllPosts.slice(startIdx, endIdx)
     
 
     // 6. Java Page 객체처럼 return
@@ -209,18 +206,16 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
 
 // 상세 조회에서 사용할 이전/이후 포스팅 nav 로직
 export async function getPreNextPost(currentId) {
-    const allPosts = getSortedPostsData()
-
     // 현재 글 idx 찾기
-    const idx = allPosts.findIndex((post) => post.id === currentId)
+    const idx = dateSortedAllPosts.findIndex((post) => post.id === currentId)
 
     // 예외처리
     if (idx === -1) return { prev: null, next: null }
 
     // idx - 1 == 더 최신 글 -> Next
     // idx + 1 == 더 이전 글 -> Prev
-    const next = idx - 1 >= 0 ? allPosts[idx - 1] : null;
-    const prev = idx + 1 < allPosts.length ? allPosts[idx + 1] : null;
+    const next = idx - 1 >= 0 ? dateSortedAllPosts[idx - 1] : null;
+    const prev = idx + 1 < dateSortedAllPosts.length ? dateSortedAllPosts[idx + 1] : null;
 
     return {
         prev: prev,     // 이전 글
