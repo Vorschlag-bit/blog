@@ -25,7 +25,7 @@ export default function VisitorCounter() {
             })
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                throw Error("DB 조회 실패!" || errData.error)
+                throw Error("DB 조회 실패" || errData.error)
             }
 
             const data = await res.json()
