@@ -13,6 +13,8 @@ const postMap = new Map(dateSortedAllPosts.map((post) => [post.id, post]))
 
 const getRank = unstable_cache(async() => {
         // zrange 사용법, key = 말 그대로 데이터 저장을 위한 hash값으로 사용될 key, 점수 내림차순 상위 5개를 조회
+        console.log(`unstable cache없어서 redis에 요청함!`);
+        
         const topIds = await redis.zrange('popular_posts',0,4, { rev: true });
 
         if (topIds.length === 0) return [];

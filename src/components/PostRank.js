@@ -12,7 +12,7 @@ export default function PostRank() {
     const [isLoading, setIsLoading] = useState(false)
     const [errMsg, setErrMsg] = useState('')
     // 랭킹을 저장할 상태는 state일까 ref일까? => state가 맞는 거 같음
-    // 조회는 어차피 cache로 
+    // 조회는 어차피 cache로
     const [top5Rank, setTop5Rank] = useState([])
 
     const fetchRank = async (id) => {
@@ -48,9 +48,12 @@ export default function PostRank() {
 
     return (
         //  최상위 div
-        <div className="relative w-64 flex flex-col items-start gap-2">
+        <div className="relative top-8 w-60 flex flex-col items-start gap-3">
             {/* header */}
-            <p className="w-full border-b border-dashed p-1 whitespace-wrap font-bold">인기 글</p>
+            <p className="flex items-center w-59 border-b border-dashed p-1 whitespace-wrap font-bold pb-2 gap-2">
+                <svg className="w-6 dark:text-white" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 3H3v18h18V3H5zm14 2v14H5V5h14zM9 11H7v6h2v-6zm2-4h2v10h-2V7zm6 6h-2v4h2v-4z" fill="currentColor"/> </svg>
+                <span className="dark:text-gray-200">인기 글</span>
+            </p>
             {/* List Container */}
             <div className="w-full">
                 {top5Rank.length > 0 ? (
@@ -58,11 +61,11 @@ export default function PostRank() {
                 <ul className="flex flex-col gap-1">
                     {top5Rank.map((post) => (
                         <li key={post.id}
-                            className="p-2 border w-full"
+                            className="p-2 border border-gray-500 w-full"
                         >
-                            <Link href={`/posts/${post.id}`}>
-                                <p className="font-bold text-black truncate">{post.title}</p>
-                                <p className="text-gray-300 text-xs">{post.date}</p>
+                            <Link href={`/posts/${post.id}`} className="">
+                                <p className="font-bold text-black truncate hover:text-blue-500 dark:text-gray-300">{post.title}</p>
+                                <p className="text-gray-400 text-xs">{post.date}</p>
                             </Link>
                         </li>
                     ))}
