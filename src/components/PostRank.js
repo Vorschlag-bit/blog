@@ -66,10 +66,10 @@ export default function PostRank() {
                     <ul className="flex flex-col gap-1">
                         {top5Rank.map((post) => (
                             <li key={post.id}
-                                className="p-2 border border-gray-500 w-full hover:border-blue-600"
+                                className="group p-2 border border-gray-500 hover:border-indigo-700 w-full transition-colors"
                             >
                                 <Link href={`/posts/${post.id}`} className="">
-                                    <p className="font-bold text-black truncate hover:text-blue-500 dark:text-gray-300 mb-1">{post.title}</p>
+                                    <p className="font-bold text-black truncate group-hover-glitch dark:text-gray-300 mb-1">{post.title}</p>
                                     <p className="text-gray-400 text-xs">{post.date}</p>
                                 </Link>
                             </li>
