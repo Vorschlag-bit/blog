@@ -66,7 +66,7 @@ export default function PostRank() {
                     <ul className="flex flex-col gap-1">
                         {top5Rank.map((post) => (
                             <li key={post.id}
-                                className="p-2 border border-gray-500 w-full"
+                                className="p-2 border border-gray-500 w-full hover:border-blue-600"
                             >
                                 <Link href={`/posts/${post.id}`} className="">
                                     <p className="font-bold text-black truncate hover:text-blue-500 dark:text-gray-300 mb-1">{post.title}</p>
