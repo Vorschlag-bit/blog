@@ -1,12 +1,13 @@
 "use client"
 import { useState,useEffect } from "react"
 import { useParams } from "next/navigation"
+import Link from "next/link";
 
 // 사용자가 입력한 api
 export default function PostRank() {
     const params = useParams();
     const currentId = params.id;
-    console.log(`currentId: `, currentId);
+    // console.log(`currentId: `, currentId);
     
     // 상태 훅들
     const [isLoading, setIsLoading] = useState(false)
@@ -30,7 +31,7 @@ export default function PostRank() {
                 throw Error(errData.error)
             }
             const data = await res.json()
-            console.log(`fetched data: `, data);
+            // console.log(`fetched data: `, data);
             
             setTop5Rank(data)
         } catch (err) {
@@ -50,7 +51,7 @@ export default function PostRank() {
 
     return (
         //  최상위 div
-        <div className="relative flex">
+        <div className="relative flex items-start">
             {/* header */}
             <p className="border-b border-dashed p-1">인기 글</p>
             <div className="gap-1 flex">
@@ -61,8 +62,10 @@ export default function PostRank() {
                         <li key={post.id}
                             className="p-3"
                         >
-                            <p className="font-bold text-black">{post.title}</p>
-                            <p className="text-gray-300">{post.date}</p>
+                            <Link href={`/posts/${post.id}`}>
+                                <p className="font-bold text-black">{post.title}</p>
+                                <p className="text-gray-300">{post.date}</p>
+                            </Link>
                         </li>
                     ))}
                 </ul>
