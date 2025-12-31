@@ -8,19 +8,16 @@ export default function PostRank({ props }) {
     // 랭킹을 저장할 상태는 state일까 ref일까? => state가 맞는 거 같음
     // 조회는 어차피 cache로 
     const [top5Rank, setTop5Rank] = useState()
-    const path = props.path
-    const postInfo = props.postInfo
+    const id = props.id
 
-    const fetchRank = async (path,postInfo) => {
+    const fetchRank = async (id) => {
         setIsLoading(true)
         setErrMsg('')
         try {
             const res = await fetch(`/api/post_rank`, 
                 { method: 'POST', 
                     body: {
-                        id: postInfo.id,
-                        title: postInfo.title,
-                        date: postInfo.date
+                        id: id,
                     }
                 })
             if (!res.ok) {
