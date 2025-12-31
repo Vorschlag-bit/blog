@@ -57,7 +57,7 @@ export default function PostRank({ props }) {
                 </ul>
             ) : (
                 // top5 없을 때
-                <div className="absolute left-2em top-2em"></div>
+                <div className="absolute left-2em top-2em p-2">{errMsg}</div>
             )}
             </div>
         </div>
