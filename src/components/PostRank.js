@@ -38,6 +38,28 @@ export default function PostRank({ props }) {
     },[path])
 
     return (
-        <div className=""></div>
+        //  최상위 div
+        <div className="relative flex items-center">
+            {/* header */}
+            <p className="border-b border-dashed p-1">인기 글</p>
+            <div className="gap-1">
+                {top5Rank ? (
+                // top5 있을 때
+                <ul>
+                    {top5Rank.map((post) => (
+                        <li key={post.id}
+                            className="p-3"
+                        >
+                            <p className="font-bold text-black">{post.title}</p>
+                            <p className="text-gray-300">{post.date}</p>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                // top5 없을 때
+                <div className="absolute left-2em top-2em"></div>
+            )}
+            </div>
+        </div>
     )
 }
