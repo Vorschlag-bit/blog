@@ -9,13 +9,13 @@ export default function PostRank({ props }) {
     // 조회는 어차피 cache로 
     const [top5Rank, setTop5Rank] = useState()
     const path = props.path
-    
+    const postInfo = props.postInfo
 
     const fetchRank = async (path,postInfo) => {
         setIsLoading(true)
         setErrMsg('')
         try {
-            const res = await fetch(`/post_rank/${path}`, 
+            const res = await fetch(`/api/post_rank`, 
                 { method: 'POST', 
                     body: {
                         id: postInfo.id,
@@ -41,7 +41,7 @@ export default function PostRank({ props }) {
 
     useEffect(() => {
         if (!isLoading) return
-        fetchRank(path)
+        fetchRank(path,postInfo)
     },[path])
 
     return (
