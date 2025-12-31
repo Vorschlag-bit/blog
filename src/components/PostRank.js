@@ -6,8 +6,7 @@ import Link from "next/link";
 // 사용자가 입력한 api
 export default function PostRank() {
     const params = useParams();
-    const currentId = params.id;
-    // console.log(`currentId: `, currentId);
+    const currentId = params.id || '/';
     
     // 상태 훅들
     const [isLoading, setIsLoading] = useState(false)
@@ -44,27 +43,26 @@ export default function PostRank() {
 
 
     useEffect(() => {
-        // main 페이지는 id 없으므로 return
-        if (!currentId) return
         fetchRank(currentId)
     },[currentId])
 
     return (
         //  최상위 div
-        <div className="relative flex items-start">
+        <div className="relative w-64 flex flex-col items-start gap-2">
             {/* header */}
-            <p className="border-b border-dashed p-1">인기 글</p>
-            <div className="gap-1 flex">
+            <p className="w-full border-b border-dashed p-1 whitespace-wrap font-bold">인기 글</p>
+            {/* List Container */}
+            <div className="w-full">
                 {top5Rank.length > 0 ? (
                 // top5 있을 때
-                <ul>
+                <ul className="flex flex-col gap-1">
                     {top5Rank.map((post) => (
                         <li key={post.id}
-                            className="p-3"
+                            className="p-2 border w-full"
                         >
                             <Link href={`/posts/${post.id}`}>
-                                <p className="font-bold text-black">{post.title}</p>
-                                <p className="text-gray-300">{post.date}</p>
+                                <p className="font-bold text-black truncate">{post.title}</p>
+                                <p className="text-gray-300 text-xs">{post.date}</p>
                             </Link>
                         </li>
                     ))}
