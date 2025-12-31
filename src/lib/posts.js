@@ -135,7 +135,7 @@ export function getAllCategories() {
         .sort((a,b) => a.category.localeCompare(b.category)) // 오름차순 정렬
     
     // 3. '전체(All)` 카테고리 맨 앞에 붙이기
-    const totalCnt = allPosts.length
+    const totalCnt = dateSortedAllPosts.length
     const allCategory = { category: 'All', count: totalCnt }
 
     // 스프레드 연산자로 합쳐서 리턴

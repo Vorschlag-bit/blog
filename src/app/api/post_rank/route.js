@@ -36,22 +36,20 @@ const getRank = unstable_cache(async(id) => {
 );
 
 export async function POST(request) {
-    try {
+    try {        
         // Sorted Set에 넣을 id(str)
         const { id } = await request.json()
     
         if (!id) return NextResponse.json({ error: 'ID is required' },{ status: '400' })
         // zincreby로 조회 수 1 증가, await 안 써서 promise 필요 없음
         redis.zincrby('popular_posts',1,id)
-
-        const rankList = await getRank();
     
         // get은 캐시(unstable_cache)
         const res = await getRank(id)
     
-        return NextResponse.json({res});
+        return NextResponse.json(res);
     } catch (err) {
-        console.error(`post redis failed`, err.error);
+        console.error(`post redis failed`, err);
         throw Error(err.error);
     }
 }
