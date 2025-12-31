@@ -11,11 +11,18 @@ export default function PostRank({ props }) {
     const path = props.path
     
 
-    const fetchRank = async (path) => {
+    const fetchRank = async (path,postInfo) => {
         setIsLoading(true)
         setErrMsg('')
         try {
-            const res = await fetch(`/post_rank/${path}`, { method: 'POST', })
+            const res = await fetch(`/post_rank/${path}`, 
+                { method: 'POST', 
+                    body: {
+                        id: postInfo.id,
+                        title: postInfo.title,
+                        date: postInfo.date
+                    }
+                })
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
                 throw Error(errData.error)

@@ -6,5 +6,8 @@ const redis = new Redis({
 })
 
 export async function POST({ path }) {
-    
+    // Sorted Set에 넣을 Post 객체
+    const post_obj = {
+        
+    }
 }
