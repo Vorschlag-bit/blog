@@ -52,7 +52,6 @@ export async function POST(request) {
     
         // get은 캐시(unstable_cache)
         const res = await getRank()
-        
         return NextResponse.json(res);
     } catch (err) {
         console.error(`post redis failed`, err);
