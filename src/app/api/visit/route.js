@@ -62,7 +62,7 @@ export async function POST(request) {
     // 3. 일일 방문자 수
     const dateKey = `${DATE_PREFIX}:${iso}`
 
-    // 조회를 먼저 하고 중복이 아닐 경우 incr,sadd 추가
+    // 조회를 먼저
     let { total, date: todayCount } = await getCachedCounts(dateKey)
 
     const isNew = await redis.sadd(dateKey, Ip);
