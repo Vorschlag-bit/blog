@@ -2,7 +2,7 @@
 title: "서버 액션(Server Actions): API 없는 백엔드"
 date: "2025-12-31 20:55:52"
 category: "React"
-description: "Next.js가 새로 제시한 패턴인 use server에 대해서 알아보자"
+description: "Next.js가 새로 제시한 패턴인 use server에 대해서 알아보자."
 ---
 <img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
 
