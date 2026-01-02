@@ -34,7 +34,7 @@ export const getRank = unstable_cache(async() => {
     ['post_ranking'],
     // 캐시 1시간
     { revalidate: 3600 }
-);
+)
 
 export async function IncrementRank(id) {
     try {        
@@ -44,7 +44,7 @@ export async function IncrementRank(id) {
         }
         // rootPath면 continue
         if (id !== '/') {
-            // console.log(`루트 디렉토리 아니라서 zincrby 실행`);
+            console.log(`루트 디렉토리 아니라서 zincrby 실행`);
             // severless 환경에선 await 안 쓰면 서버가 그 전에 죽을 수도
             await redis.zincrby('popular_posts',1,id)
         }
