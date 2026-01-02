@@ -148,13 +148,14 @@ export default function PostRemoteControl() {
                         shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)] mb-4 p-3 max-h-[70vh] overflow-y-auto">
                             <div className="flex items-center justify-between mb-4 border-b-2 border-dashed border-gray-300 pb-3"
                                 aria-level="목차"
+                                title="목차"
                             >
                                 <div className="flex items-center font-bold gap-1">
                                     <svg className="w-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h12v20H4V2h4zm4 8h-2v2H8V4H6v16h12V4h-4v8h-2v-2z" fill="currentColor"/> </svg>
                                     <span>목차</span>
                                 </div>
-                                <button onClick={handleOnClick} className="border border-red-500 dark:border-red-400">
-                                    <svg className="w-5 text-red-500 dark:text-red-400" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg>
+                                <button onClick={handleOnClick} className="border border-red-500 dark:border-red-400 cursor-pointer hover:bg-red-400" aria-label="목차 닫기 버튼" title="목차 닫기">
+                                    <svg className="w-5 text-red-500 dark:text-red-400 hover:text-white" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg>
                                 </button>
                             </div>
                             {/* 닫히지 않은 경우 (기본) */}
@@ -189,13 +190,13 @@ export default function PostRemoteControl() {
                         <div className="flex justify-center gap-3">
                             <button
                                 onClick={scrollToTop}
-                                className="flex items-center border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel" title="맨 위로"
+                                className="flex items-center border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel cursor-pointer" title="맨 위로"
                             aria-label="맨 위로">
                                 <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 6h16V4H4v2zm7 14h2v-8h2v2h2v-2h-2v-2h-2V8h-2v2H9v2H7v2h2v-2h2v8z" fill="currentColor"/> </svg>
                             </button>
                             <button
                                 onClick={scrollToBottom}
-                                className="flex items-center border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel" title="맨 아래로"
+                                className="flex items-center border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-500 p-2 hover:bg-gray-200 dark:hover:bg-gray-500 transition shadow-pixel cursor-pointer" title="맨 아래로"
                             aria-label="맨 아래로">
                                 <svg className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 4h2v8h2v2h-2v2h-2v-2H9v-2h2V4zm-2 8H7v-2h2v2zm6 0v-2h2v2h-2zM4 18h16v2H4v-2z" fill="currentColor"/> </svg>
                             </button>
@@ -207,13 +208,13 @@ export default function PostRemoteControl() {
                         shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)] mb-4 p-3 max-h-[70vh] overflow-y-auto"
                     >
                         <div className="flex items-center justify-between"
-                            aria-level="목차">
+                            aria-level="목차" title="목차">
                             <div className="flex items-center font-bold gap-1">
                                 <svg className="w-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h12v20H4V2h4zm4 8h-2v2H8V4H6v16h12V4h-4v8h-2v-2z" fill="currentColor"/> </svg>
                                 <span>목차</span>
                             </div>
-                            <button onClick={handleOnClick} className="border border-green-500 dark:border-red-400">
-                                <svg className="w-5 text-green-500" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4z" fill="currentColor"/> </svg>
+                            <button onClick={handleOnClick} className="border border-green-500 dark:border-green-400 cursor-pointer hover:bg-green-400" aria-label="목차 열기 버튼" title="목차 열기">
+                                <svg className="w-5 text-green-500 hover:text-white dark:text-green-400" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4z" fill="currentColor"/> </svg>
                             </button>
                         </div>
                     </div>

@@ -54,7 +54,7 @@ export async function IncrementRank(id) {
     }
 }
 ```
-기존에는 `zincreby()` 이후에 `zrange()` 함수를 비동기로 호출하고, `zrange()`의 return값을 `NextReponse`에 담아서 돌려주는 구조였으나
+기존에는 `zincrby()` 이후에 `zrange()` 함수를 비동기로 호출하고, `zrange()`의 return값을 `NextReponse`에 담아서 돌려주는 구조였으나
 이제 쓰기 작업은 `/posts/[id]/page.js`에서 비동기 처리가 되었다. 
 
 비동기 백그라운처리(`await`까지 안 적는)까지 하고 싶었으나 Vercel 같이
@@ -86,7 +86,7 @@ export default async function PostRank() {
 
     return (
         // data.length가 1 이상일 때만 화면을 그리도록 수정
-        {data.length > 0 (
+        {data.length > 0 ? (
             // 있을 때
         ) : (
             // 없을 때
