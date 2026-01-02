@@ -11,6 +11,8 @@ import PostNavigator from "@/components/PostNavigator";
 import { dateSortedAllPosts } from "@/lib/posts";
 // mermaid Util
 import MermaidInit from "@/app/utils/mermaidInit";
+// redis zincrby 비동기 호출 함수
+import { IncrementRank } from "@/lib/ranks";
 
 // 존재하는 모든 글의 ID 목록 생성 함수 -> 404.js로 처리하기 위함
 export async function generateStaticParams() {
@@ -50,6 +52,9 @@ export async function generateMetadata({ params }) {
 export default async function Post({params}) {
     // 1. params는 Promise라서 await로 기다려야 함
     const { id } = await params
+    // 비동기 백그라운드로 인기글 zincrby 호출
+    await IncrementRank(id);
+
     // 2. id를 바탕으로 데이터 구하기
     const postData = await getPostData(id)
 

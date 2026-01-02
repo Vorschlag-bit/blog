@@ -1,6 +1,5 @@
 import { Redis } from "@upstash/redis";
 import { unstable_cache } from "next/cache";
-import { NextResponse } from "next/server";
 import { dateSortedAllPosts } from "@/lib/posts";
 
 const redis = new Redis({
@@ -37,24 +36,20 @@ export const getRank = unstable_cache(async() => {
     { revalidate: 3600 }
 );
 
-export async function POST(request) {
+export async function IncrementRank(id) {
     try {        
-        // Sorted Set에 넣을 id(str)
-        const { id } = await request.json()        
-    
-        if (!id) return NextResponse.json({ error: 'ID is required' },{ status: '400' })
-        // zincreby로 조회 수 1 증가, await 안 써서 promise 필요 없음
+        // Sorted Set에 넣을 id(str)    
+        if (!id) {
+            throw Error('wrong type [Id]: ', id)
+        }
         // rootPath면 continue
         if (id !== '/') {
-            console.log(`루트 디렉토리 아니라서 zincrby 실행`);
-            redis.zincrby('popular_posts',1,id)
+            // console.log(`루트 디렉토리 아니라서 zincrby 실행`);
+            // severless 환경에선 await 안 쓰면 서버가 그 전에 죽을 수도
+            await redis.zincrby('popular_posts',1,id)
         }
-    
-        // get은 캐시(unstable_cache)
-        const res = await getRank()
-        return NextResponse.json(res);
+
     } catch (err) {
         console.error(`post redis failed`, err);
-        throw Error(err.error);
     }
 }
