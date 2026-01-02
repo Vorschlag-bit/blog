@@ -7,16 +7,18 @@ export default function SearchModal({ posts }) {
     const [query, setQuery] = useState('')
     const [isOpen,setIsOpen] = useState(false)
     const containerRef = useRef(null);
-
+    
     const fuse = useMemo(() => {
         return new Fuse(posts, {
             keys: [
                 { name: 'title', weight: 1 },       // 가중치 1
-                { name: 'content', weight: 0.9 },   // 가중치 0.9
+                { name: 'content', weight: 0.7 },   // 가중치 0.9
                 { name: 'category', weight: 0.6 }
             ],
             includeScore: true, // 유사도 점수 포함
-            threshold: 0.4
+            threshold: 0.5,
+            ignoreLocation: true,
+            minMatchCharLength: 2,
         })
     }, [posts])
 
