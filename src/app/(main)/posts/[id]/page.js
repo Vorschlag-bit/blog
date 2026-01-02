@@ -52,7 +52,7 @@ export async function generateMetadata({ params }) {
 export default async function Post({params}) {
     // 1. params는 Promise라서 await로 기다려야 함
     const { id } = await params
-    // 비동기 백그라운드로 인기글 zincrby 호출
+    // 비동기로 인기글 zincrby 호출
     await IncrementRank(id);
 
     // 2. id를 바탕으로 데이터 구하기

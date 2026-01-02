@@ -55,8 +55,10 @@ export async function IncrementRank(id) {
 }
 ```
 기존에는 `zincreby()` 이후에 `zrange()` 함수를 비동기로 호출하고, `zrange()`의 return값을 `NextReponse`에 담아서 돌려주는 구조였으나
-이제 쓰기 작업은 `/posts/[id]/page.js`에서 비동기 처리가 되었다. 비동기 백그라운처리(`await`까지 안 적는)까지 하고 싶었으나 Vercel 같이
-severless 구조에선 비동기를 적고 `await`를 안 적으면 그대로 
+이제 쓰기 작업은 `/posts/[id]/page.js`에서 비동기 처리가 되었다. 
+
+비동기 백그라운처리(`await`까지 안 적는)까지 하고 싶었으나 Vercel 같이
+severless 구조에선 비동기를 적고 `await`를 안 적으면 미처 처리되기 이전에 서버가 죽을 수도 있어서 안전하게 `await`를 적었다.
 
 ```javascript
 // URL의 [id]부분이 parmas로 들어감
@@ -76,5 +78,110 @@ export default async function Post({params}) {
 
 이젠 async 함수 컴포넌트로 수정했다.
 ```javascript
+import Link from "next/link";
+import { getRank } from "@/lib/ranks";
 
+export default async function PostRank() {
+    const data = await getRank() || [];
+
+    return (
+        // data.length가 1 이상일 때만 화면을 그리도록 수정
+        {data.length > 0 (
+            // 있을 때
+        ) : (
+            // 없을 때
+        )}
+    )
+}
 ```
+
+## 정리 & 비교 분석
+이전의 구조와 현재 구조를 표로 정리해보았다.
+<table class="">
+    <thead class="">
+        <tr>
+            <th class="font-bold w-1/4">비교 항목</th>
+            <th class="font-bold w-1/3 text-gray-500">AS-IS (기존)</th>
+            <th class="font-bold w-1/3 text-blue-600">TO-BE (개선 후)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-semibold">구현 방식</td>
+            <td class="">
+                Client Component<br/>
+                (useEffect + fetch)
+            </td>
+            <td class="">
+                Server Component<br/>
+                (Direct DB Access)
+            </td>
+        </tr>
+        <tr>
+            <td class="font-semibold">데이터 요청 시점</td>
+            <td class="">
+                1. HTML 로드<br/>
+                2. JS 로드 (Hydration)<br/>
+                3. <b>그 후에 API 요청 시작</b> (느림)
+            </td>
+            <td class="">
+                <b>HTML 생성 시점 (서버)</b><br/>
+                브라우저 도달 전 이미 데이터 확보 (빠름)
+            </td>
+        </tr>
+        <tr>
+            <td class="font-semibold">네트워크 요청 수</td>
+            <td class="text-red-500">
+                2회 (HTML + API JSON)
+            </td>
+            <td class="text-blue-600">
+                <b>1회 (HTML 통합)</b>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-semibold">사용자 경험 (UX)</td>
+            <td class="">
+                로딩 스피너 깜빡임 발생<br/>
+                (Layout Shift 가능성 있음)
+            </td>
+            <td class="">
+                <b>초기 화면에 즉시 데이터 표시</b><br/>
+                (깜빡임 없음)
+            </td>
+        </tr>
+        <tr>
+            <td class="font-semibold">SEO (검색 최적화)</td>
+            <td class="">
+                크롤러가 JS 실행 전엔 빈 목록을 볼 수 있음
+            </td>
+            <td class="">
+                <b>HTML에 데이터가 포함</b>되어<br/>완벽한 수집 가능
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+성능적으로는 개발자 도구의 네트워크 창을 보면 쉽게 알 수 있다.
+이전에는 네트워크 창을 볼 경우 HTML 문서가 도착한 뒤에 `post_rank`라는 요청이 반드시 가야만 했었다.
+
+<figure>
+    <img src="/images/rank_ex.png" alt="클라이언트 컴포넌트 시절 273ms로 네트워크 요청이 간 모습">
+    <figcaption>이때 <b>273ms</b>라는 시간이 소요되었다.</figcaption>
+</figure>
+
+하지만 지금은 아예 `post_rank`라는 요청 자체가 보이지 않는다. 데이터를 부착시킨 HTML만을 보여주므로 당연한 것이다.
+
+<figure>
+    <img src="/images/rank_cur.png" alt="서버 컴포넌트로서 네트워크 요청 자체가 사라진 모습">
+    <figcaption>그냥 네트워크 요청 자체가 사라졌다.</figcaption>
+</figure>
+
+새로고침을 해봐도 클라이언트 컴포넌트의 경우 가끔 `isLoading` 상태로 등록해놓은 로딩 UI가 보이지만 서버 컴포넌트로 리팩토링하면
+그럴 일 자체가 사라졌다.
+
+이번 개발을 통해서 리팩토링 작업의 시작을 한 거 같은데 너무 재밌고 유익했다.
+새로운 지식을 배우자마자 실습할 수 있다는 건 정말 큰 기회이다.. 이번에 몸소 서버/클라이언트 컴포넌트의 차이점을 깨달으면서
+둘의 기능을 명확하게 구분할 수 있었고, 가능한 한 서버 컴포넌트로서 최대한 구현해 최대한 빠른 정적 HTML을 제공하는 게
+UX에 있어서 가장 중요하다는 걸 알게 되었다.
+
+다음엔 또 뭘 개발할까?

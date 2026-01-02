@@ -3,7 +3,6 @@ import { getRank } from "@/lib/ranks";
 
 export default async function PostRank() {
     const data = await getRank() || [];
-    console.log('return 받은 data: ', data);
     
     return (
         //  최상위 div
