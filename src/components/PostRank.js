@@ -6,7 +6,7 @@ export default async function PostRank() {
     
     return (
         //  최상위 div
-        <div className="relative top-8 w-60 flex flex-col items-start gap-3">
+        <div className="relative top-6 w-60 flex flex-col items-start gap-3">
             {/* header */}
             <p className="flex items-center w-59 border-b-[2px] border-gray-400 border-dashed p-1 whitespace-wrap font-bold pb-3 gap-2">
                 <svg className="w-6 dark:text-white" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 3H3v18h18V3H5zm14 2v14H5V5h14zM9 11H7v6h2v-6zm2-4h2v10h-2V7zm6 6h-2v4h2v-4z" fill="currentColor"/> </svg>
