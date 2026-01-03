@@ -13,6 +13,8 @@ export default async function Home({ searchParams }) {
   const LIMIT = 10;
   // 데이터 가져오기
   const { posts, totalPages, currentPage } = getPaginatedPosts(page,LIMIT);
+  console.log('posts: ', posts);
+  
   return (
     <div className="p-4 w-full mx-auto">
       {/** RetroWindow로 감싸기 */}
