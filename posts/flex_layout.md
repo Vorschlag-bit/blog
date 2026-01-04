@@ -371,6 +371,13 @@ flex 박스 레이아웃은 기본적으로 웹 요소를 <b>가로</b>로 배�
 
 ---
 
+#### 플렉스 항목 간 여백을 두는 gap 속성
+플렉스 컨테이너 안에 있는 여러 클래스 항목의 간격을 조절할 때 gap 속성을 사용한다. 이 속성은 플렉스 컨테이너에 적용하므로
+컨테이너 안에 있는 모든 항목에 동일하게 적용된다. 이때 세로 간격을 조절하고 싶다면 `row-gap`, 가로 간격을 조절하고 싶다면
+`col-gap`으로 값을 따로 지정할 수 있다.
+
+---
+
 <div class="flex items-center gap-2"><svg class="w-10 h-10 text-gray-800 dark:text-gray-200" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 3H3v18h18V3H5zm0 2h14v14H5V5zm4 7H7v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2H9v-2z" fill="currentColor"/></svg><span class="font-bold text-2xl">글 요약</span></div>
 
 
