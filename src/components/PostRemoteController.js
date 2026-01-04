@@ -30,7 +30,7 @@ export default function PostRemoteControl() {
         if (!contentArea) return;
 
         // h1,h2,h3 태그 수집
-        const elements = contentArea.querySelectorAll("h2, h3, h4 h5")
+        const elements = contentArea.querySelectorAll("h2, h3, h4, h5")
         
         // console.log(`찾은 요소들 개수: ${elements.length}`)
         // console.log(`찾은 요소: ${Array.from(elements)}`)
