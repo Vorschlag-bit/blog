@@ -32,7 +32,7 @@ export default async function Home({ searchParams }) {
                 key={id}
                 // 2. text-black을 줘서 currentColor가 검은색을 잡도록 명시
                 className={`
-                  relative p-4 transition-all duration-200 group
+                  relative p-2 lg:p-4 transition-all duration-200 group
                   bg-white text-black shadow-pixel
                   dark:bg-gray-900 dark:text-gray-100 dark:border-gray-500
                   hover:bg-blue-50 dark:hover:bg-gray-800
@@ -41,17 +41,17 @@ export default async function Home({ searchParams }) {
                 <div className="flex items-center gap-2 mb-3">
                   <Link href={`categories/${category}`}>
                     {/* 뱃지도 픽셀 스타일 (rounded 제거) */}
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
+                    <span className="bg-blue-100 text-blue-800 text-xs px-1 lg:px-2 py-1 border-1 lg:border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
                       {category}
                     </span>
                   </Link>
-                  <p className="text-gray-500 text-sm font-[Galmuri11]">{date}</p>
+                  <p className="text-gray-500 text-xs lg:text-sm font-[Galmuri11]">{date}</p>
                 </div>
                 <LoadingLink href={`posts/${id}`} className={``}>
-                  <h2 className="text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 font-[Galmuri11] gap-2">
+                  <h2 className="text-base lg:text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 font-[Galmuri11] gap-2">
                     {title}
                   </h2>
-                  <p className="mt-1 text-gray-700 dark:text-gray-300">{description}</p>
+                  <p className="text-xs lg:text-base mt-1 text-gray-700 dark:text-gray-300">{description}</p>
                 </LoadingLink>
               </li>
             ))}

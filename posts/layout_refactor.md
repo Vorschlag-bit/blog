@@ -197,3 +197,14 @@ export default function HomeLayout({ children }) {
 ### 2. 메인 화면 ((main)/page.js)
 일단 메인 화면과 상세 조회 모두를 가장 바깥에서 감싸는 `RetroWindow.js`에 대해서 수정했다.  
 윈도우의 크기를 최대한 가로로 넓게 퍼지도록 주기 위해서 `px-4`라는 속성을 없애서 최대한 넓은 가로폭을 확보했다.  
+그리고 `RetroWindow.js`에서 본문의 내용에 주었던 padding도 기본을 2로 하고 `lg` 이상에서만 6으로 주도록 수정했다.
+
+메인 페이지의 제목인 `<h1>` 태그와 옆에 있는 아이콘을 CSS로 마찬가지로 `ml`일 때와 기본값을 따로 주어서 화면을 훨씬 안정적이게 만들었다.
+또한 내부에 있는 제목이나 태그,날짜 그리고 `description`에 대한 글꼴을 전부 `text-sm`이나 `text-xs`을 기본으로 하고 제목만 `text-base`를
+기본값으로 했다.
+
+<figure>
+    <img src="/images/m_m.png" alt="수정된 메인 페이지 화면 (UI가 튀지 않고, 글자로 매우 안정적인 상태)">
+    <figcaption>전체적으로 수정하고 나니 그럴듯한 모바일 화면이 완성되었다.</figcaption>
+</figure>
+
