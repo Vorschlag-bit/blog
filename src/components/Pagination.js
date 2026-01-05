@@ -14,28 +14,28 @@ export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
     // next 눌렀을 때 페이지 수
     const nextPage = Math.min(totalPages, currentPage + PAGE_COUNT)
     return (
-        <div className="flex justify-center items-center gap-2 mt-7">
+        <div className="flex justify-center items-center gap-3 lg:mt-7 mt-3">
             {/** 이전 버튼 */}
             {currentPage > 1 ? (
                 <Link
                     // basePath 뒤에 queryString 덧붙이기
                     href={`${basePath}?page=${prevPage}`}
-                    className="px-3 py-1 border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
+                    className="px-2 lg:px-3 py-1 text-xs whitespace-nowrap lg:text-base border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                     &lt; PREV
                 </Link>
             ) : (
-                <span className="px-3 py-1 border-2 border-gray-300 text-gray-300 cursor-not-allowed">
+                <span className="px-2 lg:px-3 py-1 text-xs whitespace-nowrap lg:text-base border-2 border-gray-300 text-gray-300 cursor-not-allowed">
                     &lt; PREV
                 </span>
             )}
             {/** 페이지 번호들*/}
-            <div>
+            <div className="flex gap-1">
                 {pages.map((p) => (
                     <Link
                         key={p}
                         href={`${basePath}?page=${p}`}
-                        className={`px-3 py-1 border-2
+                        className={`px-2 lg:px-3 py-1 border-2 text-xs lg:text
                             ${p == currentPage 
                                 ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-800'
                                 : 'border-black dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
@@ -48,12 +48,12 @@ export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
             {currentPage < totalPages ? (
                 <Link
                     href={`${basePath}?page=${nextPage}`}
-                    className="px-3 py-1 border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
+                    className="px-2 lg:px-3 py-1 text-xs whitespace-nowrap lg:text-base border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                     NEXT &gt;
                 </Link>
             ) : (
-                <span className="px-3 py-1 border-2 border-gray-300 text-gray-300 cursor-not-allowed">
+                <span className="px-2 lg:px-3 py-1 text-xs whitespace-nowrap lg:text-base border-2 border-gray-300 text-gray-300 cursor-not-allowed">
                     NEXT &gt;
                 </span>
             )}

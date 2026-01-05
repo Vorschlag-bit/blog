@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function PostNavigator({ prev, next }) {
     return (
-        <div className="flex w-full gap-4 mt-10 mb-8 font-[Galmuri11]">
+        <div className="flex w-full gap-2 md:gap-4 mt-8 lg:mt-10 lg:mb-8">
             {/* 이전 글 (Prev) */}
             {prev ? (
                 <PostCard post={prev} type="prev" />
@@ -29,7 +29,7 @@ function PostCard({ post, type }) {
             className="flex-1 min-w-0 group"
         >
             <div className={`
-                h-full p-4 rounded-lg
+                h-full p-2 lg:p-4 rounded-lg
                 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700
                 hover:bg-gray-100 dark:hover:bg-gray-800
                 transition-colors duration-200
@@ -39,7 +39,7 @@ function PostCard({ post, type }) {
                 
                 {/* 1. 아이콘 (원형 테두리) */}
                 <div className={`
-                    flex items-center justify-center w-10 h-10 rounded-full border-2 shrink-0
+                    flex items-center justify-center w-7 h-7 lg:w-10 lg:h-10 rounded-full border-2 shrink-0
                     border-blue-500 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors
                     ${!isNext && 'rotate-180'} /* Prev일 때 화살표 180도 회전 */
                 `}>
@@ -54,7 +54,7 @@ function PostCard({ post, type }) {
                     <span className="text-xs font-bold text-gray-500 mb-1">
                         {isNext ? '다음 포스트' : '이전 포스트'}
                     </span>
-                    <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 truncate">
+                    <h3 className="text-sm lg:text-base font-bold text-gray-800 dark:text-gray-100 truncate">
                         {post.title}
                     </h3>
                 </div>
