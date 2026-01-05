@@ -13,7 +13,7 @@ export default function RetroWindow({ children, title = "Untitled", className ="
                 <svg className="w-2 h-2 lg: w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M3 22h18V8h-2V6h-2v2h-2V6h2V4h-2V2H3v20zm2-2V4h8v6h6v10H5z" fill="currentColor"/>
                 </svg>
-                    <span className="ml-1">{title}</span>
+                    <span className="ml-1 truncate">{title}</span>
                 </div>
 
                 {/** 윈도우 버튼 3개(장식용) */}
