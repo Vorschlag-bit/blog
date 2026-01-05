@@ -12,7 +12,7 @@ export default function CategoryList({type = "vertical"}) {
         <>
             {type !== "vertical" ? (
                 // 태블릿 이하의 화면
-                <div className="lg:hidden w-full pt-2 pb-2 overflow-hidden">
+                <div className="lg:hidden w-full pt-2 pb-2 md:p-4 overflow-hidden">
                     <ul className="flex items-center whitespace-nowrap gap-3 overflow-x-auto">
                         {sortedCategories.map(({category, count}) => (
                             <li key={category} className="shrink-0 border border-gray-600">

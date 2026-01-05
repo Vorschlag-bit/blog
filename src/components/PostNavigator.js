@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function PostNavigator({ prev, next }) {
     return (
-        <div className="flex w-full gap-2 lg:gap-4 mt-8 lg:mt-10 lg:mb-8">
+        <div className="flex w-full gap-2 md:gap-4 mt-8 lg:mt-10 lg:mb-8">
             {/* 이전 글 (Prev) */}
             {prev ? (
                 <PostCard post={prev} type="prev" />

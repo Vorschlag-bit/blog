@@ -204,7 +204,12 @@ export default function HomeLayout({ children }) {
 기본값으로 했다.
 
 <figure>
-    <img src="/images/m_m.png" alt="수정된 메인 페이지 화면 (UI가 튀지 않고, 글자로 매우 안정적인 상태)">
+    <img src="/images/m_m.png" alt="수정된 메인 페이지 모바일 화면 (UI가 튀지 않고, 글자로 매우 안정적인 상태)">
     <figcaption>전체적으로 수정하고 나니 그럴듯한 모바일 화면이 완성되었다.</figcaption>
+</figure>
+
+<figure>
+    <img src="/images/tab1.png" alt="수정된 메인 페이지 태블릿 화면 (UI가 튀지 않고, 글자로 매우 안정적인 상태)">
+    <figcaption>내친 김에 태블릿 화면도 메인과 상세조회 둘 다 조금씩 손봤다.</figcaption>
 </figure>
 
