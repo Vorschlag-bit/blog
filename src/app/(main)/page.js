@@ -13,15 +13,14 @@ export default async function Home({ searchParams }) {
   const LIMIT = 10;
   // 데이터 가져오기
   const { posts, totalPages, currentPage } = getPaginatedPosts(page,LIMIT);
-  console.log('posts: ', posts);
   
   return (
-    <div className="p-4 w-full mx-auto">
+    <div className="w-full mx-auto lg:p-4">
       {/** RetroWindow로 감싸기 */}
       <RetroWindow title="C:\Users\DevLog\posts_list.exe">
         <section>
-          <h1 className="flex items-center text-4xl font-bold mb-8 font-[Galmuri11]">
-          <svg className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <h1 className="flex items-center mb-2 font-bold text-xl lg:text-4xl lg:mb-8">
+          <svg className="w-7 h-7 lg:w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M2 3h20v18H2V3zm18 16V5H4v14h16zM8 7H6v2h2V7zm2 0h8v2h-8V7zm-2 4H6v2h2v-2zm2 0h8v2h-8v-2zm-2 4H6v2h2v-2zm2 0h8v2h-8v-2z" fill="currentColor"/>
           </svg>
           <span className="ml-3">블로그 글 목록</span>

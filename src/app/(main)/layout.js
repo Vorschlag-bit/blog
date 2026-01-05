@@ -6,16 +6,17 @@ import PostRank from "@/components/PostRank";
 export default function HomeLayout({ children }) {
     return (
     // justify-center로 전체 덩어리를 가운데 정렬 + gap3로 3개의 div 균일한 거리감 조성
-    <div className="flex justify-center max-w-[1920px] mx-auto px-4 gap-3">
+    <div className="flex justify-center max-w-[1920px] mx-auto gap-3 px-2">
 
         <aside className="hidden xl:flex flex-col w-52 gap-4 shrink-0 mt-14 items-center">
             {/** 왼쪽 카테고리 사이드 바 */}
-            <CategoryList />
+            <CategoryList type={"vertical"} />
             {/** 날씨 위젯 테스트 */}
             <WeatherWidget />
         </aside>
         {/** 2. 중앙 메인 본문 flex-1로 남은 공간 다 차지 */}
         <main className="flex-1 max-w-4xl w-full min-w-0">
+            <CategoryList type={"horizontal"} />
         {/* children = 내가 만들 main 페이지 들어가는 곳 */}
             {children}
         </main>
