@@ -76,10 +76,10 @@ export default function RootLayout({ children }) {
               {/** 전역 로딩 컴포넌트 배치 */}
               <GlobalLoader />
               {/* 여기에 헤더 추가 */}
-              <header className="relative z-50 max-w-5xl mx-auto px-4 border-b py-4 flex justify-between items-center">
+              <header className="relative z-50 max-w-5xl mx-auto p-2 md:p-4 border-b flex justify-between items-center">
                 {/** 마스코트 추가 */}
                 <Link href="/" className="flex items-center gap-3 group">
-                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 transition-transform">
+                  <div className="relative w-8 h-8 transition-transform">
                     <Image
                       src="/images/icon.png"
                       alt="Mascot"
@@ -88,16 +88,16 @@ export default function RootLayout({ children }) {
                       style={{ imageRendering: "pixellated" }}
                     />
                   </div>
-                  <h1 className="hover-glitch text-xl font-bold cursor-pointer text-black dark:text-white">
+                  <h1 className="hover-glitch text-base md:text-xl font-bold cursor-pointer text-black dark:text-white">
                     DevLog
                   </h1>
                 </Link>
                 {/* 검색 모달 추가 */}
                 <SearchModal posts={posts} />
-                <nav className="flex items-center gap-4">
-                  <Link href="/about">About</Link>
+                <nav className="flex items-center gap-2 lg:gap-4">
+                  <Link href="/about" className="text-sm md:text-base">About</Link>
                   <Link href="https://github.com/Vorschlag-bit">
-                  <svg className="w-7 h-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path fill="currentColor" d="M5 2h4v2H7v2H5V2Zm0 10H3V6h2v6Zm2 2H5v-2h2v2Zm2 2v-2H7v2H3v-2H1v2h2v2h4v4h2v-4h2v-2H9Zm0 0v2H7v-2h2Zm6-12v2H9V4h6Zm4 2h-2V4h-2V2h4v4Zm0 6V6h2v6h-2Zm-2 2v-2h2v2h-2Zm-2 2v-2h2v2h-2Zm0 2h-2v-2h2v2Zm0 0h2v4h-2v-4Z"/> </svg>
+                  <svg className="w-6 h-6 md:w-7 md:h-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path fill="currentColor" d="M5 2h4v2H7v2H5V2Zm0 10H3V6h2v6Zm2 2H5v-2h2v2Zm2 2v-2H7v2H3v-2H1v2h2v2h4v4h2v-4h2v-2H9Zm0 0v2H7v-2h2Zm6-12v2H9V4h6Zm4 2h-2V4h-2V2h4v4Zm0 6V6h2v6h-2Zm-2 2v-2h2v2h-2Zm-2 2v-2h2v2h-2Zm0 2h-2v-2h2v2Zm0 0h2v4h-2v-4Z"/> </svg>
                   </Link>
                   <ThemeToggle/>
                 </nav>
@@ -109,7 +109,7 @@ export default function RootLayout({ children }) {
                 <SpeedInsights />
               </div>
               {/** footer 추가 */}
-              <footer className="max-w-5xl mx-auto px-4 border-t py-4 mt-10 text-center text-gray-500 text-sm">
+              <footer className="max-w-5xl mx-auto px-4 border-t py-4 mt-5 lg:mt-10 text-center text-gray-500 text-sm">
                 © 2025 Vorschlag Tech Blog
               </footer>
             </ThemeProvider>
