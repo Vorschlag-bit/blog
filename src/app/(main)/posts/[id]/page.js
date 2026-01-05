@@ -49,7 +49,7 @@ export default async function Post({params}) {
     const { prev,next } = await getPreNextPost(id)
 
     return (
-        <article className="max-w-4xl mx-auto md:px-2 lg:p-4 relative">
+        <article className="max-w-4xl mx-auto md:px-2 xl:p-4 relative">
             {/* mermaidUtil 추가 */}
             <MermaidInit />
             <PostRemoteControl />

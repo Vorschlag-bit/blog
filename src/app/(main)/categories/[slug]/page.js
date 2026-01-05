@@ -31,8 +31,8 @@ export default async function CategoryPage({ params, searchParams }) {
     }
 
     return (
-        <section className="lg:p-10">
-            <h1 className="text-xl lg:text-3xl font-bold mb-2 lg:mb-8 flex items-center">
+        <section className="lg:px-1 xl:p-10">
+            <h1 className="text-xl lg:text-3xl font-bold mb-2 lg:mb-5 xl:mb-8 flex items-center">
                 <svg 
                 className="w-6 h-6 lg:w-8 lg:h-8"
                 fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

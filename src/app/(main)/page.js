@@ -15,11 +15,11 @@ export default async function Home({ searchParams }) {
   const { posts, totalPages, currentPage } = getPaginatedPosts(page,LIMIT);
   
   return (
-    <div className="w-full mx-auto lg:p-4">
+    <div className="w-full mx-auto xl:p-4">
       {/** RetroWindow로 감싸기 */}
       <RetroWindow title="C:\Users\DevLog\posts_list.exe">
         <section>
-          <h1 className="flex items-center mb-2 font-bold text-xl md:text-2xl lg:text-4xl lg:mb-8">
+          <h1 className="flex items-center mb-1 font-bold text-xl md:text-2xl lg:text-4xl lg:mb-8">
           <svg className="w-7 h-7 md:w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M2 3h20v18H2V3zm18 16V5H4v14h16zM8 7H6v2h2V7zm2 0h8v2h-8V7zm-2 4H6v2h2v-2zm2 0h8v2h-8v-2zm-2 4H6v2h2v-2zm2 0h8v2h-8v-2z" fill="currentColor"/>
           </svg>
