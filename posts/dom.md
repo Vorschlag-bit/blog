@@ -5,7 +5,7 @@ category: "Javascript"
 description: "웹 개발의 기초, DOM의 정의의 필요성 그리고 트리 구조가 갖는 이점에 대해서 알아보자"
 ---
 
-<img src="/images/js.svg" className="w-10rem h-10rem" alt="Javascript 로그 사진">
+<img src="/images/js.svg" class="w-[20rem] h-[20rem]" alt="Javascript 로그 사진">
 
 ## DOM(Document Object Model)이란?
 웹 개발을 하다 보면 수도 없이 듣게 되는 단어, 바로 <b>DOM(돔)</b>이다.
