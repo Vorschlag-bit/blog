@@ -1,7 +1,7 @@
 ---
 title: "DOM(Document Object Model)의 개념과 동작 원리 정리"
 date: "2026-01-05 15:58:14"
-category: "Javascript"
+category: "JavaScript"
 description: "웹 개발의 기초, DOM의 정의의 필요성 그리고 트리 구조가 갖는 이점에 대해서 알아보자"
 ---
 
