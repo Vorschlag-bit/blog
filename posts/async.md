@@ -1,6 +1,6 @@
 ---
 title: "JS 비동기 처리: Promise부터 Async/Await까지"
-date: "2026-01-05 17:15:00"
+date: "2026-01-05 17:15:27"
 category: "JavaScript"
 description: "콜백 지옥을 넘어 Promise, 그리고 Async/Await로 이어지는 비동기 처리의 역사를 알아보자."
 ---

@@ -1,6 +1,6 @@
 ---
 title: "React의 Key, 도대체 왜 써야 할까? (Index를 쓰면 안 되는 이유)"
-date: "2026-01-06 15:30:00"
+date: "2026-01-06 15:30:12"
 category: "React"
 description: "리스트 렌더링 시 Key가 필요한 이유와 배열의 Index를 Key로 사용했을 때 발생하는 문제점에 대해 알아보자."
 ---
