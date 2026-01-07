@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function WeatherWidget({ initialData }) {    
     // 초기값 initialData
-    const [weather, setWeather] = useState(null);
+    const [weather, setWeather] = useState(initialData);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
