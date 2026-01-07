@@ -9,7 +9,7 @@ import { dfs_xy_conv } from "@/app/utils/positionConverter"
  * @param { number } y,
  * @param { string } type,
  */
-export default async function getWeather({ x, y, type="xy" }) {
+export default async function getWeather({ x, y, type="xy" }) {    
     // 서비스 키
     const SERVICE_KEY = process.env.WEATHER_API_KEY?.trim()
     if (!SERVICE_KEY) {
@@ -72,10 +72,10 @@ export default async function getWeather({ x, y, type="xy" }) {
     // console.log(`단기 예보 URL: ${url_srt}`);
 
     try {
-        const [resLive, resFcst, resSrt] = Promise.all([
+        const [resLive, resFcst, resSrt] = await Promise.all([
             fetch(url_live, { next: { revalidate: 600 } }),
             fetch(url_fcst, { next: { revalidate: 600 } }),
-            fetch(url_fcst, { next: { revalidate: 900 } })
+            fetch(url_srt, { next: { revalidate: 900 } })
         ])
 
         // res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
@@ -89,7 +89,7 @@ export default async function getWeather({ x, y, type="xy" }) {
             try {
                 return JSON.parse(text);
             } catch (error) {
-                console.error("API 응답이 JSON 형식이 아님: ", text.subString(0,100));
+                console.error("API 응답이 JSON 형식이 아님: ", text.substring(0,100));
                 throw new Error('잘못 형식의 응답 도착(Not Json)')
             }
         }
@@ -97,6 +97,11 @@ export default async function getWeather({ x, y, type="xy" }) {
         const liveData = await errorCheck(resLive, "초단기실황")
         const fcstData = await errorCheck(resFcst, "초단기예보")
         const srtData = await errorCheck(resSrt, "단기예보")
+
+        // console.log('liveData: ', liveData);
+        // console.log('fcstData: ', fcstData);
+        // console.log('srtData: ', srtData);
+        
 
         // 셋 중 하나라도 실패하면 오류
         if (liveData.response?.header?.resultCode !== '00' || fcstData.response?.header?.resultCode !== '00' || srtData.response?.header?.resultCode !== '00') {
@@ -176,7 +181,7 @@ function get_currentTime() {
 }
 
 // data를 기반으로 날씨를 판별하는 함수
-function parseWeatherData(liveItems, fcstItems, srtItems) {
+function parseWeatherData(liveItems, fcstItems, srtItems) {    
     const now = new Date()
     const kstAbs = now.getTime() + (9 * 60 * 60 * 1000)
     

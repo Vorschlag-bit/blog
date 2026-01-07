@@ -212,3 +212,11 @@ export default async function WeatherContainer() {
 </summary>
 
 이후에는 서버 컴포넌트의 기능을 부모 컴포넌트인 `WeatherContainer.js`를 구현했다.
+
+```javascript
+```
+
+그리고 기존의 `<WeatherIcon>` 대신에 넣고 감쌌다.
+
+```javacsript
+```
