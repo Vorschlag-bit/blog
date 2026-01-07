@@ -51,7 +51,7 @@ export default async function getWeather({ cx, cy, type="xy" }) {
         baseTime_Live,
         12
     )
-    console.log(`초단기 실황 URL: ${url_live}`)
+    // console.log(`초단기 실황 URL: ${url_live}`)
 
     // 2. 초단기 예보 URL
     const url_fcst = makeUrl(

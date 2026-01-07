@@ -94,7 +94,7 @@ export default function WeatherWidget({ initialData }) {
                 ) : weather ? (
                     // 날씨 정보 표시
                     <div className="flex flex-col items-center">
-                        <div className="w-64 h-64 drop-shadow-sm -mt-7">
+                        <div className="w-64 h-64 drop-shadow-sm -mt-5">
                             {/* 날씨 아이콘 동적으로 주입받음 */}
                             <Image 
                                 src={`/icons/${weather.iconName}.svg`}
