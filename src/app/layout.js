@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
               <header className="relative z-50 max-w-5xl mx-auto p-2 md:p-4 border-b flex justify-between items-center">
                 {/** 마스코트 추가 */}
                 <Link href="/" className="flex items-center gap-3 group">
-                  <div className="relative w-8 h-8 transition-transform">
+                  <div className="relative w-8 h-8 md:w-10 md:h-10 transition-transform">
                     <Image
                       src="/images/icon.png"
                       alt="Mascot"
