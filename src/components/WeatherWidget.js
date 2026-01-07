@@ -1,9 +1,11 @@
 "use client"
-import { useEffect,useState } from "react"
+import { useState } from "react"
+import getWeather from "@/lib/weather";
+import getArea from "@/lib/area";
 
 export default function WeatherWidget({ initialData,children }) {
     // 초기값 null
-    const [weather, setWeather] = useState(null);
+    const [weather, setWeather] = useState(initialData);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -23,37 +25,32 @@ export default function WeatherWidget({ initialData,children }) {
         // 브라우저 내장 팝업 트리거
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                // 성공 시, 내 위치로 api 다시 호출
-                const { latitude, longitude } = position.coords;
-                // cache hit 관측을 위해 애초에 클라이언트에서 소수점 3자리(버림)으로 params 보내기
-                const lat = latitude.toFixed(3)
-                const lng = longitude.toFixed(3)
-                let locationName = "내 위치"
-
                 try {
-                    const queryParams = new URLSearchParams({
-                    lng: lng,
-                    lat: lat
+                    // 성공 시, 내 위치로 api 다시 호출
+                    const { latitude, longitude } = position.coords;
+                    // cache hit 관측을 위해 애초에 클라이언트에서 소수점 3자리(버림)으로 params 보내기
+                    const lat = latitude.toFixed(3)
+                    const lng = longitude.toFixed(3)
+
+                    // Promise.all로 병렬 요청
+                    const [fetchedArea,fetchedWeather] = await Promise.all([
+                        getWeather({ x: lat, y: lng, type: "latlng" }),
+                        getArea({ lat: lat, lng: lng })
+                    ])
+
+                    if (!fetchedWeather) throw Error(`기상청 API 조회 실패 - ${fetchedWeather}`)
+
+                    setWeather({
+                        ...fetchedWeather,
+                        location: fetchedArea || "현 위치"
                     })
 
-                    // 블로그 API로 요청
-                    const result = await fetch(`/api/area?${queryParams.toString()}`)
-                
-                    if (result.ok) {
-                        const data = await result.json();
-                        if (data.addr) locationName = data.addr
-                    } else {
-                        console.warn("주소 조회 API 실패, 기본 이름(종로구) 사용");
-                    }
                 } catch (err) {
-                    console.error("주소 파싱 중 에러 발생: ", err);
+                    console.error(err);
+                } finally {
+                    setLoading(false)
+                    setErrorMsg('날씨 정보를 불러오는 중 오류가 발생했습니다.')
                 }
-
-                // 위/경도 -> 격자(x,y)로 변환
-                const rs = dfs_xy_conv("toXY", latitude, longitude);
-
-                // 변환된 좌표로 날씨 API 호출
-                fetchWeather(rs.x, rs.y, locationName);
             },
             (error) => {
                 console.error(error);

@@ -229,6 +229,7 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
         wind: liveMap['WSD'],        // 실황 풍속
         PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
         SKY: fcstMap['SKY'],         // 예보 하늘 상태
-        LGT: fcstMap['LGT'] > 0      // 예보 낙뢰 여부
+        LGT: fcstMap['LGT'] > 0,     // 예보 낙뢰 여부
+        location: '종로구 송월동'      // 기본값으로 위치 제공하고, setWeather에서 덮어씀
     };
 }

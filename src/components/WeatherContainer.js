@@ -20,7 +20,7 @@ export default async function WeatherContainer() {
     
     return (
         <div className="">
-            <WeatherWidget>
+            <WeatherWidget initialData={data} >
                 <WeatherIcon pty={data.PTY} sky={data.SKY} lgt={data.LGT} />
             </WeatherWidget>
         </div>
