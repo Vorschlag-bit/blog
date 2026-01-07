@@ -223,8 +223,7 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
 
     // 아이콘 이름 결정 로직 추가
     // 1. 현재 시간을 기준으로 밤낮 계산
-    const currentHour = new Date(kstAbs).getHours()
-    console.log('절대 시간 계산 기반 currentHour: ', currentHour);
+    const currentHour = new Date(kstAbs).getUTCHours()    
     
     const isNight = currentHour >= 19 || currentHour < 6
     const pty = liveMap['PTY']
