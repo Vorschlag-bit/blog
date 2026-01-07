@@ -82,6 +82,7 @@ description: "날씨 UI에 server actions와 서버와 클라이언트 컴포넌
 </table>
 
 ## 구현 과정
+### server actions 함수
 먼저 부모인 서버 컴포넌트와 자식인 클라이언트 컴포넌트에서 재사용할 <b>server actions</b> 함수를 만들었다.
 
 기존의 `/api/weather/route.js`에 있던 `GET()` 함수의 로직을 그대로 재사용했고, 클라이언트에서 수행하면 시간 계산 로직만 추가로
@@ -137,8 +138,9 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
 <summary>
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
 <span className="text-red-400">트러블 슈팅(클라이언트 컴포넌트의 자식인 서버 컴포넌트)</span>
-
+</summary>
 기존에 내가 사용하던 날씨 UI(클라이언트 컴포넌트)는 자식 컴포넌트로 서버 컴포넌트인 날씨 아이콘 UI를 갖고 있었다.
+
 ```javascript
 return (
     <div className="">
@@ -209,14 +211,56 @@ export default async function WeatherContainer() {
   );
 }
 ```
-</summary>
+
+하지만 이렇게 하니 치명적인 문제점이 있었다. 기본 데이터로 서버에서 '종로구 송월동'의 날씨를 가져올 때는
+아무런 문제가 없었지만, 이후에 리팩토링한 `WeatherWidget.js`에서 '사용자 위치' 기반 날씨를 가져올 때 이런 구조라면
+부모로부터 `children`으로 받은 `<WeatherIcon>`은 그대로 남아게 되는 문제가 발생했다.
+
+즉, 부산시 유저가 이걸 누르면 현실(부산)은 비가 올지라도 쨍쨍한 아이콘(서울 종로)을 보고 있는 문제가 발생할 수도 있었다.
+
+따라서 구조를 바꿔야했다. 어차피 `<WeatherIcon>`은 조회로 준비된 데이터를 기반으로 아이콘만 보여주는 함수다.
+그래서 따로 함수를 분리할 필요없이 `server actions` 함수인 `weather.js`에서 아이콘을 결정하는 `<WeatherWidget>`에서 `<Image>` 태그에서
+해당 아이콘을 동적으로 불러 쓰기로 했다. 
+
+그렇게 되면 정말 클라이언트는 이제 순수하게 사용자 위치만 제공을 하고 그 외에는 전부 `server actions`로 서버 내부에서 실행될 수 있었다.
+
+그렇게 이제 `getWeather()`는 아이콘까지 결정해 반환했다.
+
+```javascript
+    return {
+        temperature: liveMap['T1H'].toFixed(1), // 실황 기온
+        tmx: tmxValue.toFixed(1),               // 최고 기온
+        tmn: tmnValue.toFixed(1),               // 최저 기온
+        humidity: liveMap['REH'],    // 실황 습도
+        wind: liveMap['WSD'],        // 실황 풍속
+        PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
+        SKY: fcstMap['SKY'],         // 예보 하늘 상태
+        LGT: fcstMap['LGT'] > 0,     // 예보 낙뢰 여부
+        location: '종로구 송월동',     // 기본값으로 위치 제공하고, setWeather에서 덮어씀
+        iconName: iconName
+    };
+```
+
+</details>
 
 이후에는 서버 컴포넌트의 기능을 부모 컴포넌트인 `WeatherContainer.js`를 구현했다.
 
 ```javascript
-```
+const SEOUL_CODE = { nx: '60', ny: '127' }
 
-그리고 기존의 `<WeatherIcon>` 대신에 넣고 감쌌다.
+export default async function WeatherContainer() {
+    // 기본값으로 종로구 송월동에 위치한 '서울 기상 관측소' 날씨 제공
+    const data = await getWeather({cx: SEOUL_CODE.nx, cy: SEOUL_CODE.ny, type: "xy"})    
+    return (
+        <div className="w-full">
+            <WeatherWidget initialData={data} />
+        </div>
+    )
+}
+```
+### WeatherWidget.js
+`WeatherWidget.js`는 이제 더이상 `useEffect`
 
 ```javacsript
+
 ```

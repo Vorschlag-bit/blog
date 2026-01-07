@@ -9,7 +9,7 @@ import { dfs_xy_conv } from "@/app/utils/positionConverter"
  * @param { number } y,
  * @param { string } type,
  */
-export default async function getWeather({ x, y, type="xy" }) {    
+export default async function getWeather({ cx, cy, type="xy" }) {    
     // 서비스 키
     const SERVICE_KEY = process.env.WEATHER_API_KEY?.trim()
     if (!SERVICE_KEY) {
@@ -17,12 +17,12 @@ export default async function getWeather({ x, y, type="xy" }) {
         return null
     }
 
-    let nx = x
-    let ny = y
+    let nx = cx
+    let ny = cy
     if (type !== "xy") {
-        const { lat,lng } = dfs_xy_conv("toXY",x,y)
-        nx = lat
-        ny = lng
+        const { x,y } = dfs_xy_conv("toXY",cx,cy)
+        nx = x
+        ny = y
     }
 
     // 날짜 계산
@@ -51,7 +51,7 @@ export default async function getWeather({ x, y, type="xy" }) {
         baseTime_Live,
         12
     )
-    // console.log(`초단기 실황 URL: ${url_live}`)
+    console.log(`초단기 실황 URL: ${url_live}`)
 
     // 2. 초단기 예보 URL
     const url_fcst = makeUrl(
@@ -220,6 +220,16 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
             }
         }
     })
+
+    // 아이콘 이름 결정 로직 추가
+    // 1. 현재 시간을 기준으로 밤낮 계산
+    const currentHour = new Date().getHours()
+    const isNight = currentHour >= 19 || currentHour < 6
+    const pty = liveMap['PTY']
+    const sky = fcstMap['SKY']
+    const lgt = fcstMap['LGT'] > 0
+
+    const iconName = getWeatherIcon(pty,sky,lgt,isNight)
     
     return {
         temperature: liveMap['T1H'].toFixed(1), // 실황 기온
@@ -230,6 +240,46 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
         PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
         SKY: fcstMap['SKY'],         // 예보 하늘 상태
         LGT: fcstMap['LGT'] > 0,     // 예보 낙뢰 여부
-        location: '종로구 송월동'      // 기본값으로 위치 제공하고, setWeather에서 덮어씀
+        location: '종로구 송월동',     // 기본값으로 위치 제공하고, setWeather에서 덮어씀
+        iconName: iconName
     };
+}
+
+/**
+ * param을 바탕으로 날씨 아이콘 문자열을 return 하는 함수입니다.
+ * @param { number } pty - 강수형태 (0: 없음, 1: 비, 2: 비/눈, 3: 눈, 5: 빗방울, 6: 진눈깨비, 7: 눈날림)
+ * @param { number } sky - 하늘상태 (1: 맑음, 3: 구름 많음, 4: 흐림)
+ * @param { boolean } lgt - 낙뢰여부 (true/false) - 초단기예보 LGT 값 > 0이면 true else false
+ * @param { boolean } isNight - 밤 여부 (true/false) - 현재 시간이 17:00 이상이면 true else false
+ */
+function getWeatherIcon(pty, sky, lgt, isNight) {
+    const suffix = isNight ? 'night' : 'day'
+
+    // 1. 낙뢰(LGT)가 최우선
+    if (lgt) {
+        if (pty === 0 ) return `thunderstorms-${suffix}` // 마늘하늘 벼락
+        if (pty === 3 || pty === 7) return `thunderstorms-snow` // 눈 + 벼락
+        return 'thunderstorms-rain' // 그외에는 비 + 벼락
+    }
+
+    // 2. 강수(PTY) > 0일 때
+    if (pty > 0) {
+        switch(pty) {
+            case 1: return 'rain'     // 비
+            case 2: return 'sleet'    // 비/눈
+            case 3: return 'snow'     // 눈
+            case 5: return 'drizzle'  // 빗방울(약한 비)
+            case 6: return 'sleet'    // 빗방울/눈날림(진눈깨비)
+            case 7: return 'snow'     // 눈날림(눈)
+            default: return 'rain'    // 기본은 비
+        }
+    }
+
+    // 3. 맑음/흐름(SKY)일 때 (PTY == 0)
+    switch(sky) {
+        case 1: return `clear-${suffix}`            // 맑음 (clear-day, clear-night)
+        case 3: return `partly-cloudy-${suffix}`    // 구름많음
+        case 4: return `overcast-${suffix}`         // 흐름
+        default: return `clear-${suffix}`
+    }
 }

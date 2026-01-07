@@ -2,10 +2,11 @@
 import { useState } from "react"
 import getWeather from "@/lib/weather";
 import getArea from "@/lib/area";
+import Image from "next/image";
 
-export default function WeatherWidget({ initialData,children }) {
-    // 초기값 null
-    const [weather, setWeather] = useState(initialData);
+export default function WeatherWidget({ initialData }) {    
+    // 초기값 initialData
+    const [weather, setWeather] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -31,13 +32,13 @@ export default function WeatherWidget({ initialData,children }) {
                     // cache hit 관측을 위해 애초에 클라이언트에서 소수점 3자리(버림)으로 params 보내기
                     const lat = latitude.toFixed(3)
                     const lng = longitude.toFixed(3)
-
+                    
                     // Promise.all로 병렬 요청
-                    const [fetchedArea,fetchedWeather] = await Promise.all([
-                        getWeather({ x: lat, y: lng, type: "latlng" }),
+                    const [fetchedWeather,fetchedArea] = await Promise.all([
+                        getWeather({ cx: lat, cy: lng, type: "latlng" }),
                         getArea({ lat: lat, lng: lng })
                     ])
-
+                    
                     if (!fetchedWeather) throw Error(`기상청 API 조회 실패 - ${fetchedWeather}`)
 
                     setWeather({
@@ -49,7 +50,6 @@ export default function WeatherWidget({ initialData,children }) {
                     console.error(err);
                 } finally {
                     setLoading(false)
-                    setErrorMsg('날씨 정보를 불러오는 중 오류가 발생했습니다.')
                 }
             },
             (error) => {
@@ -62,9 +62,9 @@ export default function WeatherWidget({ initialData,children }) {
 
     return (
         // 일단 보여주고 싶은 건 온도, 위치, 날씨만 해보기
-        <div className="retro-box p-4 w-[130%] -ml-2 min-h-[160px] relative">
+        <div className="retro-box w-[115%] pt-4 -ml-6 h-[21rem] relative">
             {/** Header */}
-            <div className="flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2">
+            <div className="relative z-10 w-full flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2">
                 <span className="font-bold text-sm tracking-widest ml-1">WEATHER.APP</span>
                             {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
@@ -76,23 +76,41 @@ export default function WeatherWidget({ initialData,children }) {
                     <svg className="w-4 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 2v4h5v5h4v2h-4v5h-5v4h-2v-4H6v-5H2v-2h4V6h5V2h2zM8 8v8h8V8H8zm2 2h4v4h-4v-4z" fill="currentColor"/> </svg>
                 </button>
             </div>
-            <div className="flex justify-center min-h-[100px]">
+            <div className="flex-1 w-full">
                 {loading ? (
                     // 로딩 중일 때
-                    <div className="animate-pulse text-lg font-bold dark:text-white-500 mt-15">SEARCHING...</div>
+                    <div className="flex flex-col items-center -mt-7">
+                        <div className="relative w-64 h-64">
+                            <Image
+                                src={'/icons/windsock.svg'}
+                                alt='데이터 로딩 중 아이콘'
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <p className="animate-pulse text-lg font-bold dark:text-white-500 -mt-10">SEARCHING...</p>
+                    </div>
                 ) : weather ? (
                     // 날씨 정보 표시
-                    <div className="flex flex-col">
-                        <div className="relative w-50 h-50 flex-shrink-0 drop-shadow-sm">
-                            {children}
+                    <div className="flex flex-col items-center">
+                        <div className="w-64 h-64 drop-shadow-sm -mt-7">
+                            {/* 날씨 아이콘 동적으로 주입받음 */}
+                            <Image 
+                                src={`/icons/${weather.iconName}.svg`}
+                                alt={weather.iconName}
+                                fill
+                                className="object-contain"
+                                priority // 아이콘은 중요하므로 즉시 로딩
+                            />
                         </div>
-                        <div className="flex items-center gap-7">
+                        <div className="flex items-center gap-7 -mt-7">
                             <div className="flex-col ml-4">
                                 <div className="text-4xl font-[Galmuri9] mb-2 tracking-tighter min-w-[5rem]">
                                     {weather.temperature}℃
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                    {weather.locationName} {/* 예: 서울특별시 중구 */}
+                                    {weather.location} {/* 예: 서울특별시 중구 */}
                                 </div>
                             </div>
                             <div className="flex flex-col items-start">
@@ -116,8 +134,20 @@ export default function WeatherWidget({ initialData,children }) {
                     </div>
                 ) : (
                     // 에러 표시
-                    <div className="text-xs text-red-500 mt-5 text-center bg-red-50 p-2 h-9">
-                        {errorMsg || "날씨 정보 없음"}
+                    <div className="flex flex-col items-center">
+                        <div className="relative w-64 h-64 -mt-10">
+                            <Image
+                                src={'/icons/smoke.svg'}
+                                alt='weather api fetch failed'
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 w-[12rem] mx-auto text-xs text-red-500 border-2 border-red-500 border-dashed justify-center bg-red-50 p-2 -mt-5">
+                            <svg className="w-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 1h-2v2H9v2H7v2H5v2H3v2H1v2h2v2h2v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2v-2h2v-2h2v-2h-2V9h-2V7h-2V5h-2V3h-2V1zm0 2v2h2v2h2v2h2v2h2v2h-2v2h-2v2h-2v2h-2v2h-2v-2H9v-2H7v-2H5v-2H3v-2h2V9h2V7h2V5h2V3h2zm0 4h-2v6h2V7zm0 8h-2v2h2v-2z" fill="currentColor"/> </svg>
+                            <span className="a">{errorMsg || "날씨 정보 조회 실패"}</span>
+                        </div>
                     </div>
                 )}
             </div>
