@@ -1,109 +1,17 @@
 "use client"
-import { useEffect,useState } from "react"
-import { dfs_xy_conv } from "@/app/utils/positionConverter";
-import WeatherIcon from "./WeatherIcon";
+import { useState } from "react"
+import getWeather from "@/lib/weather";
+import getArea from "@/lib/area";
+import Image from "next/image";
 
-// 종로 3가 좌표
-const SEOUL_CODE = { nx: '60', ny: '127' }
-
-export default function WeatherWidget() {
-    // 초기값 null
-    const [weather, setWeather] = useState(null);
+export default function WeatherWidget({ initialData }) {    
+    // 초기값 initialData
+    const [weather, setWeather] = useState(initialData);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
-    // 날씨 가져오는 함수
-    const fetchWeather = async (nx,ny, locationName = "종로구 송월동") => {
-        setLoading(true)
-        setErrorMsg("")
-        try {
-            const now = new Date();
-            // 9시간 더하기
-            const kstAbs = now.getTime() + (9 * 60 * 60 * 1000);
-
-            // 객체 3개 생성
-            const kstDate_Live = new Date(kstAbs); // 실황용
-            const kstDate_Fcst = new Date(kstAbs); // 예보용
-            const kstDate_Srt = new Date(kstAbs);  // 단기 예보용
-            const currentHour = kstDate_Srt.getUTCHours();
-            const currentMin = kstDate_Srt.getUTCMinutes();
-
-            // 실황은 20분 전
-            if (kstDate_Live.getUTCMinutes() < 20) kstDate_Live.setUTCHours(kstDate_Live.getUTCHours() - 1);
-
-            // 예보는 55분 전
-            if (kstDate_Fcst.getUTCHours() < 55) kstDate_Fcst.setUTCHours(kstDate_Fcst.getUTCHours() - 1);
-
-            // 단기예보는 02:15분 이전이면 이전날 23:00의 데이터를 사용
-            if (currentHour < 2 || (currentHour === 2 && currentMin < 15)) {
-                kstDate_Srt.setUTCDate(kstDate_Srt.getUTCDate() - 1); // 하루전
-                kstDate_Srt.setUTCHours(23);
-                kstDate_Srt.setUTCMinutes(0);
-            } else {
-                // 아니라면 새벽 2시 고정
-                kstDate_Srt.setUTCHours(2);
-                kstDate_Srt.setUTCMinutes(0);
-            }
-
-            // 문자열 변환 함수
-            const formatDate = (date) => {
-                const iso = date.toISOString();
-                return {
-                    date: iso.slice(0, 10).replace(/-/g, ""),
-                    // 시간을 10분 단위로 만들어서 cache hit 높이기
-                    time: iso.slice(11, 15).replace(':',"") + "0"
-                }
-            }
-
-            const liveParams = formatDate(kstDate_Live);
-            const fcstParams = formatDate(kstDate_Fcst);
-            const srtParams = formatDate(kstDate_Srt);
-
-            // console.log("실황요청: ", liveParams)
-            // console.log("예보요청: ", fcstParams)
-            // console.log("단기예보 요청: ", srtParams);
-            
-
-            const queryParams = new URLSearchParams({
-                baseDate_Live: liveParams.date,
-                baseTime_Live: liveParams.time,
-                baseDate_Fcst: fcstParams.date,
-                baseTime_Fcst: fcstParams.time,
-                baseDate_Srt: srtParams.date,
-                baseTime_Srt: srtParams.time,
-                nx: nx,
-                ny: ny
-            });
-
-            // 이제 블로그 API 주소로 변경됌
-            const res = await fetch(`/api/weather?${queryParams.toString()}`)
-            if (!res.ok) {
-                const errorData = await res.json()
-                throw new Error("기상청 API 요청 실패!" || errorData.error)
-            }
-
-            const data = await res.json()        
-
-            // 데이터 파싱
-            // console.log("parsedDate: ", data);
-
-            setWeather({
-                ...data,
-                locationName: locationName
-            })
-            // console.log("setWeather로 데이터를 넣은 이후 로그: ", weather);
-        } catch (e) {
-            console.debug(e);
-            setErrorMsg("날씨 정보를 불러오지 못했습니다.")
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // 1. 처음엔 반드시 서울(종로)날씨 로딩
-    useEffect(() => {
-        fetchWeather(SEOUL_CODE.nx,SEOUL_CODE.ny, "종로구 송월동")
-    },[])
+    // 내 위치 찾기 버튼을 누를 경우, useEffect로 화면 리렌더링해야 하나?
+    // 그럼 useState로 날씨 정보는 계속 관리해야 하는 듯?
 
     // 2. '내 위치 찾기' 버튼 핸들러
     const handleMyLocation = () => {
@@ -118,37 +26,31 @@ export default function WeatherWidget() {
         // 브라우저 내장 팝업 트리거
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                // 성공 시, 내 위치로 api 다시 호출
-                const { latitude, longitude } = position.coords;
-                // cache hit 관측을 위해 애초에 클라이언트에서 소수점 3자리(버림)으로 params 보내기
-                const lat = latitude.toFixed(3)
-                const lng = longitude.toFixed(3)
-                let locationName = "내 위치"
-
                 try {
-                    const queryParams = new URLSearchParams({
-                    lng: lng,
-                    lat: lat
+                    // 성공 시, 내 위치로 api 다시 호출
+                    const { latitude, longitude } = position.coords;
+                    // cache hit 관측을 위해 애초에 클라이언트에서 소수점 3자리(버림)으로 params 보내기
+                    const lat = latitude.toFixed(3)
+                    const lng = longitude.toFixed(3)
+                    
+                    // Promise.all로 병렬 요청
+                    const [fetchedWeather,fetchedArea] = await Promise.all([
+                        getWeather({ cx: lat, cy: lng, type: "latlng" }),
+                        getArea({ lat: lat, lng: lng })
+                    ])
+                    
+                    if (!fetchedWeather) throw Error(`기상청 API 조회 실패 - ${fetchedWeather}`)
+
+                    setWeather({
+                        ...fetchedWeather,
+                        location: fetchedArea || "현 위치"
                     })
 
-                    // 블로그 API로 요청
-                    const result = await fetch(`/api/area?${queryParams.toString()}`)
-                
-                    if (result.ok) {
-                        const data = await result.json();
-                        if (data.addr) locationName = data.addr
-                    } else {
-                        console.warn("주소 조회 API 실패, 기본 이름(종로구) 사용");
-                    }
                 } catch (err) {
-                    console.error("주소 파싱 중 에러 발생: ", err);
+                    console.error(err);
+                } finally {
+                    setLoading(false)
                 }
-
-                // 위/경도 -> 격자(x,y)로 변환
-                const rs = dfs_xy_conv("toXY", latitude, longitude);
-
-                // 변환된 좌표로 날씨 API 호출
-                fetchWeather(rs.x, rs.y, locationName);
             },
             (error) => {
                 console.error(error);
@@ -160,9 +62,9 @@ export default function WeatherWidget() {
 
     return (
         // 일단 보여주고 싶은 건 온도, 위치, 날씨만 해보기
-        <div className="retro-box p-4 w-[130%] -ml-2 min-h-[160px] relative">
+        <div className="retro-box w-[115%] pt-4 -ml-6 h-[21rem] relative">
             {/** Header */}
-            <div className="flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2">
+            <div className="relative z-10 w-full flex justify-between items-center border-b-2 border-black/15 dark:border-white/15 pb-2">
                 <span className="font-bold text-sm tracking-widest ml-1">WEATHER.APP</span>
                             {/* 내 위치 찾기 버튼 (GPS 아이콘) */}
                 <button 
@@ -174,27 +76,41 @@ export default function WeatherWidget() {
                     <svg className="w-4 shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 2v4h5v5h4v2h-4v5h-5v4h-2v-4H6v-5H2v-2h4V6h5V2h2zM8 8v8h8V8H8zm2 2h4v4h-4v-4z" fill="currentColor"/> </svg>
                 </button>
             </div>
-            <div className="flex justify-center min-h-[100px]">
+            <div className="flex-1 w-full">
                 {loading ? (
                     // 로딩 중일 때
-                    <div className="animate-pulse text-lg font-bold dark:text-white-500 mt-15">SEARCHING...</div>
-                ) : weather ? (
-                    // 날씨 정보 표시
-                    <div className="flex flex-col">
-                        <div className="relative w-50 h-50 flex-shrink-0 drop-shadow-sm">
-                            <WeatherIcon 
-                                pty={weather.PTY}
-                                sky={weather.SKY}
-                                lgt={weather.LGT}
+                    <div className="flex flex-col items-center -mt-7">
+                        <div className="relative w-64 h-64">
+                            <Image
+                                src={'/icons/windsock.svg'}
+                                alt='데이터 로딩 중 아이콘'
+                                fill
+                                className="object-contain"
+                                priority
                             />
                         </div>
-                        <div className="flex items-center gap-7">
+                        <p className="animate-pulse text-lg font-bold dark:text-white-500 -mt-10">SEARCHING...</p>
+                    </div>
+                ) : weather ? (
+                    // 날씨 정보 표시
+                    <div className="flex flex-col items-center">
+                        <div className="w-64 h-64 drop-shadow-sm -mt-7">
+                            {/* 날씨 아이콘 동적으로 주입받음 */}
+                            <Image 
+                                src={`/icons/${weather.iconName}.svg`}
+                                alt={weather.iconName}
+                                fill
+                                className="object-contain"
+                                priority // 아이콘은 중요하므로 즉시 로딩
+                            />
+                        </div>
+                        <div className="flex items-center gap-7 -mt-7">
                             <div className="flex-col ml-4">
                                 <div className="text-4xl font-[Galmuri9] mb-2 tracking-tighter min-w-[5rem]">
                                     {weather.temperature}℃
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                    {weather.locationName} {/* 예: 서울특별시 중구 */}
+                                    {weather.location} {/* 예: 서울특별시 중구 */}
                                 </div>
                             </div>
                             <div className="flex flex-col items-start">
@@ -218,8 +134,20 @@ export default function WeatherWidget() {
                     </div>
                 ) : (
                     // 에러 표시
-                    <div className="text-xs text-red-500 mt-5 text-center bg-red-50 p-2 h-9">
-                        {errorMsg || "날씨 정보 없음"}
+                    <div className="flex flex-col items-center">
+                        <div className="relative w-64 h-64 -mt-10">
+                            <Image
+                                src={'/icons/smoke.svg'}
+                                alt='weather api fetch failed'
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 w-[12rem] mx-auto text-xs text-red-500 border-2 border-red-500 border-dashed justify-center bg-red-50 p-2 -mt-5">
+                            <svg className="w-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M13 1h-2v2H9v2H7v2H5v2H3v2H1v2h2v2h2v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2v-2h2v-2h2v-2h-2V9h-2V7h-2V5h-2V3h-2V1zm0 2v2h2v2h2v2h2v2h2v2h-2v2h-2v2h-2v2h-2v2h-2v-2H9v-2H7v-2H5v-2H3v-2h2V9h2V7h2V5h2V3h2zm0 4h-2v6h2V7zm0 8h-2v2h2v-2z" fill="currentColor"/> </svg>
+                            <span className="a">{errorMsg || "날씨 정보 조회 실패"}</span>
+                        </div>
                     </div>
                 )}
             </div>
