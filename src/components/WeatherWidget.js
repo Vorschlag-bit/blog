@@ -104,7 +104,7 @@ export default function WeatherWidget({ initialData }) {
                                 priority // 아이콘은 중요하므로 즉시 로딩
                             />
                         </div>
-                        <div className="flex items-center gap-7 -mt-7">
+                        <div className="flex items-center gap-7 -mt-5">
                             <div className="flex-col ml-4">
                                 <div className="text-4xl font-[Galmuri9] mb-2 tracking-tighter min-w-[5rem]">
                                     {weather.temperature}℃

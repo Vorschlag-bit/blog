@@ -7,6 +7,8 @@
  * @return {Promise<string>}
  */
 export default async function getArea({ lng,lat }) {
+    console.log('lng, lat: ', lng,lat);
+    
     if (!lat || !lng) {
         console.error('좌표 누락 - lng/lag가 없음: ', lng,lat);
         return ""
