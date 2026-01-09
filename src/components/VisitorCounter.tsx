@@ -1,11 +1,17 @@
 "use client"
 import { useCounter } from "@/app/hooks/UseCounter"
 import { useState,useEffect,useRef } from "react"
+import { VisitorData } from "@/types/visitor_type"
+
+interface NumberBoardParams {
+    number: number;
+    length: number;
+}
 
 export default function VisitorCounter() {
-    const [isLoading,setIsLoading] = useState('true')
+    const [isLoading,setIsLoading] = useState(false)
     // 당일과 전체 모두 객체로
-    const [visitors,setVisitors] = useState({ date: 0, total: 0 })
+    const [visitors,setVisitors] = useState<VisitorData>({ date: 0, total: 0 })
     // api 실패 시, errMsg
     const [errMsg, setErrMsg] = useState("")
 
@@ -25,7 +31,7 @@ export default function VisitorCounter() {
             })
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                throw Error("DB 조회 실패" || errData.error)
+                throw Error(errData.error)
             }
 
             const data = await res.json()
@@ -85,7 +91,7 @@ return (
 }
 
 // 공용 컴포넌트
-function NumberBoard({ number, length }) {
+function NumberBoard({ number, length }: NumberBoardParams) {
     const strNum = number.toString().padStart(length, '0');
     const digits = strNum.split('');
 
