@@ -12,7 +12,6 @@ import Link from "next/link";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css";
 import 'katex/dist/katex.min.css';
-import dynamic from "next/dynamic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

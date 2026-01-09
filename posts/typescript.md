@@ -206,3 +206,81 @@ useEffect(() => {
     return () => document.removeEventListener('mousedown', handleClickOutSide);
 },[])
 ```
+
+<table>
+<thead>
+<tr>
+<th width="200px">타입 이름 (Type)</th>
+<th>의미 (Meaning)</th>
+<th>주요 사용처 (Usage)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>React.ReactNode</code></strong></td>
+<td>
+<strong>"화면에 그릴 수 있는 모든 것"</strong><br/>
+(JSX 태그, 문자열, 숫자, null, undefined, 배열 등 포함).<br/>
+가장 넓은 범위를 가집니다.
+</td>
+<td>
+<strong><code>children</code> prop</strong><br/>
+(레이아웃, Context Provider 등)
+</td>
+</tr>
+<tr>
+<td><strong><code>React.ReactElement</code></strong></td>
+<td>
+<strong>"오직 JSX 태그 객체만"</strong><br/>
+(<code>&lt;div /&gt;</code>, <code>&lt;MyComponent /&gt;</code> 등)<br/>
+문자열(String)이나 null은 포함되지 않습니다.
+</td>
+<td>
+특정 컴포넌트를 prop으로 넘길 때<br/>
+(예: <code>icon={&lt;SearchIcon /&gt;}</code>)
+</td>
+</tr>
+<tr>
+<td><strong><code>JSX.Element</code></strong></td>
+<td>
+<code>ReactElement</code>와 사실상 같은 의미입니다.<br/>
+TypeScript가 JSX 문법을 해석한 결과물의 타입입니다.
+</td>
+<td>
+<strong>컴포넌트의 return 타입</strong><br/>
+(보통 생략해도 자동 추론됨)
+</td>
+</tr>
+<tr>
+<td><strong><code>React.CSSProperties</code></strong></td>
+<td>
+CSS 속성 이름들이 정의된 객체 타입입니다.<br/>
+(자동 완성 지원: backgroundColor 등)
+</td>
+<td>
+<strong><code>style</code> prop</strong><br/>
+(<code>style={ { color: 'red' } }</code>)
+</td>
+</tr>
+<tr>
+<td><strong><code>React.ComponentProps&lt;T&gt;</code></strong></td>
+<td>
+HTML 태그(T)나 컴포넌트가 가지는 <strong>모든 속성(props)</strong>을 추출합니다.<br/>
+(예: <code>onClick</code>, <code>className</code> 등 자동 포함)
+</td>
+<td>
+<strong>래퍼 컴포넌트</strong> 만들 때<br/>
+(예: <code>&lt;button&gt;</code>을 감싸는 커스텀 버튼)
+</td>
+</tr>
+<tr>
+<td><strong><code>React.Dispatch&lt;SetStateAction&lt;T&gt;&gt;</code></strong></td>
+<td>
+<code>useState</code>에서 나오는 <strong>setState 함수</strong>의 타입입니다.
+</td>
+<td>
+<code>setState</code> 함수를 자식에게 넘겨줄 때
+</td>
+</tr>
+</tbody>
+</table>

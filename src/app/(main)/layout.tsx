@@ -3,7 +3,7 @@ import WeatherContainer from "@/components/WeatherContainer";
 import VisitorCounter from "@/components/VisitorCounter";
 import PostRank from "@/components/PostRank";
 
-export default function HomeLayout({ children }) {
+export default function HomeLayout({ children }: { children: React.ReactNode }) {
     return (
     // justify-center로 전체 덩어리를 가운데 정렬 + gap3로 3개의 div 균일한 거리감 조성
     <div className="flex justify-center max-w-[1920px] mx-auto gap-3 px-2">
@@ -12,6 +12,7 @@ export default function HomeLayout({ children }) {
             {/** 왼쪽 카테고리 사이드 바 */}
             <CategoryList type={"vertical"} />
             {/** 날씨 위젯 테스트 */}
+            {/* <WeatherWidget/> */}
             <WeatherContainer />
         </aside>
         {/** 2. 중앙 메인 본문 flex-1로 남은 공간 다 차지 */}

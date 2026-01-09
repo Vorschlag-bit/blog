@@ -12,12 +12,20 @@ import PostNavigator from "@/components/PostNavigator";
 import MermaidInit from "@/app/utils/mermaidInit";
 // redis zincrby 호출함수
 import { IncrementRank } from "@/lib/ranks";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
+// Params Interface 정의
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
 
 // 동적 메타데이터 생성 함수
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params
     const post = await getPostData(id)
+
+    if(!post) return {}
 
     const imageUrl = "/images/og-image.png"
 
@@ -39,12 +47,15 @@ export async function generateMetadata({ params }) {
 }
 
 // URL의 [id]부분이 parmas로 들어감
-export default async function Post({params}) {
+export default async function Post({ params }: PageProps) {
     // 1. params는 Promise라서 await로 기다려야 함
     const { id } = await params
-    await IncrementRank(id);
     // 2. id를 바탕으로 데이터 구하기
     const postData = await getPostData(id)
+
+    if (!postData) notFound();
+
+    await IncrementRank(id);
 
     const { prev,next } = await getPreNextPost(id)
 
@@ -68,7 +79,7 @@ export default async function Post({params}) {
                     {/** React는 보안 떄문에 HTML 태그를 보여주지 않고 글자 그대로 보여줌, 그걸 무시하기 위한 문법 */}
                     <div
                     className="prose prose-sm md:prose-lg dark:prose-invert"
-                    dangerouslySetInnerHTML={{ __html: postData.htmlContent}}
+                    dangerouslySetInnerHTML={{ __html: postData.htmlContent || ""}}
                     />
                     {/** CodeBlockManager 추가 */}
                     <CodeBlockManager />
