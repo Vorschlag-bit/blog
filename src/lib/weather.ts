@@ -9,7 +9,11 @@ interface GetWeatherParams {
     type?: "xy" | "latlng"
 }
 
-// 기상청 API 아이템 타입
+// 기상청 API 응답 타입 정의
+interface WeatherResponse {
+    
+}
+
 interface WeatherApiItem {
     category: string;
     obsrValue?: string;
