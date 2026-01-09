@@ -8,7 +8,6 @@ export default function ThemeToggle() {
     const { theme, setTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
 
-    // useEffect를 사용하는 이유: 서버와 클라이언트 HTML 불일치 방지
     useEffect(() => {
         setMounted(true)
     }, [])

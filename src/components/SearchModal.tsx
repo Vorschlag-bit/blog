@@ -2,14 +2,20 @@
 import { useState,useMemo,useRef,useEffect } from "react"
 import Fuse from "fuse.js"
 import Link from "next/link"
+import { PostData } from "@/types/post_type"
 
-export default function SearchModal({ posts }) {
+interface SearchModalParams {
+    posts: PostData[];
+}
+
+export default function SearchModal({ posts }: SearchModalParams) {
     const [query, setQuery] = useState('')
     const [isOpen,setIsOpen] = useState(false)
-    const containerRef = useRef(null);
+    // DOM 요소 타입 지정 - 감싸는 박스가 <div>라면 HTMLDivElement
+    const containerRef = useRef<HTMLDivElement>(null);
     
     const fuse = useMemo(() => {
-        return new Fuse(posts, {
+        return new Fuse<PostData>(posts, {
             keys: [
                 { name: 'title', weight: 1 },       // 가중치 1
                 { name: 'content', weight: 0.7 },   // 가중치 0.9
@@ -28,7 +34,9 @@ export default function SearchModal({ posts }) {
         return fuse.search(query).map(result => result.item);
     }, [query, fuse])
 
-    const handleOnChange = (e) => {
+    // React 이벤트 타입(onChange) - input 태그 내용 변경이므로 React.ChangeEvent
+    // 제네릭으로는 이벤트 발생 요소인 HTMLInputElement
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setQuery(e.target.value);
 
         // 글자가 있으면 열고
@@ -43,9 +51,11 @@ export default function SearchModal({ posts }) {
 
     // 외부 클릭 로직 추가
     useEffect(() => {
-        function handleClickOutSide(event) {
+        // Native 이벤트 - React 안 붙임
+        function handleClickOutSide(event: MouseEvent) {
             // ref 존재하고 클릭된 타겟이 ref에 포함되지 않으면 isOpen false로
-            if (containerRef.current && !containerRef.current.contains(event.target)) {
+            // event.target은 기본적으로 EventTarget 타입이라 Node로 assertion 필요
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         }

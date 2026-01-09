@@ -14,7 +14,8 @@ description: "블로그를 Typescript 기반으로 리팩토링 해보자."
 
 이 글은 현재까지 JS로 개발된 블로그를 TS로 마이그레이션 하는 과정을 담은 기록이다.
 
-## 종속성 설치
+## 구현과 고찰
+### 종속성 설치
 먼저 아래의 명령어를 통해서 Typescript와 관련 패키지들을 설치했다.
 
 ```zsh
@@ -40,7 +41,7 @@ npm install -D typescript @types/react @types/node @types/react-dom
     <figcaption>내용도 Next.js 권장 설정으로 자동 구성된다.</figcaption>
 </figure>
 
-## 공통 타입 정의하기 (types 폴더)
+### 공통 타입 정의하기 (types 폴더)
 이제부턴 `/types`라는 디렉토리를 만들어서 블로그에 사용되는 데이터 객체들의 타입을 하나하나 세심히 작성하면 된다. 사실상 이 부분이 마이그레이션의 핵심이자 가장 많은 시간을 잡아먹는 노가다 구간이다.
 
 나만의 규칙을 정했다. 특정 객체가 2개 이상의 컴포넌트에서 사용된다면 `/types` 디렉토리 아래에 `weather.ts` 처럼 파일로 분리해 관리하고, 오직 하나의 컴포넌트에서만 사용된다면 해당 컴포넌트 파일 내부에 직접 `interface`를 선언하기로 했다.
@@ -73,7 +74,7 @@ export interface WeatherData {
 
 이제부터는 인내의 시간이다. 내가 설계한 타입에 맞게 하나씩 오류를 수정해 나가면 된다.
 
-## Props와 타입의 세계
+### Props와 타입의 세계
 Typescript를 사용하면서 React의 `props`를 다루는 방식이 더 엄격해졌다. JS 시절엔 대충 넘겼던 객체 구조를 명확히 정의해야 한다.
 
 예를 들어 `WeatherContainer.tsx`가 `WeatherWidget.tsx`에게 `data`를 넘겨주는 상황을 보자.
@@ -125,7 +126,7 @@ Kotlin에서는 `?`를 붙이면 Nullable이 되지만, JS/TS에서 `?`는 값�
 useState<WeatherData | null>(initialData || null);
 ```
 
-## 왜 Class 대신 객체 리터럴({})을 쓸까?
+### 왜 Class 대신 객체 리터럴({})을 쓸까?
 Java나 Kotlin을 하다가 넘어오면 가장 어색한 부분이 바로 이 지점이다. 보통 데이터를 담는 객체(DTO)를 만들 때 `Class`를 정의하고 `new PostData()` 처럼 생성해서 쓰는 게 익숙하다.
 
 하지만 이번 리팩토링 과정에서 나는 `interface`와 객체 리터럴(`{}`) 조합을 사용했다.
@@ -152,4 +153,12 @@ return {
 3.  **번들 사이즈:** `interface`는 컴파일되면 코드에서 100% 사라진다. 반면 `class`는 JS 코드로 변환되어 남는다. 불필요한 런타임 오버헤드를 줄일 수 있다.
 
 결국 "데이터 전송"이 주목적인 웹 프론트엔드 환경에서는 무거운 Class보다 가벼운 Interface가 훨씬 적합하다는 결론을 내렸다.
+
+### 이벤트 객체랑 DOM 요소의 타입은 뭘까?
+React나 웹 API가 제공해주는 DOM 요소나, 이벤트들을 사용할 때 뭐라고 타입을 지정해야 할지 몰랐었다.
+
+그래서 자주 쓰이는 것들에 대해서 간략하게 정리를 했다.
+- <b>DOM 요소</b>: <code>HTMLDivElement</code>, <code>HTMLInputElement</code>, <code>HTMLButtonElement</code> 등 <code>HTML...Element</code> 형식을 사용.
+- <b>React 이벤트</b>: <code>React.ChangeEvent&lt;HTMLInputElement&gt;</code>, <code>React.FormEvent</code>, <code>React.MouseEvent</code> 등을 사용.
+- <code>Native 이벤트</code>: <code>MouseEvent</code>, <code>KeyboardEvent</code> 등 <code>React</code>가 붙지 않은 걸 사용.
 

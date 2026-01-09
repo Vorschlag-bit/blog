@@ -239,7 +239,7 @@ export async function getPreNextPost(currentId) {
 }
 
 // Fuse.js에 넘길 JSON 배열을 위한 순수 텍스트 추출 함수
-function stripMarkdown(content) {
+function stripMarkdown(content: string): string {
     return content
         .replace(/#+\s/g, '') // header 제거
         .replace(/(\*\*|__)(.*?)\1/g, '$2') // 볼드 제거
@@ -250,7 +250,7 @@ function stripMarkdown(content) {
         .replace(/\s+/g, ' ').trim() // 연속된 공백 제거
 }
 
-export function getJSONArrayForSearch() {
+export function getJSONArrayForSearch(): PostData[] {
     const fileNames = fs.readdirSync(postsDirectory)
     const data = fileNames.map((file) => {
     const fullPath = path.join(postsDirectory, file)
@@ -264,7 +264,7 @@ export function getJSONArrayForSearch() {
         description: matterResult.data.description,
         content: stripMarkdown(matterResult.content),
         date: matterResult.data.date
-    };
+    } as PostData;
     })
 
     return data;
