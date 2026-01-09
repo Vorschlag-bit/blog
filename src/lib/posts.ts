@@ -77,7 +77,7 @@ export function getSortedPostsData(): PostData[] {
 }
 
 // id(파일 이름)을 받아서 해당 글의 데이터를 가져오는 함수 (remark 비동기)
-export async function getPostData(id) {
+export async function getPostData(id: string): Promise<PostData | null> {
     // Path Traversal 방지 (id에 슬래시나 파일 시스템 탐색 시도 차단)
     if (id.includes('/') || id.includes('\\') || id.includes('..')) return null;
 
@@ -107,13 +107,19 @@ export async function getPostData(id) {
         const htmlContent = processedContent.toString()
 
         // console.log(htmlContent)
+        const metadata = matterResult.data as any
 
-        // 데이터와 HTML 내용을 합쳐서 반환
-        return {
+        const postData: PostData = {
             id,
             htmlContent,
-            ...matterResult.data,
+            title: metadata.title,
+            date: metadata.date,
+            category: metadata.category || '기타',
+            description: metadata.description
         }
+
+        // 데이터와 HTML 내용을 합쳐서 반환
+        return postData
     } catch (error) {
         console.error(`Error reading post id -> ${id}: `, error);
         return null;
@@ -126,7 +132,7 @@ export function getPostsByCategory(category) {
 }
 
 // 왼쪽 사이드 바 카테고리 리스트를 만들기 위한 카테고리 추출 함수
-export function getAllCategories() {
+export function getAllCategories(): CategoryData[] {
     // 1. 개수 세기 (reduce 함수 활용)
     const countMap = dateSortedAllPosts.reduce((acc, post) => {
         // category 없으면 '기타'로
@@ -135,12 +141,12 @@ export function getAllCategories() {
         // dict에 키가 있으면 누적, 없으면 1로 초기화
         acc[category] = (acc[category] || 0) + 1
         return acc
-    }, {})
+    }, {}) as Record<string, number>
 
     // 2. 딕셔너리를 배열로 반환하고 정렬하기(Object.entries)
     // Object.entries는 [['개발',2],['일상',1]] 형태
     const sortedCategories = Object.entries(countMap)
-        .map(([category, count]) => ({ category, count })) // 객체로 변환
+        .map(([category, count]) => ({ category: category, count: count })) // 객체로 변환
         .sort((a,b) => a.category.localeCompare(b.category)) // 오름차순 정렬
     
     // 3. '전체(All)` 카테고리 맨 앞에 붙이기
@@ -183,7 +189,7 @@ export function getPaginatedPosts(page = 1, limit = 10) {
 }
 
 // 카테고리 분류 화면에서 사용할 페이징 로직
-export function getPaginatedCategories(page = 1, limit = 10, category ="기타") {
+export function getPaginatedCategories(page = 1, limit = 10, category ="기타"): PaginatedResult<PostData> {
     // 1. queryParams로 받은 category로 해당 카테고리 글만 추출
     const allCategoriesPosts = getPostsByCategory(category);
 
@@ -205,7 +211,7 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
 
     return {
         posts: paginatedCategories,
-        curPage,
+        currentPage: curPage,
         totalPages,
         totalCount,
         hasNext: curPage < totalPages,

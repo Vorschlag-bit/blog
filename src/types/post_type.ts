@@ -23,7 +23,7 @@ export interface CategoryData {
 }
 
 export interface PaginatedResult<T> {
-    posts: [T];
+    posts: T[];
     currentPage: number;
     totalPages: number;
     totalCount: number;
