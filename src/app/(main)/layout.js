@@ -1,6 +1,5 @@
 import CategoryList from "@/components/CategoryList";
 import WeatherContainer from "@/components/WeatherContainer";
-import WeatherWidget from "@/components/WeatherWidget";
 import VisitorCounter from "@/components/VisitorCounter";
 import PostRank from "@/components/PostRank";
 
@@ -13,7 +12,6 @@ export default function HomeLayout({ children }) {
             {/** 왼쪽 카테고리 사이드 바 */}
             <CategoryList type={"vertical"} />
             {/** 날씨 위젯 테스트 */}
-            {/* <WeatherWidget/> */}
             <WeatherContainer />
         </aside>
         {/** 2. 중앙 메인 본문 flex-1로 남은 공간 다 차지 */}

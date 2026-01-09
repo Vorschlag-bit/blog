@@ -19,7 +19,7 @@ export default function VisitorCounter() {
     const hasFetched = useRef(false)
 
     // 애니메이션 적용된 숫자 (duration: 1.2초 동안 촤라락)
-    const animatedToday = useCounter(visitors.date, 1200);
+    const animatedToday = useCounter(visitors.date, 1200)
     const animatedTotal = useCounter(visitors.total, 1200)
 
     const fetchVisitors = async () => {
@@ -35,7 +35,8 @@ export default function VisitorCounter() {
             }
 
             const data = await res.json()
-            // console.log("데이터 파싱 결과: ", data);
+            // console.log("데이터 파싱 결과: ", data)
+            
             
             setVisitors(data)
 
