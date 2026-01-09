@@ -111,3 +111,16 @@ JS에선 `undefined`가 기본값이 된다는 것이었다. 따라서, `?` 연�
 
 이렇게 Javascript 내부에 비슷하지만 주관하는 세계가 다른 Typescript가 함께 녹아들어가 있다는 게 매우 독특했다.
 
+```Tsx
+const rankingData = topIds.map(id => {
+    const post = postMap.get(id)
+    // 없을 경우엔 null
+    if (!post) return null;
+
+    return {
+        id: post.id,
+        title: post.title,
+        date: post.date
+    }
+}).filter((item): item is RankPostData => item !== null); // null 아닌 데이터만 filter로 추출
+```
