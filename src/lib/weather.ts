@@ -1,6 +1,6 @@
 "use server"
 import { dfs_xy_conv } from "@/app/utils/positionConverter"
-import { WeatherData } from "@/types/weather";
+import { WeatherData } from "@/types/weather_type";
 
 // 매개변수 타입 정의
 interface GetWeatherParams {

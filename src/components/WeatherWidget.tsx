@@ -3,10 +3,16 @@ import { useState } from "react"
 import getWeather from "@/lib/weather";
 import getArea from "@/lib/area";
 import Image from "next/image";
+import { WeatherData } from "@/types/weather_type";
 
-export default function WeatherWidget({ initialData }) {    
+// props는 객체고, 내가 구조분해 할당으로 받는 건 key이기 때문에 타입을 한 번 더 감싸야 함
+interface WeatherWidgetProps {
+    initialData: WeatherData | null;
+}
+
+export default function WeatherWidget({ initialData }: WeatherWidgetProps) {    
     // 초기값 initialData
-    const [weather, setWeather] = useState(initialData);
+    const [weather, setWeather] = useState<WeatherData | null>(initialData);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 

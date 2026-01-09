@@ -1,4 +1,10 @@
 "use server"
+
+interface getAreaParams {
+    lng: string;
+    lat: string
+}
+
 /**
  * 위/경도를 기반으로 VWORLD에서 사용자 위치 정보를 return 하는 함수입니다.
  * 문자열 --시 --구 --동 중 --구 --동을 return합니다.
@@ -6,9 +12,7 @@
  * @param {string} lat,
  * @return {Promise<string>}
  */
-export default async function getArea({ lng,lat }) {
-    console.log('lng, lat: ', lng,lat);
-    
+export default async function getArea({ lng,lat }: getAreaParams) {    
     if (!lat || !lng) {
         console.error('좌표 누락 - lng/lag가 없음: ', lng,lat);
         return ""
