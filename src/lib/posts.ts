@@ -126,7 +126,7 @@ export async function getPostData(id: string): Promise<PostData | null> {
     }
 }
 
-export function getPostsByCategory(category) {
+export function getPostsByCategory(category: string) {
     // filter 함수로 조건에 맞는 것만 남기기
     return dateSortedAllPosts.filter((post) => post.category === category)
 }
@@ -134,14 +134,14 @@ export function getPostsByCategory(category) {
 // 왼쪽 사이드 바 카테고리 리스트를 만들기 위한 카테고리 추출 함수
 export function getAllCategories(): CategoryData[] {
     // 1. 개수 세기 (reduce 함수 활용)
-    const countMap = dateSortedAllPosts.reduce((acc, post) => {
+    const countMap = dateSortedAllPosts.reduce((acc: Record<string,number>, post) => {
         // category 없으면 '기타'로
         const category = post.category || "기타"
 
         // dict에 키가 있으면 누적, 없으면 1로 초기화
         acc[category] = (acc[category] || 0) + 1
         return acc
-    }, {}) as Record<string, number>
+    }, {})
 
     // 2. 딕셔너리를 배열로 반환하고 정렬하기(Object.entries)
     // Object.entries는 [['개발',2],['일상',1]] 형태
@@ -189,7 +189,7 @@ export function getPaginatedPosts(page = 1, limit = 10) {
 }
 
 // 카테고리 분류 화면에서 사용할 페이징 로직
-export function getPaginatedCategories(page = 1, limit = 10, category ="기타"): PaginatedResult<PostData> {
+export function getPaginatedCategories(page = 1, limit = 10, category: string = "기타"): PaginatedResult<PostData> {
     // 1. queryParams로 받은 category로 해당 카테고리 글만 추출
     const allCategoriesPosts = getPostsByCategory(category);
 
@@ -220,7 +220,7 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
 }
 
 // 상세 조회에서 사용할 이전/이후 포스팅 nav 로직
-export async function getPreNextPost(currentId) {
+export async function getPreNextPost(currentId: string) {
     // 현재 글 idx 찾기
     const idx = dateSortedAllPosts.findIndex((post) => post.id === currentId)
 
