@@ -162,3 +162,47 @@ React나 웹 API가 제공해주는 DOM 요소나, 이벤트들을 사용할 때
 - <b>React 이벤트</b>: <code>React.ChangeEvent&lt;HTMLInputElement&gt;</code>, <code>React.FormEvent</code>, <code>React.MouseEvent</code> 등을 사용.
 - <code>Native 이벤트</code>: <code>MouseEvent</code>, <code>KeyboardEvent</code> 등 <code>React</code>가 붙지 않은 걸 사용.
 
+내 프로젝트에는 다양한 웹 API와 이벤트들이 존재했는데, 대표적인 예로 `SearchModal.tsx`는 DOM 조작을 위한 `useRef`, 검색창 입력값을
+변경하는 핸들러 함수(`onChange`) 그리고 마우스 클릭으로 결과를 닫는 기능을 위한 마우스 클릭 이벤트 리스너까지 존재한다.
+
+`useRef`는 검색창 외부 클릭 시, 결과를 닫기 위한 기능을 위해 검색 컴포넌트 자체를 등록해놓은 것이었다.  
+이때 가장 바깥 태그가 `<div>` 태그이므로 제네릭에 `HTMLDivElement`를 적었다.
+
+```Tsx
+const containerRef = useRef<HTMLDivElement>(null);
+```
+
+또한 검색창 입력값 수정을 위한 `onChange` 핸들링 함수의 이벤트는 `React.ChangeEvent<HTMLInputElement>`을 넣었다.
+```Tsx
+// React 이벤트 타입(onChange) - input 태그 내용 변경이므로 React.ChangeEvent
+// 제네릭으로는 이벤트 발생 요소인 HTMLInputElement
+const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+
+    // 글자가 있으면 열고
+    if (e.target.value.length > 0) setIsOpen(true)
+    // 없으면 닫기
+    else setIsOpen(false)
+}
+```
+
+마지막으로 검색창 외부 클릭 이벤트를 감지하는 이벤트 리스너는 순수한 웹 API이므로, React를 붙이지 않고 `MouseEvent`만 작성했다.
+```Tsx
+// 외부 클릭 로직
+useEffect(() => {
+    // Native 이벤트 - React 안 붙임
+    function handleClickOutSide(event: MouseEvent) {
+        // ref 존재하고 클릭된 타겟이 ref에 포함되지 않으면 isOpen false로
+        // event.target은 기본적으로 EventTarget 타입이라 Node로 assertion 필요
+        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+            setIsOpen(false);
+        }
+    }
+
+    // 마우스 누를 때 감지 시작
+    document.addEventListener('mousedown',handleClickOutSide)
+
+    // CleanUp
+    return () => document.removeEventListener('mousedown', handleClickOutSide);
+},[])
+```
