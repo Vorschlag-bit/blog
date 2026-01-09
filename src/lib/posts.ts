@@ -20,6 +20,9 @@ import rehypeExternalLinks from 'rehype-external-links';
 // mermaid 문법 적용을 위한 커스텀 플러그인을 위한 라이브러리 import
 import { visit } from 'unist-util-visit';
 
+// 타입 추가
+import { PostData,CategoryData,PaginatedResult } from '@/types/post_type';
+
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
 const postsDirectory = path.join(process.cwd(), 'posts')
@@ -28,8 +31,8 @@ const postsDirectory = path.join(process.cwd(), 'posts')
 export const dateSortedAllPosts = getSortedPostsData();
 
 function remarkMermaidToHTML() {
-    return (tree) => {
-        visit(tree, 'code', (node) => {
+    return (tree: any) => {
+        visit(tree, 'code', (node: any) => {
             if (node.lang === 'mermaid') {
                 // 노드 타입 html로 바꾸고, 내용 div로 변환
                 node.type = 'html'
@@ -39,7 +42,7 @@ function remarkMermaidToHTML() {
     };
 }
 
-export function getSortedPostsData() {
+export function getSortedPostsData(): PostData[] {
     // 1. posts 폴더에 있는 파일 이름들을 가져옴 (['first-post.md, ...])
     const fileNames = fs.readdirSync(postsDirectory)
     // 2. 파일들을 하나씩 가공(map)
@@ -52,12 +55,18 @@ export function getSortedPostsData() {
         const fileContent = fs.readFileSync(fullPath, 'utf8')
         // gray-matter 사용해서 메타데이터(title, date...) 파싱
         const matterResult = matter(fileContent)
+
+        // matterResult.data를 PostData 일부로 인식
+        const metaData = matterResult.data as { title: string; date: string; category? : string; [key: string]: any }
+
         // id와 metadata 합쳐서 반환
         return {
             id,
-            ...matterResult.data,
+            ...metaData,
+            title: metaData.title,
+            date: metaData.date,
             category: matterResult.data.category || "기타", // 카테고리가 없으면 '기타'
-        }
+        } as PostData
     })
 
     // 3. 날짜순으로 정렬해서 return (최신글)
