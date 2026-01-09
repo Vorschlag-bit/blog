@@ -31,5 +31,43 @@ npm install -D typescript @types/react @types/node @types/react-dom
     <figcaption>그러면 이렇게 터미널에도 <code>tsconfig.json</code>를 생성했다고 나온다.</figcaption>
 </figure>
 
+<figure>
+    <img src="/images/tsconfig.png" alt="tsconfig.json 내용">
+    <figcaption>내용도 자동으로 생성되어 있다.</figcaption>
+</figure>
+```
+
 ## 공통 타입 정의하기 (types 폴더)
-내가 사용하는 객체에 대한 '정적 타입'을 적어두는 곳이다.  
+이후에는 `/types`라는 디렉토리를 만들어서 블로그에 사용한 객체들의 정적 타입을 하나 하나 세심히 작성하기만 하면
+사실상 거의 끝이다. 물론 이 부분이 덕분에 제일 많은 시간을 소모한다.
+
+특정 객체가 2개 이상의 컴포넌트에서 사용된다면 이 `/types` 디렉토리 아래에 `index.ts`나 해당 객체의 이름을 붙이 ts 파일을 만들어서
+여러 곳에서 사용할 수 있도록 하고, 오직 하나의 컴포넌트에서만 사용된다면 해당 컴포넌트에 직접 `interface`를 만드는 게 편하다.
+
+예를 들어 `server actions`의 return값으로 내뱉는 `data`는 클라이언트 컴포넌트(`WeatherWidget`)와 그 부모인 서버 컴포넌트(WeatherContainer)에서 모두 사용되기 때문에 이런 경우엔 `/types` 이하에 `weather.ts`라는 파일로 객체를 생성해 두었다.
+```Tsx
+// 기상성 API 응답 객체
+export interface WeatherData {
+    temperature: string,
+    tmx: string,
+    tmn: string,
+    humidity: number,
+    wind: number,
+    PTY: number,
+    SKY: number,
+    LGT: number,
+    location: string,
+    iconName: string
+}
+```
+
+이 객체를 사용할 파일의 확장자 또한 이젠 바꿔줘야 한다. 컴포넌트(Jsx를 return하는) 파일일 경우에는 `.tsx`를 일반 서버 로직이라면
+`ts`를 붙여주면 된다.
+
+<figure>
+    <img src="/images/ts_1.png" alt="tsx로 바꾼 후 보이는 컴파일러 에러들(빨간 줄)">
+    <figcaption>확장자를 <code>.tsx</code>로 변경하면 이렇게 이제 컴파일러 에러가 보인다.</figcaption>
+</figure>
+
+여기서부턴 이제 순수 노가다뿐이다. 자신이 설계한 타입에 맞게끔 하나씩 수정 천천히 수정해 나가면 된다.
+

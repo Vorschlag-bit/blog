@@ -1,5 +1,22 @@
 "use server"
 import { dfs_xy_conv } from "@/app/utils/positionConverter"
+import { WeatherData } from "@/types/weather";
+
+// 매개변수 타입 정의
+interface GetWeatherParams {
+    cx: string;
+    cy: string;
+    type?: "xy" | "latlng"
+}
+
+// 기상청 API 아이템 타입
+interface WeatherApiItem {
+    category: string;
+    obsrValue?: string;
+    fcstValue?: string;
+    fcstDate?: string;
+    fcstTime?: string;
+}
 
 /**
  * 좌표(x,y)를 기반으로 기상청 API를 호출하고 return 받은 걸 그대로 return 하는 함수입니다.
@@ -9,7 +26,7 @@ import { dfs_xy_conv } from "@/app/utils/positionConverter"
  * @param { number } y,
  * @param { string } type,
  */
-export default async function getWeather({ cx, cy, type="xy" }) {    
+export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams): Promise<WeatherData | null> {    
     // 서비스 키
     const SERVICE_KEY = process.env.WEATHER_API_KEY?.trim()
     if (!SERVICE_KEY) {
@@ -181,20 +198,20 @@ function get_currentTime() {
 }
 
 // data를 기반으로 날씨를 판별하는 함수
-function parseWeatherData(liveItems, fcstItems, srtItems) {    
+function parseWeatherData(liveItems: WeatherApiItem[], fcstItems: WeatherApiItem[], srtItems: WeatherApiItem[]): WeatherData {    
     const now = new Date()
     const kstAbs = now.getTime() + (9 * 60 * 60 * 1000)
     
     const baseDate = new Date(kstAbs).toISOString().slice(0,10).replace(/-/g, "")
 
     // 1. 실황 데이터
-    const liveMap = {}
+    const liveMap: Record<string, number> = {}
     liveItems.forEach(item => {
         liveMap[item.category] = Number(item.obsrValue);
     });
 
     // 2. 예보 데이터(SKY,LGT 추출)
-    const fcstMap = {}
+    const fcstMap: Record<string, number> = {}
     // 예보 데이터에서 가장 빠른 시간대만 추출
     fcstItems.forEach((item) => {
         // 이미 있다면 pass
@@ -238,9 +255,6 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
         tmn: tmnValue.toFixed(1),               // 최저 기온
         humidity: liveMap['REH'],    // 실황 습도
         wind: liveMap['WSD'],        // 실황 풍속
-        PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
-        SKY: fcstMap['SKY'],         // 예보 하늘 상태
-        LGT: fcstMap['LGT'] > 0,     // 예보 낙뢰 여부
         location: '종로구 송월동',     // 기본값으로 위치 제공하고, setWeather에서 덮어씀
         iconName: iconName
     };
@@ -253,7 +267,7 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
  * @param { boolean } lgt - 낙뢰여부 (true/false) - 초단기예보 LGT 값 > 0이면 true else false
  * @param { boolean } isNight - 밤 여부 (true/false) - 현재 시간이 17:00 이상이면 true else false
  */
-function getWeatherIcon(pty, sky, lgt, isNight) {
+function getWeatherIcon(pty: number, sky: number, lgt: boolean, isNight: boolean): string {
     const suffix = isNight ? 'night' : 'day'
 
     // 1. 낙뢰(LGT)가 최우선
