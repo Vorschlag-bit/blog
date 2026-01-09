@@ -5,10 +5,17 @@ import RetroWindow from "@/components/RetroWindow";
 import { getPaginatedPosts } from "@/lib/posts";
 import Pagination from "@/components/Pagination";
 
-export default async function Home({ searchParams }) {
+interface HomeProps {
+  // Next.js에선 쿼리 파라미터는 string, string[](같은 키 중복), 혹은 undefined 가능
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function Home({ searchParams }: HomeProps) {
   // Next.js 15부턴 searchParams에 await
   const params = await searchParams;
-  const page = Number(params?.page) || 1;
+  
+  const pageParam = params.page;
+  const page = Number(Array.isArray(pageParam) ? pageParam[0] : pageParam) || 1;
   // 최대 보여줄 개수
   const LIMIT = 10;
   // 데이터 가져오기

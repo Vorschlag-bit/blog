@@ -45,7 +45,7 @@ export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams
     // 날짜 계산
     const { baseDate_Fcst,baseTime_Fcst,baseDate_Live,baseTime_Live,baseDate_Srt,baseTime_Srt } = get_currentTime()
     // x,y를 기반으로 날씨 조회
-    const makeUrl = (baseUrl, baseDate, baseTime, rows) => {
+    const makeUrl = (baseUrl: string, baseDate: string, baseTime: string, rows: number) => {
         const url = new URL(baseUrl);
 
         // searchParams.append로 조합하기
