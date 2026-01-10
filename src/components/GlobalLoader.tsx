@@ -12,7 +12,9 @@ export default function GlobalLoader() {
     useEffect(() => {
         if (!isLoading) {
             // 로딩 꺼지면 숫자 초기화
-            setCount(0)
+            setTimeout(() => {
+                setCount(0)
+            }, 0);
             return;
         }
 

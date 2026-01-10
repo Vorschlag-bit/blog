@@ -1,35 +1,35 @@
 ---
-title: "Typescript 도입기, 안정적인 개발과 운영을 위해서"
+title: "Typescript 도입기: 안정적인 블로그 운영을 위한 선택"
 date: "2026-01-09 13:33:28"
 category: "개발"
-description: "블로그를 Typescript 기반으로 리팩토링 해보자."
+description: "Javascript로 작성된 블로그를 Typescript로 리팩토링하며 겪은 시행착오와 배운 점들을 기록한다."
 ---
 
-## 서론: 이젠 진짜 해야 한다.
-새로운 기능 추가보다 블로그 리팩토링에 힘을 쏟기로 결정한 순간부터 반드시 해야 하는 일이었다.
+## 서론: 이젠 진짜 해야 한다
+새로운 기능 추가보다 블로그 리팩토링에 힘을 쏟기로 결정한 순간부터, Typescript 도입은 선택이 아닌 필수였다.
 
-현재는 JS로만 코드가 구성되어 있다. JS의 동적 타입 결정은 초기에는 유연한 구조를 제공하지만, 프로젝트의 규모가 커질수록 '타입의 유연함'은 오히려 독이 될 뿐이다. 언제 어디서 `undefined`가 튀어나올지 모르는 불안감을 안고 개발할 수는 없었다.
+현재 블로그는 순수 Javascript(JS)로 구성되어 있다. JS의 동적 타입 결정 방식은 프로젝트 초기에는 빠른 개발 속도와 유연함을 제공했지만, 프로젝트 규모가 커질수록 이 '유연함'은 독이 되어 돌아왔다. 언제 어디서 `undefined`가 튀어나와 런타임 에러를 일으킬지 모르는 불안감을 안고 운영할 수는 없었다.
 
-이전에 Kotlin으로 개발을 해본 경험이 있는데, Typescript를 적용한 JS는 Kotlin과 매우 비슷한 형식(정적 타입)으로 작성된다고 느꼈다.
+과거 Kotlin으로 앱 개발을 했을 때 느꼈던 정적 타입 언어의 안정감—컴파일 단계에서 에러를 잡아주는 든든함—이 그리웠다. JS에 Typescript(TS)를 얹는 것은 Kotlin과 매우 유사한 개발 경험을 제공해 줄 것이라 확신했다.
 
-이 글은 현재까지 JS로 개발된 블로그를 TS로 마이그레이션 하는 과정을 담은 기록이다.
+이 글은 JS 기반의 블로그를 TS로 마이그레이션 하며 마주친 문제들과 해결 과정을 담은 기록이다.
 
-## 구현과 고찰
-### 종속성 설치
-먼저 아래의 명령어를 통해서 Typescript와 관련 패키지들을 설치했다.
+## 도입 과정과 고찰
+
+### 1. 종속성 설치 및 설정
+먼저 Typescript와 React 환경에 필요한 타입 정의 패키지들을 설치했다.
 
 ```zsh
 npm install -D typescript @types/react @types/node @types/react-dom
 ```
 
 각 패키지의 역할은 다음과 같다.
-*   `typescript`: TS 코드를 JS로 컴파일해주는 핵심 컴파일러.
-*   `@types/react`: React의 컴포넌트, Hook 등에 대한 타입 정의 파일.
-*   `@types/node`: Node.js 내장 모듈(`fs`, `path` 등)에 대한 타입 정의 파일.
-*   `@types/react-dom`: DOM 엘리먼트 조작을 위한 타입 정의 파일.
+*   `typescript`: TS 코드를 브라우저가 이해할 수 있는 JS로 변환해주는 핵심 컴파일러.
+*   `@types/react`: React의 컴포넌트, Hook, 이벤트 등에 대한 타입 정의 파일.
+*   `@types/node`: Node.js 내장 모듈(`fs`, `path` 등) 사용을 위한 타입 정의.
+*   `@types/react-dom`: DOM 엘리먼트 조작을 위한 타입 정의.
 
-설치 후 아무 내용이 없는 `tsconfig.json` 파일을 루트 디렉토리에 생성해 둔다.
-그다음 `npm run dev`로 개발 서버를 시작하면 Next.js가 감지하고 설정 내용을 자동으로 채워준다.
+설치 후 루트 디렉토리에 빈 `tsconfig.json` 파일을 생성하고 `npm run dev`를 실행하면, Next.js가 이를 감지하고 권장 설정값으로 파일을 자동으로 채워준다.
 
 <figure>
     <img src="/images/ts_i.png" alt="typescript 설치하고 개발 서버 구동 시, tsconfig.json 자동생성되는 사진">
@@ -38,285 +38,166 @@ npm install -D typescript @types/react @types/node @types/react-dom
 
 <figure>
     <img src="/images/tsconfig.png" alt="tsconfig.json 내용">
-    <figcaption>내용도 Next.js 권장 설정으로 자동 구성된다.</figcaption>
+    <figcaption>Next.js가 프로젝트 환경에 맞게 자동으로 설정을 구성해준다.</figcaption>
 </figure>
 
-### 공통 타입 정의하기 (types 폴더)
-이제부턴 `/types`라는 디렉토리를 만들어서 블로그에 사용되는 데이터 객체들의 타입을 하나하나 세심히 작성하면 된다. 사실상 이 부분이 마이그레이션의 핵심이자 가장 많은 시간을 잡아먹는 노가다 구간이다.
+### 2. 타입 관리 전략 (types 폴더 vs Co-location)
+환경 설정 후 가장 먼저 한 일은 '데이터의 생김새'를 정의하는 것이었다. 이는 마이그레이션의 핵심이자 가장 고된 작업이었다. 효율적인 관리를 위해 나만의 규칙을 세웠다.
 
-나만의 규칙을 정했다. 특정 객체가 2개 이상의 컴포넌트에서 사용된다면 `/types` 디렉토리 아래에 `weather.ts` 처럼 파일로 분리해 관리하고, 오직 하나의 컴포넌트에서만 사용된다면 해당 컴포넌트 파일 내부에 직접 `interface`를 선언하기로 했다.
+1.  **공통 타입 (`/types`)**: 2개 이상의 컴포넌트나 페이지에서 공유되는 데이터(예: API 응답값)는 `/types` 폴더에 별도 파일로 분리한다.
+2.  **지역 타입**: 특정 컴포넌트 내부에서만 사용되는 `props`나 `state` 타입은 해당 파일 내부에 정의한다.
 
-예를 들어 Server Actions의 반환값인 `WeatherData`는 클라이언트 컴포넌트(`WeatherWidget`)와 부모인 서버 컴포넌트(`WeatherContainer`) 모두에서 사용되기 때문에 공통 타입으로 분리했다.
+예를 들어 기상청 API 응답값인 `WeatherData`는 서버 컴포넌트(데이터 fetch)와 클라이언트 컴포넌트(UI 렌더링) 모두에서 사용되므로 공통 타입으로 분리했다.
 
-```Tsx
+```tsx
 // types/weather.ts
-// 기상청 API 응답 객체 타입 정의
 export interface WeatherData {
     temperature: string;
-    tmx: string;
-    tmn: string;
     humidity: number;
-    wind: number;
-    PTY: number;
     SKY: number;
     LGT: boolean; // 0/1 대신 boolean으로 변환해서 사용
     location: string;
-    iconName: string;
+    // ...
 }
 ```
 
-이제 이 객체를 사용하는 파일들의 확장자도 바꿔줘야 한다. JSX를 리턴하는 컴포넌트라면 `.tsx`로, 일반 서버 로직이라면 `.ts`로 변경한다.
+이제 파일을 하나씩 `.js`에서 `.tsx`로 변경하면, 빨간 줄(컴파일 에러)의 향연이 시작된다. 이 빨간 줄들을 하나씩 지워나가는 것이 마이그레이션의 주된 업무다.
 
 <figure>
-    <img src="/images/ts_1.png" alt="tsx로 바꾼 후 보이는 컴파일러 에러들(빨간 줄)">
-    <figcaption>확장자를 <code>.tsx</code>로 변경하자마자 빨간 줄(컴파일 에러)이 반겨준다.</figcaption>
+    <img src="/images/ts_1.png" alt="tsx로 바꾼 후 보이는 컴파일러 에러들">
+    <figcaption>확장자를 <code>.tsx</code>로 변경하자마자 수많은 타입 에러가 반겨준다.</figcaption>
 </figure>
 
-이제부터는 인내의 시간이다. 내가 설계한 타입에 맞게 하나씩 오류를 수정해 나가면 된다.
+### 3. Props와 State의 엄격함
+JS 시절에는 `props`로 무엇이 넘어오든 "알아서 잘 들어오겠지"라고 믿고 썼지만, TS는 용납하지 않는다. 부모가 자식에게 무엇을 줄지, 자식은 무엇을 받을지 명확한 계약(Interface)이 있어야 한다.
 
-### Props와 타입의 세계
-Typescript를 사용하면서 React의 `props`를 다루는 방식이 더 엄격해졌다. JS 시절엔 대충 넘겼던 객체 구조를 명확히 정의해야 한다.
-
-예를 들어 `WeatherContainer.tsx`가 `WeatherWidget.tsx`에게 `data`를 넘겨주는 상황을 보자.
-React에서 `props`는 그 자체로 하나의 **객체**다. 따라서 자식 컴포넌트에서는 내가 사용하고자 하는 변수명(key)을 감싸는 인터페이스를 한 번 더 만들어줘야 한다.
-
-```Tsx
+```tsx
 // [Parent] WeatherContainer.tsx
 export default async function WeatherContainer() {
-    const data = await getWeather({ ... })
-    
-    // 여기서 props라는 택배 상자에 'initialData'라는 이름으로 data를 담아 보낸다.
-    return (
-        <div className="w-full">
-            <WeatherWidget initialData={data} />
-        </div>
-    )
+    const data = await getWeather();
+    // props라는 택배 상자에 'initialData'라는 이름표를 붙여 data를 담아 보낸다.
+    return <WeatherWidget initialData={data} />;
 }
 
 // [Child] WeatherWidget.tsx
-// props는 객체이고, 내가 구조분해 할당으로 꺼낼 건 initialData라는 키값이다.
-// 따라서 타입을 한 번 더 감싸줘야 한다.
+// 받는 쪽에서도 어떤 모양인지 정의해야 한다.
 interface WeatherWidgetProps {
-    // 데이터가 로딩 실패하거나 없을 경우 null이 올 수 있음을 명시
+    // 데이터 로딩 실패 시 null이 될 수 있음을 명시 (Union Type)
     initialData: WeatherData | null;
 }
 
-export default function WeatherWidget({ initialData }: WeatherWidgetProps) { ... }
+export default function WeatherWidget({ initialData }: WeatherWidgetProps) {
+    // useState 사용 시에도 제네릭으로 타입 명시
+    const [weather, setWeather] = useState<WeatherData | null>(initialData);
+    // ...
+}
 ```
 
-또한 `useState`를 사용할 때도 제네릭을 이용해 타입을 명시해야 한다. 초기값인 `initialData`는 `WeatherData`일 수도, `null`일 수도 있기 때문이다.
+#### Nullable 처리에 대한 고찰 (`?` vs `null`)
+여기서 `initialData?` (Optional)를 쓰지 않고 `| null`을 쓴 이유가 있다.
+JS/TS에서 `?`는 값이 없을 때 `undefined`가 된다. 하지만 나는 "데이터 불러오기를 시도했으나 실패했음"을 명시적으로 표현하기 위해 `null`이 더 적합하다고 판단했다.
 
-```Tsx
-const [weather, setWeather] = useState<WeatherData | null>(initialData);
-```
+또한 Typescript의 <b>Union Type(`|`)</b>과 Javascript의 <b>Logical OR(`||`)</b>의 차이도 명확히 구분해야 했다.
+*   **`|` (Type Definition):** "이 변수에는 A 또는 B가 들어갈 수 있다"는 **정의**의 영역.
+*   **`||` (Runtime Logic):** "앞의 값이 없으면 뒤의 값을 써라"는 **실행**의 영역.
 
-### Nullable 처리에 대한 고찰
-JS/TS 생태계에서 `?`(Optional)와 `null`의 차이는 미묘하지만 중요하다.
-Kotlin에서는 `?`를 붙이면 Nullable이 되지만, JS/TS에서 `?`는 값이 없을 경우 `undefined`가 된다.
+### 4. 왜 Class 대신 Interface인가?
+Java나 Kotlin 배경이 있다면 데이터를 담는 객체(DTO)를 `Class`로 정의하는 게 익숙할 것이다. 하지만 이번 리팩토링에서는 전적으로 `Interface`와 객체 리터럴(`{}`)을 사용했다.
 
-명시적으로 "데이터가 없다"거나 "실패했다"를 표현할 때는 `undefined`보다 `null`이 더 적합하다고 판단했다. 그래서 `initialData?: WeatherData` 대신 `initialData: WeatherData | null`을 사용하여 타입을 정의했다.
-
-또한 `|`와 `||`의 차이점도 명확히 알게 되었다.
-*   **`|` (Union Type):** Typescript의 문법. "A 타입이거나 B 타입일 수 있다"는 <b>정의(Definition)</b>의 영역.
-*   **`||` (Logical OR):** Javascript의 문법. "앞의 값이 없으면 뒤의 값을 써라"는 <b>실행(Runtime)</b>의 영역.
-
-```Tsx
-// 타입 세계 (|): 데이터나 null만 들어갈 수 있는 박스다.
-// 실행 세계 (||): 초기값이 undefined면 null로 바꿔서 넣어라.
-useState<WeatherData | null>(initialData || null);
-```
-
-### 왜 Class 대신 객체 리터럴({})을 쓸까?
-Java나 Kotlin을 하다가 넘어오면 가장 어색한 부분이 바로 이 지점이다. 보통 데이터를 담는 객체(DTO)를 만들 때 `Class`를 정의하고 `new PostData()` 처럼 생성해서 쓰는 게 익숙하다.
-
-하지만 이번 리팩토링 과정에서 나는 `interface`와 객체 리터럴(`{}`) 조합을 사용했다.
-
-```Tsx
+```tsx
 // Class 대신 Interface 사용
 export interface PostData {
     id: string;
     title: string;
-    // ...
 }
 
-// new 없이 바로 객체 반환
-return {
-    id: "1",
-    title: "제목",
-} as PostData;
+// new PostData() 대신 객체 리터럴 반환
+return { id: "1", title: "제목" } as PostData;
 ```
 
 이유는 크게 세 가지다.
+1.  **직렬화(Serialization) 이슈:** Next.js에서 서버→클라이언트로 데이터를 넘길 때 JSON 직렬화가 일어난다. 이때 Class의 메서드는 모두 사라지고 데이터만 남는다. 어차피 사라질 거라면 처음부터 가벼운 객체가 낫다.
+2.  **구조적 타이핑:** TS는 명목적 타이핑(Java)과 달리 "생김새"만 같으면 같은 타입으로 인정한다. 굳이 인스턴스를 만들 필요가 없다.
+3.  **번들 사이즈:** `interface`는 컴파일 시점에 사라지지만, `class`는 JS 코드로 변환되어 남는다.
 
-1.  **구조적 타이핑 (Structural Typing):** Typescript는 명목적 타이핑(Java)과 달리, "모양"만 같으면 같은 타입으로 인정한다. 굳이 클래스 인스턴스일 필요가 없다.
-2.  **직렬화 (Serialization):** 이게 가장 크다. Next.js에서 서버 컴포넌트의 데이터를 클라이언트로 넘길 때 데이터는 JSON으로 직렬화된다. 이때 Class의 메서드는 모두 제거되고 멤버 변수만 남는다. 어차피 메서드가 사라질 운명이라면 처음부터 가벼운 객체 리터럴로 다루는 게 효율적이다.
-3.  **번들 사이즈:** `interface`는 컴파일되면 코드에서 100% 사라진다. 반면 `class`는 JS 코드로 변환되어 남는다. 불필요한 런타임 오버헤드를 줄일 수 있다.
+### 5. 이벤트 객체와 DOM 요소 타입 정리
+이번 마이그레이션에서 가장 헷갈렸던 부분이다. `onClick`에는 무슨 타입을 써야 하고, `useRef`에는 뭘 넣어야 할까?
+결론부터 말하자면 <b>"누가 이벤트를 관리하느냐"</b>에 따라 사용하는 타입이 다르다.
 
-결국 "데이터 전송"이 주목적인 웹 프론트엔드 환경에서는 무거운 Class보다 가벼운 Interface가 훨씬 적합하다는 결론을 내렸다.
+#### (1) React 이벤트 vs Native 이벤트
+*   **React 이벤트 (`React.ChangeEvent` 등):** JSX 태그(`input`, `button` 등) 안에서 `onClick`, `onChange` 등을 사용할 때 쓴다. React가 브라우저 간 호환성을 위해 한 번 감싼 이벤트다.
+*   **Native 이벤트 (`MouseEvent` 등):** `useEffect` 내부에서 `addEventListener`를 통해 브라우저(Window, Document)에 직접 이벤트를 붙일 때 쓴다.
 
-### 이벤트 객체랑 DOM 요소의 타입은 뭘까?
-React나 웹 API가 제공해주는 DOM 요소나, 이벤트들을 사용할 때 뭐라고 타입을 지정해야 할지 몰랐었다.
+#### (2) 실전 예제: 검색 모달 구현
+블로그의 검색 모달 기능을 TS로 옮기면서 이 차이를 명확히 이해했다.
 
-그래서 자주 쓰이는 것들에 대해서 간략하게 정리를 했다.
-- <b>DOM 요소</b>: <code>HTMLDivElement</code>, <code>HTMLInputElement</code>, <code>HTMLButtonElement</code> 등 <code>HTML...Element</code> 형식을 사용.
-- <b>React 이벤트</b>: <code>React.ChangeEvent&lt;HTMLInputElement&gt;</code>, <code>React.FormEvent</code>, <code>React.MouseEvent</code> 등을 사용.
-- <code>Native 이벤트</code>: <code>MouseEvent</code>, <code>KeyboardEvent</code> 등 <code>React</code>가 붙지 않은 걸 사용.
-
-내 프로젝트에는 다양한 웹 API와 이벤트들이 존재했는데, 대표적인 예로 `SearchModal.tsx`는 DOM 조작을 위한 `useRef`, 검색창 입력값을
-변경하는 핸들러 함수(`onChange`) 그리고 마우스 클릭으로 결과를 닫는 기능을 위한 마우스 클릭 이벤트 리스너까지 존재한다.
-
-`useRef`는 검색창 외부 클릭 시, 결과를 닫기 위한 기능을 위해 검색 컴포넌트 자체를 등록해놓은 것이었다.  
-이때 가장 바깥 태그가 `<div>` 태그이므로 제네릭에 `HTMLDivElement`를 적었다.
-
-```Tsx
+```tsx
+// 1. DOM 요소 접근용 ref
+// 가장 바깥이 <div> 태그이므로 HTMLDivElement 명시
 const containerRef = useRef<HTMLDivElement>(null);
-```
 
-또한 검색창 입력값 수정을 위한 `onChange` 핸들링 함수의 이벤트는 `React.ChangeEvent<HTMLInputElement>`을 넣었다.
-```Tsx
-// React 이벤트 타입(onChange) - input 태그 내용 변경이므로 React.ChangeEvent
-// 제네릭으로는 이벤트 발생 요소인 HTMLInputElement
+// 2. 검색어 입력 핸들러 (JSX 내부)
+// React가 관리하는 input 태그의 변경이므로 React.ChangeEvent 사용
 const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
-
-    // 글자가 있으면 열고
-    if (e.target.value.length > 0) setIsOpen(true)
-    // 없으면 닫기
-    else setIsOpen(false)
 }
-```
 
-마지막으로 검색창 외부 클릭 이벤트를 감지하는 이벤트 리스너는 순수한 웹 API이므로, React를 붙이지 않고 `MouseEvent`만 작성했다.
-```Tsx
-// 외부 클릭 로직
+// 3. 모달 외부 클릭 감지 (JSX 외부)
+// 브라우저 전체(document)에 붙이는 리스너이므로 Native Event인 MouseEvent 사용
 useEffect(() => {
-    // Native 이벤트 - React 안 붙임
     function handleClickOutSide(event: MouseEvent) {
-        // ref 존재하고 클릭된 타겟이 ref에 포함되지 않으면 isOpen false로
-        // event.target은 기본적으로 EventTarget 타입이라 Node로 assertion 필요
+        // event.target은 기본적으로 EventTarget 타입이라 Node로 단언(Assertion) 필요
         if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
             setIsOpen(false);
         }
     }
-
-    // 마우스 누를 때 감지 시작
-    document.addEventListener('mousedown',handleClickOutSide)
-
-    // CleanUp
+    
+    document.addEventListener('mousedown', handleClickOutSide);
     return () => document.removeEventListener('mousedown', handleClickOutSide);
-},[])
+}, []);
 ```
-아래는 자주 사용하는 React Props에 대한 타입들을 표로 정리해보았다.
 
-<table>
-<thead>
-<tr>
-<th width="200px">타입 이름 (Type)</th>
-<th>의미 (Meaning)</th>
-<th>주요 사용처 (Usage)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong><code>React.ReactNode</code></strong></td>
-<td>
-<strong>"화면에 그릴 수 있는 모든 것"</strong><br/>
-(JSX 태그, 문자열, 숫자, null, undefined, 배열 등 포함).<br/>
-가장 넓은 범위를 가짐.
-</td>
-<td>
-<strong><code>children</code> prop</strong><br/>
-(레이아웃, Context Provider 등)
-</td>
-</tr>
-<tr>
-<td><strong><code>React.ReactElement</code></strong></td>
-<td>
-<strong>"오직 JSX 태그 객체만"</strong><br/>
-(<code>&lt;div /&gt;</code>, <code>&lt;MyComponent /&gt;</code> 등)<br/>
-문자열(String)이나 null은 포함되지 않음.
-</td>
-<td>
-특정 컴포넌트를 prop으로 넘길 때<br/>
-(예: <code>icon={&lt;SearchIcon /&gt;}</code>)
-</td>
-</tr>
-<tr>
-<td><strong><code>JSX.Element</code></strong></td>
-<td>
-<code>ReactElement</code>와 사실상 같은 의미.<br/>
-TypeScript가 JSX 문법을 해석한 결과물의 타입.
-</td>
-<td>
-<strong>컴포넌트의 return 타입</strong><br/>
-(보통 생략해도 자동 추론됨)
-</td>
-</tr>
-<tr>
-<td><strong><code>React.CSSProperties</code></strong></td>
-<td>
-CSS 속성 이름들이 정의된 객체 타입.
-(자동 완성 지원: backgroundColor 등)
-</td>
-<td>
-<strong><code>style</code> prop</strong><br/>
-(<code>style={ { color: 'red' } }</code>)
-</td>
-</tr>
-<tr>
-<td><strong><code>React.ComponentProps&lt;T&gt;</code></strong></td>
-<td>
-HTML 태그(T)나 컴포넌트가 가지는 <strong>모든 속성(props)</strong>을 추출.<br/>
-(예: <code>onClick</code>, <code>className</code> 등 자동 포함)
-</td>
-<td>
-<strong>래퍼 컴포넌트</strong> 만들 때<br/>
-(예: <code>&lt;button&gt;</code>을 감싸는 커스텀 버튼)
-</td>
-</tr>
-<tr>
-<td><strong><code>React.Dispatch&lt;SetStateAction&lt;T&gt;&gt;</code></strong></td>
-<td>
-<code>useState</code>에서 나오는 <strong>setState 함수</strong>의 타입.
-</td>
-<td>
-<code>setState</code> 함수를 자식에게 넘겨줄 때
-</td>
-</tr>
-</tbody>
-</table>
+#### 자주 사용하는 React 타입 요약표
+개발하면서 자주 찾아보게 된 타입들을 정리해 보았다.
 
-### Api Response는 어떻게 타입을 지정하지?
-Typescript를 도입하면서 헷갈렸던 점 중 또 하나는 외부 api로부터 응답은 어떤 식으로 타입을 지정해야 하는가였다.
+| 타입 이름 (Type) | 의미 (Meaning) | 주요 사용처 (Usage) |
+| :--- | :--- | :--- |
+| **`React.ReactNode`** | 화면에 그릴 수 있는 **모든 것** (JSX, 문자열, null 등). 가장 넓은 범위. | `children` prop (Layout, Provider 등) |
+| **`React.ReactElement`** | 오직 **JSX 태그 객체**만 (`<div />` 등). 문자열 불가능. | 컴포넌트를 prop으로 넘길 때 (`icon={<Icon />}`) |
+| **`JSX.Element`** | `ReactElement`와 유사. TS가 JSX를 해석한 결과물. | 컴포넌트의 return 타입 |
+| **`React.CSSProperties`** | CSS 속성 객체 타입. (자동완성 지원) | `style` prop |
+| **`React.ComponentProps<T>`** | 태그(T)가 가진 **모든 속성**을 추출. | 래퍼(Wrapper) 컴포넌트 제작 시 |
+| **`React.Dispatch<SetStateAction<T>>`** | `useState`의 **setState 함수** 타입. | 자식에게 setState를 넘겨줄 때 |
 
-외부 응답에 맞는 interface를 만들어두긴 했으나, 이걸 어떤 식으로 타입 지정을 해야하는지를 몰랐었다.
+### 6. API 응답 처리와 제네릭(Generics)
+외부 API를 호출할 때, 응답받는 데이터의 모양은 매번 다르지만 "에러를 체크하고 JSON으로 파싱하는" 로직은 똑같다.
+이럴 때 <b>제네릭(Generics)</b>을 사용하면 하나의 함수로 다양한 타입의 응답을 처리할 수 있다.
 
-이때는 <b>generic</b>을 사용해서 유연한 타입 지정 비동기 함수로 리팩토링했다.
-
-```Tsx
-// res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
+```tsx
 /**
- * 제네릭 <T>를 사용하여 어떤 타입의 데이터도 반환할 수 있게 만든 함수
- * res: Response (fetch의 응답 타입)
- * name: string
- * 반환값: Promise<T> (호출 시 지정한 T 타입의 Promise)
+ * 제네릭 <T>를 사용하여 반환 타입을 호출 시점에 결정하는 함수
  */
-const errorCheck = async<T> (res: Response, name: string): Promise<T> => {
+const errorCheck = async <T>(res: Response, name: string): Promise<T> => {
     if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`${name} API Error (${res.status}):`, errorText);
         throw new Error(`${name} API 요청 실패: ${res.status}`);
     }
     const text = await res.text();
     try {
+        // JSON.parse 결과는 any이므로 T로 단언(Assertion)
         return JSON.parse(text) as T;
     } catch (error) {
-        console.error("API 응답이 JSON 형식이 아님: ", text.substring(0,100));
-        throw new Error('잘못 형식의 응답 도착(Not Json)')
+        throw new Error('잘못된 형식의 응답');
     }
 }
 
-const liveData = await errorCheck<WeatherResponse>(resLive, "초단기실황")
-const fcstData = await errorCheck<WeatherResponse>(resFcst, "초단기예보")
-const srtData = await errorCheck<WeatherResponse>(resSrt, "단기예보")
+// 사용 시점에 <WeatherResponse>라고 타입을 알려준다.
+const liveData = await errorCheck<WeatherResponse>(resLive, "초단기실황");
+const fcstData = await errorCheck<WeatherResponse>(resFcst, "초단기예보");
 ```
+
+이제 `liveData` 변수는 자동으로 `WeatherResponse` 타입으로 추론되어, 자동완성의 축복을 받을 수 있게 되었다.
+
+## 마치며
+처음에는 빨간 줄을 없애는 과정이 지루하고 고통스러웠다. 하지만 리팩토링이 진행될수록 코드를 작성하는 순간에 실수를 잡아주는 TS의 매력에 빠져들었다.
+
+Typescript 도입은 단순한 언어 교체가 아니라, <b>"내 코드가 데이터와 상호작용하는 방식을 더 명확하게 정의하는 과정"</b>이었다. 이제 런타임 에러의 공포에서 벗어나, 좀 더 비즈니스 로직에 집중할 수 있는 환경이 갖춰졌다. 블로그 운영이 한결 쾌적해질 것 같다.
