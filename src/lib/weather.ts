@@ -11,7 +11,17 @@ interface GetWeatherParams {
 
 // 기상청 API 응답 타입 정의
 interface WeatherResponse {
-    
+    response: {
+        header: {
+            resultCode: string;
+            resultMsg: string;
+        },
+        body: {
+            items: {
+                item: WeatherApiItem[]
+            }
+        }
+    }
 }
 
 interface WeatherApiItem {
@@ -26,9 +36,6 @@ interface WeatherApiItem {
  * 좌표(x,y)를 기반으로 기상청 API를 호출하고 return 받은 걸 그대로 return 하는 함수입니다.
  * type이 'xy'인 경우에는 그대로 사용하고, 위/경도일 경우에는 입력받은 x가 위도(latitude), y는 경도(longitude)
  * 이고, dfs_xy_conv() 함수를 통해 x,y 좌표로 변환한 후에 사용합니다.
- * @param { number } x,
- * @param { number } y,
- * @param { string } type,
  */
 export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams): Promise<WeatherData | null> {    
     // 서비스 키
@@ -100,7 +107,13 @@ export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams
         ])
 
         // res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
-        const errorCheck = async (res, name) => {
+        /**
+         * 제네릭 <T>를 사용하여 어떤 타입의 데이터도 반환할 수 있게 만든 함수
+         * res: Response (fetch의 응답 타입)
+         * name: string
+         * 반환값: Promise<T> (호출 시 지정한 T 타입의 Promise)
+         */
+        const errorCheck = async<T> (res: Response, name: string): Promise<T> => {
             if (!res.ok) {
                 const errorText = await res.text();
                 console.error(`${name} API Error (${res.status}):`, errorText);
@@ -108,16 +121,16 @@ export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams
             }
             const text = await res.text();
             try {
-                return JSON.parse(text);
+                return JSON.parse(text) as T;
             } catch (error) {
                 console.error("API 응답이 JSON 형식이 아님: ", text.substring(0,100));
                 throw new Error('잘못 형식의 응답 도착(Not Json)')
             }
         }
 
-        const liveData = await errorCheck(resLive, "초단기실황")
-        const fcstData = await errorCheck(resFcst, "초단기예보")
-        const srtData = await errorCheck(resSrt, "단기예보")
+        const liveData = await errorCheck<WeatherResponse>(resLive, "초단기실황")
+        const fcstData = await errorCheck<WeatherResponse>(resFcst, "초단기예보")
+        const srtData = await errorCheck<WeatherResponse>(resSrt, "단기예보")
 
         // console.log('liveData: ', liveData);
         // console.log('fcstData: ', fcstData);
@@ -178,7 +191,7 @@ function get_currentTime() {
     }
 
     // 문자열 변환 함수
-    const formatDate = (date) => {
+    const formatDate = (date: Date) => {
         const iso = date.toISOString();
         return {
             date: iso.slice(0, 10).replace(/-/g, ""),
