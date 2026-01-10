@@ -8,12 +8,11 @@ interface NumberBoardParams {
     length: number;
 }
 
+// server-actions를 사용하도록 리팩토링 예정
 export default function VisitorCounter() {
     const [isLoading,setIsLoading] = useState(false)
     // 당일과 전체 모두 객체로
     const [visitors,setVisitors] = useState<VisitorData>({ date: 0, total: 0 })
-    // api 실패 시, errMsg
-    const [errMsg, setErrMsg] = useState("")
 
     // 개발 모드(Strict Mode)에서 중복 방지용 Ref
     const hasFetched = useRef(false)
@@ -24,7 +23,6 @@ export default function VisitorCounter() {
 
     const fetchVisitors = async () => {
         setIsLoading(true)
-        setErrMsg("")
         try {
             const res = await fetch('/api/visit', {
                 method: 'POST',
@@ -42,7 +40,6 @@ export default function VisitorCounter() {
 
         } catch (err) {
             console.error(err);
-            setErrMsg("방문자 정보를 조회하지 못 했습니다.")
         } finally {
             setIsLoading(false);
         }
