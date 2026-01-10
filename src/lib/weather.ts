@@ -45,10 +45,10 @@ export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams
         return null
     }
 
-    let nx = cx
-    let ny = cy
+    let nx = Number(cx)
+    let ny = Number(cy)
     if (type !== "xy") {
-        const { x,y } = dfs_xy_conv("toXY",cx,cy)
+        const { x,y } = dfs_xy_conv("toXY",Number(cx),Number(cy))
         nx = x
         ny = y
     }
@@ -66,8 +66,8 @@ export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams
         url.searchParams.append("dataType", "JSON")
         url.searchParams.append("base_date", baseDate)
         url.searchParams.append("base_time", baseTime)
-        url.searchParams.append("nx", nx)
-        url.searchParams.append("ny", ny)
+        url.searchParams.append("nx", nx.toString())
+        url.searchParams.append("ny", ny.toString())
 
         return url.toString();
     }
