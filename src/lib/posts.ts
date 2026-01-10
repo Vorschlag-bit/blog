@@ -20,6 +20,9 @@ import rehypeExternalLinks from 'rehype-external-links';
 // mermaid 문법 적용을 위한 커스텀 플러그인을 위한 라이브러리 import
 import { visit } from 'unist-util-visit';
 
+// 타입 추가
+import { PostData,CategoryData,PaginatedResult } from '@/types/post_type';
+
 // posts 폴더의 위치를 알아내는 코드
 // process.cwd()는 현재 프로젝트의 루트 경로 의미
 const postsDirectory = path.join(process.cwd(), 'posts')
@@ -28,8 +31,8 @@ const postsDirectory = path.join(process.cwd(), 'posts')
 export const dateSortedAllPosts = getSortedPostsData();
 
 function remarkMermaidToHTML() {
-    return (tree) => {
-        visit(tree, 'code', (node) => {
+    return (tree: any) => {
+        visit(tree, 'code', (node: any) => {
             if (node.lang === 'mermaid') {
                 // 노드 타입 html로 바꾸고, 내용 div로 변환
                 node.type = 'html'
@@ -39,7 +42,7 @@ function remarkMermaidToHTML() {
     };
 }
 
-export function getSortedPostsData() {
+export function getSortedPostsData(): PostData[] {
     // 1. posts 폴더에 있는 파일 이름들을 가져옴 (['first-post.md, ...])
     const fileNames = fs.readdirSync(postsDirectory)
     // 2. 파일들을 하나씩 가공(map)
@@ -52,12 +55,18 @@ export function getSortedPostsData() {
         const fileContent = fs.readFileSync(fullPath, 'utf8')
         // gray-matter 사용해서 메타데이터(title, date...) 파싱
         const matterResult = matter(fileContent)
+
+        // matterResult.data를 PostData 일부로 인식
+        const metaData = matterResult.data as { title: string; date: string; category? : string; [key: string]: any }
+
         // id와 metadata 합쳐서 반환
         return {
             id,
-            ...matterResult.data,
+            ...metaData,
+            title: metaData.title,
+            date: metaData.date,
             category: matterResult.data.category || "기타", // 카테고리가 없으면 '기타'
-        }
+        } as PostData
     })
 
     // 3. 날짜순으로 정렬해서 return (최신글)
@@ -68,7 +77,7 @@ export function getSortedPostsData() {
 }
 
 // id(파일 이름)을 받아서 해당 글의 데이터를 가져오는 함수 (remark 비동기)
-export async function getPostData(id) {
+export async function getPostData(id: string): Promise<PostData | null> {
     // Path Traversal 방지 (id에 슬래시나 파일 시스템 탐색 시도 차단)
     if (id.includes('/') || id.includes('\\') || id.includes('..')) return null;
 
@@ -98,28 +107,34 @@ export async function getPostData(id) {
         const htmlContent = processedContent.toString()
 
         // console.log(htmlContent)
+        const metadata = matterResult.data as any
 
-        // 데이터와 HTML 내용을 합쳐서 반환
-        return {
+        const postData: PostData = {
             id,
             htmlContent,
-            ...matterResult.data,
+            title: metadata.title,
+            date: metadata.date,
+            category: metadata.category || '기타',
+            description: metadata.description
         }
+
+        // 데이터와 HTML 내용을 합쳐서 반환
+        return postData
     } catch (error) {
         console.error(`Error reading post id -> ${id}: `, error);
         return null;
     }
 }
 
-export function getPostsByCategory(category) {
+export function getPostsByCategory(category: string) {
     // filter 함수로 조건에 맞는 것만 남기기
     return dateSortedAllPosts.filter((post) => post.category === category)
 }
 
 // 왼쪽 사이드 바 카테고리 리스트를 만들기 위한 카테고리 추출 함수
-export function getAllCategories() {
+export function getAllCategories(): CategoryData[] {
     // 1. 개수 세기 (reduce 함수 활용)
-    const countMap = dateSortedAllPosts.reduce((acc, post) => {
+    const countMap = dateSortedAllPosts.reduce((acc: Record<string,number>, post) => {
         // category 없으면 '기타'로
         const category = post.category || "기타"
 
@@ -131,7 +146,7 @@ export function getAllCategories() {
     // 2. 딕셔너리를 배열로 반환하고 정렬하기(Object.entries)
     // Object.entries는 [['개발',2],['일상',1]] 형태
     const sortedCategories = Object.entries(countMap)
-        .map(([category, count]) => ({ category, count })) // 객체로 변환
+        .map(([category, count]) => ({ category: category, count: count })) // 객체로 변환
         .sort((a,b) => a.category.localeCompare(b.category)) // 오름차순 정렬
     
     // 3. '전체(All)` 카테고리 맨 앞에 붙이기
@@ -174,7 +189,7 @@ export function getPaginatedPosts(page = 1, limit = 10) {
 }
 
 // 카테고리 분류 화면에서 사용할 페이징 로직
-export function getPaginatedCategories(page = 1, limit = 10, category ="기타") {
+export function getPaginatedCategories(page = 1, limit = 10, category: string = "기타"): PaginatedResult<PostData> {
     // 1. queryParams로 받은 category로 해당 카테고리 글만 추출
     const allCategoriesPosts = getPostsByCategory(category);
 
@@ -196,7 +211,7 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
 
     return {
         posts: paginatedCategories,
-        curPage,
+        currentPage: curPage,
         totalPages,
         totalCount,
         hasNext: curPage < totalPages,
@@ -205,7 +220,7 @@ export function getPaginatedCategories(page = 1, limit = 10, category ="기타")
 }
 
 // 상세 조회에서 사용할 이전/이후 포스팅 nav 로직
-export async function getPreNextPost(currentId) {
+export async function getPreNextPost(currentId: string) {
     // 현재 글 idx 찾기
     const idx = dateSortedAllPosts.findIndex((post) => post.id === currentId)
 
@@ -224,7 +239,7 @@ export async function getPreNextPost(currentId) {
 }
 
 // Fuse.js에 넘길 JSON 배열을 위한 순수 텍스트 추출 함수
-function stripMarkdown(content) {
+function stripMarkdown(content: string): string {
     return content
         .replace(/#+\s/g, '') // header 제거
         .replace(/(\*\*|__)(.*?)\1/g, '$2') // 볼드 제거
@@ -235,7 +250,7 @@ function stripMarkdown(content) {
         .replace(/\s+/g, ' ').trim() // 연속된 공백 제거
 }
 
-export function getJSONArrayForSearch() {
+export function getJSONArrayForSearch(): PostData[] {
     const fileNames = fs.readdirSync(postsDirectory)
     const data = fileNames.map((file) => {
     const fullPath = path.join(postsDirectory, file)
@@ -249,7 +264,7 @@ export function getJSONArrayForSearch() {
         description: matterResult.data.description,
         content: stripMarkdown(matterResult.content),
         date: matterResult.data.date
-    };
+    } as PostData;
     })
 
     return data;

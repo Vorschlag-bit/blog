@@ -1,41 +1,45 @@
 "use client"
 import { useCounter } from "@/app/hooks/UseCounter"
 import { useState,useEffect,useRef } from "react"
+import { VisitorData } from "@/types/visitor_type"
 
+interface NumberBoardParams {
+    number: number;
+    length: number;
+}
+
+// server-actions를 사용하도록 리팩토링 예정
 export default function VisitorCounter() {
-    const [isLoading,setIsLoading] = useState('true')
+    const [isLoading,setIsLoading] = useState(false)
     // 당일과 전체 모두 객체로
-    const [visitors,setVisitors] = useState({ date: 0, total: 0 })
-    // api 실패 시, errMsg
-    const [errMsg, setErrMsg] = useState("")
+    const [visitors,setVisitors] = useState<VisitorData>({ date: 0, total: 0 })
 
     // 개발 모드(Strict Mode)에서 중복 방지용 Ref
     const hasFetched = useRef(false)
 
     // 애니메이션 적용된 숫자 (duration: 1.2초 동안 촤라락)
-    const animatedToday = useCounter(visitors.date, 1200);
+    const animatedToday = useCounter(visitors.date, 1200)
     const animatedTotal = useCounter(visitors.total, 1200)
 
     const fetchVisitors = async () => {
         setIsLoading(true)
-        setErrMsg("")
         try {
             const res = await fetch('/api/visit', {
                 method: 'POST',
             })
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                throw Error("DB 조회 실패" || errData.error)
+                throw Error(errData.error)
             }
 
             const data = await res.json()
-            // console.log("데이터 파싱 결과: ", data);
+            // console.log("데이터 파싱 결과: ", data)
+            
             
             setVisitors(data)
 
         } catch (err) {
             console.error(err);
-            setErrMsg("방문자 정보를 조회하지 못 했습니다.")
         } finally {
             setIsLoading(false);
         }
@@ -85,7 +89,7 @@ return (
 }
 
 // 공용 컴포넌트
-function NumberBoard({ number, length }) {
+function NumberBoard({ number, length }: NumberBoardParams) {
     const strNum = number.toString().padStart(length, '0');
     const digits = strNum.split('');
 

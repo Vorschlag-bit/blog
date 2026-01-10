@@ -1,10 +1,9 @@
 import CategoryList from "@/components/CategoryList";
 import WeatherContainer from "@/components/WeatherContainer";
-import WeatherWidget from "@/components/WeatherWidget";
 import VisitorCounter from "@/components/VisitorCounter";
 import PostRank from "@/components/PostRank";
 
-export default function HomeLayout({ children }) {
+export default function HomeLayout({ children }: { children: React.ReactNode }) {
     return (
     // justify-center로 전체 덩어리를 가운데 정렬 + gap3로 3개의 div 균일한 거리감 조성
     <div className="flex justify-center max-w-[1920px] mx-auto gap-3 px-2">

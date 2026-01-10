@@ -1,18 +1,16 @@
 /** main과 비슷하지만 전체가 아니라 필터링된 데이터만 가져오는 함수 */
 import LoadingLink from "@/components/LoadingLink";
-import { getAllCategories, getPaginatedCategories } from "@/lib/posts";
+import { getPaginatedCategories } from "@/lib/posts";
 import Pagination from "@/components/Pagination";
 import { notFound } from "next/navigation";
 
-export async function generateStaticParams() {
-    const categories = getAllCategories();
-    return categories.map((item) => ({ slug: item.category }))
+interface CategoryPageProps {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export const dynamicParams = false;
-
 // paging을 위한 searchParams와 라우팅을 위한 카테고리 params
-export default async function CategoryPage({ params, searchParams }) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
     // url에서 카테고리 이름 갖고 오기 (ex: "개발")
     // 한글을 깨지므로 decodeURIComponent 사용
     const { slug } = await params
@@ -24,7 +22,7 @@ export default async function CategoryPage({ params, searchParams }) {
     const LIMIT = 10
 
     // return 받은 객체 fields
-    const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
+    const { posts, totalPages, currentPage } = getPaginatedCategories(page, LIMIT, category)
 
     if (!posts || posts.length === 0) {
         return notFound();
@@ -48,7 +46,7 @@ export default async function CategoryPage({ params, searchParams }) {
                     {posts.map(({ id,title,date,description }) => (
                         <li key={id} className="border p-2 lg:p-4 shadow-sm hover:shadow-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                             <p className="text-gray-500 text-xs md:text-sm mb-1">{date}</p>
-                            <LoadingLink href={`/posts/${id}`}>
+                            <LoadingLink href={`/posts/${id}`} className="">
                                 <h2 className="lg:text-2xl font-bold text-blue-600">{title}</h2>
                             </LoadingLink>
                             <p className="text-xs lg:text-base lg:mt-2 text-gray-600 dark:text-gray-400">{description}</p>
@@ -56,7 +54,7 @@ export default async function CategoryPage({ params, searchParams }) {
                     ))}
                 </ul>
             ) }
-            <Pagination currentPage={curPage} totalPages={totalPages} basePath={`/categories/${slug}`} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} basePath={`/categories/${slug}`} />
         </section>
     )
 }

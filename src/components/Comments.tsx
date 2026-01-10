@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 import { useTheme } from "next-themes"
 
 export default function Comments() {
-    const ref = useRef(null)
+    const ref = useRef<HTMLElement>(null)
     const { theme } = useTheme() // 다크모드 감지
 
     // 테마가 바뀌면 Giscus 테마도 함께 바뀌는 로직

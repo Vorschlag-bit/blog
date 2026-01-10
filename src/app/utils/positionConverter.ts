@@ -1,6 +1,14 @@
 // 기상청 격자 -> 위경도 변환 or 위경도 -> 기상청 격자 변환 함수
 // code: "toXY"(위경도->격자), "toLL"(격자->위경도)
-export function dfs_xy_conv(code, v1, v2) {
+
+interface ConverterResponse {
+    lat: number;
+    lng: number;
+    x: number;
+    y: number;
+}
+
+export function dfs_xy_conv(code: string, v1: number, v2: number) {
     const RE = 6371.00877; // 지구 반경(km)
     const GRID = 5.0; // 격자 간격(km)
     const SLAT1 = 30.0; // 투영 위도1(degree)
@@ -26,7 +34,13 @@ export function dfs_xy_conv(code, v1, v2) {
     let ro = Math.tan(Math.PI * 0.25 + olat * 0.5);
     ro = re * sf / Math.pow(ro, sn);
 
-    const rs = {};
+    const rs: ConverterResponse = {
+        lat: 0,
+        lng: 0,
+        x: 0,
+        y: 0
+    };
+    
     if (code === "toXY") {
         rs.lat = v1;
         rs.lng = v2;

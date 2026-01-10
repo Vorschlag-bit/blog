@@ -1,6 +1,13 @@
 import Link from "next/link";
+
+interface PaginationProps {
+    currentPage: number;
+    totalPages: number;
+    basePath: string | "/"
+}
+
 // 카테고리 화면에도 Paging을 하기 위해 basePath(기본값: 홈) 파라미터 추가
-export default function Pagination({ currentPage, totalPages, basePath ="/" }) {
+export default function Pagination({ currentPage, totalPages, basePath }: PaginationProps) {
     const PAGE_COUNT = 5
     // curPage = 배열 인덱스 + 1
     // 현재 페이지 기준 시작 페이지 계산, 3 -> (0 * 5) + 1

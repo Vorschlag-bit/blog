@@ -87,6 +87,28 @@ React 컴포넌트가 렌더링 될 때마다 함수는 매번 새로 실행된�
 4. 뒤늦게 **[서울] API 응답 도착** -> `if (!ignore)` 체크 -> `ignore`가 `true`이므로 <b>무시됨(상태 업데이트 안 함)</b>.
 5. **[부산] API 응답 도착** -> `if (!ignore)` 체크 -> `ignore`가 `false`이므로 **정상 반영.**
 
+### 1-4. useEffect 내부의 useState?
+가끔 개발을 진행하다보면 useEffect 내부에서 useState를 변경하는 기능을 넣게 된다. 하지만 이는 Typescript를 통해 개발할 경우 아래와 같은 에러를 반드시 만나게 될 것이다.
+
+> Error: Calling setState synchronously within an effect can trigger cascading renders
+
+이 말인 즉슨, `useEffect` 내부에서 `useState`에 대한 변경을 동기적으로 수행하는 건 <b>Cascading Renders(폭포수 렌더링)</b>을 일으킬 수 있으니 하지 말라는 것이다.
+
+이를 이해하기 위해선 자바스크립트의 동작원리와 리액트의 동작에 대해서 잘 알 필요가 있다.  
+앞서 말했듯이 `useEffect`는 브라우저가 화면을 다 그리고 난 뒤에 실행된다. 하지만 여기서 동기적으로 `useState`를 호출하게 되면 브라우저의 리액트는 이걸 아래처럼 해석한다.
+
+1. React: 화면 그리기 완료, `useEffect` 실행 시작.  
+2. `useEffect` 내부: `useState`발견, 상태 변경할 거니 화면 다시 리렌더링.  
+3. 브라우저: 화면 방금 막 그렸는데, 그리자마자 다시 새로 그림  
+
+결과적으로 사용자는 멀쩡한 화면을 보기도 전에 React가 리렌더링을 시작한다. 이를 <b>Cascading Renders(폭포수 렌더링)</b>라고 하며, 화면이 미세하게 깜빡이거나 버벅일 수 있다.
+
+이러한 문제를 해결하려면 `useState` 수정을 <b>비동기적으로</b> 수행하면 된다.  
+`setTimeOut()`과 같은 비동기 함수를 사용하면 콜백 함수는 스택이 아니라 태스크 큐에 들어가게 되고, <a class="plink" href="https://vorschlag-blog.vercel.app/posts/eventloop">
+  이벤트 루프
+</a> 에 의해서 콜 스택이 비어 있을 때 안정적으로 처리가 된다.
+
+따라서 React에게 먼저 브라우저 화면을 다 그리고 난 뒤(콜 스택 처리), 다시 그려라고 양보하는 것과 같다.
 
 ## 2. useRef는 랜더링을 일으키지 않는 상태 보관소
 `useState`는 값이 바뀌면 화면도 바뀌는(리랜더링) 상태값이다.  

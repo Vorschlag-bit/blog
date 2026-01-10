@@ -1,6 +1,12 @@
 "use client";
 
-export default function RetroWindow({ children, title = "Untitled", className ="" }) {
+interface RetroWindowProps {
+    children: React.ReactNode;
+    title: string | "Untitled";
+    className: string | ""
+}
+
+export default function RetroWindow({ children, title, className }: RetroWindowProps) {
     return (
         // 1. 창틀 (검은 테두리 + 그림자)
         <div suppressHydrationWarning className={`border-2 border-black dark:border-gray-400 bg-white 

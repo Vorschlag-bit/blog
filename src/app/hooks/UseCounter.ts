@@ -1,12 +1,12 @@
 import { useState,useEffect } from "react";
 
-export function useCounter(target, duration = 1200) {
+export function useCounter(target: number, duration = 1200) {
     const [count,setCount] = useState(0);
 
     useEffect(() => {
         if (!target || target === null || target === undefined) return;
 
-        const end = parseInt(target, 10);
+        const end = target;
 
         const intervalTime = 30;
         const totalFrames = Math.round(duration / intervalTime); // 40fps

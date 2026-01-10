@@ -1,12 +1,19 @@
 "use client"
 import { useRouter } from "next/navigation"
 import { useLoading } from "@/context/LoadingContext"
+import { AnchorHTMLAttributes, MouseEventHandler } from "react";
 
-export default function LoadingLink({ href, children, className, ...props }) {
+interface LoadingLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+    href: string;
+    children: React.ReactNode;
+    className: string | ""
+}
+
+export default function LoadingLink({ href, children, className, ...props }: LoadingLinkProps) {
     const { setIsLoading } = useLoading()
     const router = useRouter()
 
-    const handleClick = (e) => {
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
         // 1. Next.js의 빠른 이동 막기
         e.preventDefault()
 

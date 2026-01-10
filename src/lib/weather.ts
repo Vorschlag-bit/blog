@@ -1,15 +1,43 @@
 "use server"
 import { dfs_xy_conv } from "@/app/utils/positionConverter"
+import { WeatherData } from "@/types/weather_type";
+
+// 매개변수 타입 정의
+interface GetWeatherParams {
+    cx: string;
+    cy: string;
+    type?: "xy" | "latlng"
+}
+
+// 기상청 API 응답 타입 정의
+interface WeatherResponse {
+    response: {
+        header: {
+            resultCode: string;
+            resultMsg: string;
+        },
+        body: {
+            items: {
+                item: WeatherApiItem[]
+            }
+        }
+    }
+}
+
+interface WeatherApiItem {
+    category: string;
+    obsrValue?: string;
+    fcstValue?: string;
+    fcstDate?: string;
+    fcstTime?: string;
+}
 
 /**
  * 좌표(x,y)를 기반으로 기상청 API를 호출하고 return 받은 걸 그대로 return 하는 함수입니다.
  * type이 'xy'인 경우에는 그대로 사용하고, 위/경도일 경우에는 입력받은 x가 위도(latitude), y는 경도(longitude)
  * 이고, dfs_xy_conv() 함수를 통해 x,y 좌표로 변환한 후에 사용합니다.
- * @param { number } x,
- * @param { number } y,
- * @param { string } type,
  */
-export default async function getWeather({ cx, cy, type="xy" }) {    
+export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams): Promise<WeatherData | null> {    
     // 서비스 키
     const SERVICE_KEY = process.env.WEATHER_API_KEY?.trim()
     if (!SERVICE_KEY) {
@@ -17,10 +45,10 @@ export default async function getWeather({ cx, cy, type="xy" }) {
         return null
     }
 
-    let nx = cx
-    let ny = cy
+    let nx = Number(cx)
+    let ny = Number(cy)
     if (type !== "xy") {
-        const { x,y } = dfs_xy_conv("toXY",cx,cy)
+        const { x,y } = dfs_xy_conv("toXY",Number(cx),Number(cy))
         nx = x
         ny = y
     }
@@ -28,7 +56,7 @@ export default async function getWeather({ cx, cy, type="xy" }) {
     // 날짜 계산
     const { baseDate_Fcst,baseTime_Fcst,baseDate_Live,baseTime_Live,baseDate_Srt,baseTime_Srt } = get_currentTime()
     // x,y를 기반으로 날씨 조회
-    const makeUrl = (baseUrl, baseDate, baseTime, rows) => {
+    const makeUrl = (baseUrl: string, baseDate: string, baseTime: string, rows: number) => {
         const url = new URL(baseUrl);
 
         // searchParams.append로 조합하기
@@ -38,8 +66,8 @@ export default async function getWeather({ cx, cy, type="xy" }) {
         url.searchParams.append("dataType", "JSON")
         url.searchParams.append("base_date", baseDate)
         url.searchParams.append("base_time", baseTime)
-        url.searchParams.append("nx", nx)
-        url.searchParams.append("ny", ny)
+        url.searchParams.append("nx", nx.toString())
+        url.searchParams.append("ny", ny.toString())
 
         return url.toString();
     }
@@ -79,7 +107,13 @@ export default async function getWeather({ cx, cy, type="xy" }) {
         ])
 
         // res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
-        const errorCheck = async (res, name) => {
+        /**
+         * 제네릭 <T>를 사용하여 어떤 타입의 데이터도 반환할 수 있게 만든 함수
+         * res: Response (fetch의 응답 타입)
+         * name: string
+         * 반환값: Promise<T> (호출 시 지정한 T 타입의 Promise)
+         */
+        const errorCheck = async<T> (res: Response, name: string): Promise<T> => {
             if (!res.ok) {
                 const errorText = await res.text();
                 console.error(`${name} API Error (${res.status}):`, errorText);
@@ -87,16 +121,16 @@ export default async function getWeather({ cx, cy, type="xy" }) {
             }
             const text = await res.text();
             try {
-                return JSON.parse(text);
+                return JSON.parse(text) as T;
             } catch (error) {
                 console.error("API 응답이 JSON 형식이 아님: ", text.substring(0,100));
                 throw new Error('잘못 형식의 응답 도착(Not Json)')
             }
         }
 
-        const liveData = await errorCheck(resLive, "초단기실황")
-        const fcstData = await errorCheck(resFcst, "초단기예보")
-        const srtData = await errorCheck(resSrt, "단기예보")
+        const liveData = await errorCheck<WeatherResponse>(resLive, "초단기실황")
+        const fcstData = await errorCheck<WeatherResponse>(resFcst, "초단기예보")
+        const srtData = await errorCheck<WeatherResponse>(resSrt, "단기예보")
 
         // console.log('liveData: ', liveData);
         // console.log('fcstData: ', fcstData);
@@ -157,7 +191,7 @@ function get_currentTime() {
     }
 
     // 문자열 변환 함수
-    const formatDate = (date) => {
+    const formatDate = (date: Date) => {
         const iso = date.toISOString();
         return {
             date: iso.slice(0, 10).replace(/-/g, ""),
@@ -181,20 +215,20 @@ function get_currentTime() {
 }
 
 // data를 기반으로 날씨를 판별하는 함수
-function parseWeatherData(liveItems, fcstItems, srtItems) {    
+function parseWeatherData(liveItems: WeatherApiItem[], fcstItems: WeatherApiItem[], srtItems: WeatherApiItem[]): WeatherData {    
     const now = new Date()
     const kstAbs = now.getTime() + (9 * 60 * 60 * 1000)
     
     const baseDate = new Date(kstAbs).toISOString().slice(0,10).replace(/-/g, "")
 
     // 1. 실황 데이터
-    const liveMap = {}
+    const liveMap: Record<string, number> = {}
     liveItems.forEach(item => {
         liveMap[item.category] = Number(item.obsrValue);
     });
 
     // 2. 예보 데이터(SKY,LGT 추출)
-    const fcstMap = {}
+    const fcstMap: Record<string, number> = {}
     // 예보 데이터에서 가장 빠른 시간대만 추출
     fcstItems.forEach((item) => {
         // 이미 있다면 pass
@@ -238,9 +272,6 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
         tmn: tmnValue.toFixed(1),               // 최저 기온
         humidity: liveMap['REH'],    // 실황 습도
         wind: liveMap['WSD'],        // 실황 풍속
-        PTY: liveMap['PTY'],         // 실황 강수상태 (0: 없음, 1: 비, 2: 눈/비, 3:눈, 5: 빗방울, 6: 빗방울 날림, 7: 눈날림)
-        SKY: fcstMap['SKY'],         // 예보 하늘 상태
-        LGT: fcstMap['LGT'] > 0,     // 예보 낙뢰 여부
         location: '종로구 송월동',     // 기본값으로 위치 제공하고, setWeather에서 덮어씀
         iconName: iconName
     };
@@ -253,7 +284,7 @@ function parseWeatherData(liveItems, fcstItems, srtItems) {
  * @param { boolean } lgt - 낙뢰여부 (true/false) - 초단기예보 LGT 값 > 0이면 true else false
  * @param { boolean } isNight - 밤 여부 (true/false) - 현재 시간이 17:00 이상이면 true else false
  */
-function getWeatherIcon(pty, sky, lgt, isNight) {
+function getWeatherIcon(pty: number, sky: number, lgt: boolean, isNight: boolean): string {
     const suffix = isNight ? 'night' : 'day'
 
     // 1. 낙뢰(LGT)가 최우선

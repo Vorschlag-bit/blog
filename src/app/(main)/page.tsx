@@ -5,10 +5,17 @@ import RetroWindow from "@/components/RetroWindow";
 import { getPaginatedPosts } from "@/lib/posts";
 import Pagination from "@/components/Pagination";
 
-export default async function Home({ searchParams }) {
+interface HomeProps {
+  // Next.js에선 쿼리 파라미터는 string, string[](같은 키 중복), 혹은 undefined 가능
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function Home({ searchParams }: HomeProps) {
   // Next.js 15부턴 searchParams에 await
   const params = await searchParams;
-  const page = Number(params?.page) || 1;
+  
+  const pageParam = params.page;
+  const page = Number(Array.isArray(pageParam) ? pageParam[0] : pageParam) || 1;
   // 최대 보여줄 개수
   const LIMIT = 10;
   // 데이터 가져오기
@@ -17,7 +24,7 @@ export default async function Home({ searchParams }) {
   return (
     <div className="w-full mx-auto xl:p-4">
       {/** RetroWindow로 감싸기 */}
-      <RetroWindow title="C:\Users\DevLog\posts_list.exe">
+      <RetroWindow title="C:\Users\DevLog\posts_list.exe" className="">
         <section>
           <h1 className="flex items-center mb-1 font-bold text-xl md:text-2xl lg:text-4xl lg:mb-8">
           <svg className="w-7 h-7 md:w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -57,7 +64,7 @@ export default async function Home({ searchParams }) {
             ))}
           </ul>
           {/* Pagination UI 추가 */}
-          <Pagination currentPage={currentPage} totalPages={totalPages} />
+          <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" />
         </section>
       </RetroWindow>
     </div>

@@ -4,7 +4,7 @@
  * @param { boolean } lgt - 낙뢰여부 (true/false) - 초단기예보 LGT 값 > 0이면 true else false
  * @param { boolean } isNight - 밤 여부 (true/false) - 현재 시간이 17:00 이상이면 true else false
  */
-function getWeatherIcon(pty, sky, lgt, isNight) {
+function getWeatherIcon(pty: number, sky: number, lgt: boolean, isNight: boolean) {
     const suffix = isNight ? 'night' : 'day'
 
     // 1. 낙뢰(LGT)가 최우선
