@@ -1,0 +1,35 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+
+const TECH_STACK = [
+    { name: "Javascript", icon: "/icons/js.svg", tags: ["Language", "Frontend"] },
+    { name: "Typescript", icon: "/icons/typescript.svg", tags: ["Language", "Frontend"] },
+    { name: "Java", icon: "/icons/java.svg", tags: ["Language", "Backend"] },
+    { name: "Kotlin", icon: "/icons/kotlin.svg", tags: ["Language", "Backend"] },
+    { name: "Python", icon: "/icons/kotlin.svg", tags: ["Language"] },
+    { name: "React", icon: "/icons/react.svg", tags: ["Framework", "Froentend"] },
+    { name: "Next.js", icon: "/icons/nextjs2.svg", tags: ["Framework", "Froentend"] },
+    { name: "TailwindCSS", icon: "/icons/tailwindcss.svg", tags: ["Framework", "Froentend"] },
+    { name: "Spring", icon: "/icons/spring.svg", tags: ["Framework", "Backend"] },
+    { name: "Redis", icon: "/icons/redis.svg", tags: ["Database"] },
+    { name: "MariaDB", icon: "/icons/mariadb.svg", tags: ["Database"] },
+    { name: "Postgresql", icon: "/icons/postgresql.svg", tags: ["Database"] },
+    { name: "Git", icon: "/icons/git.svg", tags: ["Tools & Deployment"] },
+    { name: "Github", icon: "/icons/github.svg", tags: ["Tools & Deployment"] },
+    { name: "GithubActions", icon: "/icons/github.svg", tags: ["Tools & Deployment"] },
+    { name: "VercelDeployment", icon: "/icons/vercel.svg", tags: ["Tools & Deployment"] },
+]
+
+const CATEGORIES = ["ALL", "Frontend", "Backend", "Database", "Tools & Deployment"]
+
+export default function TechInventory() {
+    const [activeCategory, setActiveCategory] = useState("ALL");
+
+    return (
+        <div className="flex flex-col gap-4">
+            {/* 상단 필터들 */}
+        </div>
+    )
+}
