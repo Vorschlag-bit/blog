@@ -44,6 +44,32 @@ export default function TechInventory() {
                 ))}
             </div>
             {/* 기술 스택 리스트 (Flex Wrap 레이아웃) */}
+            <div className="flex flex-wrap gap-3">
+                {TECH_STACK.map((tech) => {
+                    const isActive = activeCategory === "ALL" || tech.tags.includes(activeCategory)
+
+                    return (
+                        <div 
+                            key={tech.name}
+                            className={`flex items-center gap-2 border px-3 py-2 bg-white transiton-all duration-500 ease-in-out
+                                ${isActive ? "opactity-100 blur-0 scale-100 grayscale-0" : "opactity-30 blur-[2px] scale-95 grayscale"}
+                                `}
+                        >
+                            {/* 아이콘 */}
+                            <div className="relative w-7 h-7">
+                                <Image 
+                                    fill
+                                    src={tech.icon}
+                                    alt={`${tech.name} icon`}
+                                    className="object-contain"
+                                />
+                            </div>
+                            {/* 기술 이름 */}
+                            <span className="font-bold text-sm">{tech.name}</span>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     )
 }
