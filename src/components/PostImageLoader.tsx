@@ -2,9 +2,13 @@
 import { useRef, useState, useEffect } from "react"
 import { useLoading } from "@/context/LoadingContext"
 
-export default function PostImageLoader({ children }) {
+interface PostImageLoaderProps {
+    children: React.ReactNode;
+}
+
+export default function PostImageLoader({ children }: PostImageLoaderProps) {
     const { setIsLoading } = useLoading()
-    const contentRef = useRef(null)
+    const contentRef = useRef<HTMLDivElement>(null)
     const [isReady, setIsReady] = useState(false)
 
     useEffect(() => {
