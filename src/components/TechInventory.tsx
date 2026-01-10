@@ -30,6 +30,20 @@ export default function TechInventory() {
     return (
         <div className="flex flex-col gap-4">
             {/* 상단 필터들 */}
+            <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((category) => (
+                    <button
+                        key={category}
+                        onClick={() => setActiveCategory(category)}
+                        className={`px-3 py-1 text-sm font-bold border-2 border transiton-all
+                            ${activeCategory === category ? "bg-gray-600 text-white" : "bg-white text-black hover:bg-gray-200"}
+                            `}
+                    >
+                        {category}
+                    </button>
+                ))}
+            </div>
+            {/* 기술 스택 리스트 (Flex Wrap 레이아웃) */}
         </div>
     )
 }
