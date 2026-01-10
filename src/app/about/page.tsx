@@ -25,6 +25,10 @@ export default function AboutPage() {
               <p>최적화와 DX(개발자 경험)을 고민하는 개발자입니다.</p>
               <p>실수를 반복하지 않도록 기록하고 학습해나가는 과정을 중요하게 생각합니다.</p>
               <div className="font-bold text-lg flex-col gap-2 items-center">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 3H0v18h24V3H2zm20 2v14H2V5h20zM10 7H6v4h4V7zm-6 6h8v4H4v-4zm16-6h-6v2h6V7zm-6 4h6v2h-6v-2zm6 4h-6v2h6v-2z" fill="currentColor"/> </svg>
+                    <span>Contact</span>
+                  </div>
                   <div className="text-base flex items-center gap-2" >
                       <svg className="w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path fill="currentColor" d="M5 2h4v2H7v2H5V2Zm0 10H3V6h2v6Zm2 2H5v-2h2v2Zm2 2v-2H7v2H3v-2H1v2h2v2h4v4h2v-4h2v-2H9Zm0 0v2H7v-2h2Zm6-12v2H9V4h6Zm4 2h-2V4h-2V2h4v4Zm0 6V6h2v6h-2Zm-2 2v-2h2v2h-2Zm-2 2v-2h2v2h-2Zm0 2h-2v-2h2v2Zm0 0h2v4h-2v-4Z"/> </svg>
                       <span>Github: </span>
@@ -74,7 +78,10 @@ export default function AboutPage() {
 
         {/* 기술 스택 */}
         <div className={`col-span-1 md:col-span-2 border-2 p-4 ${pixelShadow}`}>
-           <h3 className="-mt-2 mb-2 font-bold">Tech Inventory</h3>
+          <div className="flex items-center gap-1">
+            <svg className="w-7 h-7 -mt-3" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M3 3h2v18H3V3zm16 0H5v2h14v14H5v2h16V3h-2zm-8 6h2V7h-2v2zm2 8h-2v-6h2v6z" fill="currentColor"/> </svg>
+             <span className="-mt-2 mb-2 font-bold">Tech Inventory</span>
+          </div>
            {/* 아이콘들 */}
            <TechInventory />
         </div>
