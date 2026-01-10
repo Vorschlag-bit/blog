@@ -206,6 +206,7 @@ useEffect(() => {
     return () => document.removeEventListener('mousedown', handleClickOutSide);
 },[])
 ```
+아래는 자주 사용하는 React Props에 대한 타입들을 표로 정리해보았다.
 
 <table>
 <thead>
@@ -221,7 +222,7 @@ useEffect(() => {
 <td>
 <strong>"화면에 그릴 수 있는 모든 것"</strong><br/>
 (JSX 태그, 문자열, 숫자, null, undefined, 배열 등 포함).<br/>
-가장 넓은 범위를 가집니다.
+가장 넓은 범위를 가짐.
 </td>
 <td>
 <strong><code>children</code> prop</strong><br/>
@@ -233,7 +234,7 @@ useEffect(() => {
 <td>
 <strong>"오직 JSX 태그 객체만"</strong><br/>
 (<code>&lt;div /&gt;</code>, <code>&lt;MyComponent /&gt;</code> 등)<br/>
-문자열(String)이나 null은 포함되지 않습니다.
+문자열(String)이나 null은 포함되지 않음.
 </td>
 <td>
 특정 컴포넌트를 prop으로 넘길 때<br/>
@@ -243,8 +244,8 @@ useEffect(() => {
 <tr>
 <td><strong><code>JSX.Element</code></strong></td>
 <td>
-<code>ReactElement</code>와 사실상 같은 의미입니다.<br/>
-TypeScript가 JSX 문법을 해석한 결과물의 타입입니다.
+<code>ReactElement</code>와 사실상 같은 의미.<br/>
+TypeScript가 JSX 문법을 해석한 결과물의 타입.
 </td>
 <td>
 <strong>컴포넌트의 return 타입</strong><br/>
@@ -254,7 +255,7 @@ TypeScript가 JSX 문법을 해석한 결과물의 타입입니다.
 <tr>
 <td><strong><code>React.CSSProperties</code></strong></td>
 <td>
-CSS 속성 이름들이 정의된 객체 타입입니다.<br/>
+CSS 속성 이름들이 정의된 객체 타입.
 (자동 완성 지원: backgroundColor 등)
 </td>
 <td>
@@ -265,7 +266,7 @@ CSS 속성 이름들이 정의된 객체 타입입니다.<br/>
 <tr>
 <td><strong><code>React.ComponentProps&lt;T&gt;</code></strong></td>
 <td>
-HTML 태그(T)나 컴포넌트가 가지는 <strong>모든 속성(props)</strong>을 추출합니다.<br/>
+HTML 태그(T)나 컴포넌트가 가지는 <strong>모든 속성(props)</strong>을 추출.<br/>
 (예: <code>onClick</code>, <code>className</code> 등 자동 포함)
 </td>
 <td>
@@ -276,7 +277,7 @@ HTML 태그(T)나 컴포넌트가 가지는 <strong>모든 속성(props)</strong
 <tr>
 <td><strong><code>React.Dispatch&lt;SetStateAction&lt;T&gt;&gt;</code></strong></td>
 <td>
-<code>useState</code>에서 나오는 <strong>setState 함수</strong>의 타입입니다.
+<code>useState</code>에서 나오는 <strong>setState 함수</strong>의 타입.
 </td>
 <td>
 <code>setState</code> 함수를 자식에게 넘겨줄 때
@@ -284,3 +285,38 @@ HTML 태그(T)나 컴포넌트가 가지는 <strong>모든 속성(props)</strong
 </tr>
 </tbody>
 </table>
+
+### Api Response는 어떻게 타입을 지정하지?
+Typescript를 도입하면서 헷갈렸던 점 중 또 하나는 외부 api로부터 응답은 어떤 식으로 타입을 지정해야 하는가였다.
+
+외부 응답에 맞는 interface를 만들어두긴 했으나, 이걸 어떤 식으로 타입 지정을 해야하는지를 몰랐었다.
+
+이때는 <b>generic</b>을 사용해서 유연한 타입 지정 비동기 함수로 리팩토링했다.
+
+```Tsx
+// res 상태 체크 및 안전한 Json 파싱 함수(text -> json)
+/**
+ * 제네릭 <T>를 사용하여 어떤 타입의 데이터도 반환할 수 있게 만든 함수
+ * res: Response (fetch의 응답 타입)
+ * name: string
+ * 반환값: Promise<T> (호출 시 지정한 T 타입의 Promise)
+ */
+const errorCheck = async<T> (res: Response, name: string): Promise<T> => {
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`${name} API Error (${res.status}):`, errorText);
+        throw new Error(`${name} API 요청 실패: ${res.status}`);
+    }
+    const text = await res.text();
+    try {
+        return JSON.parse(text) as T;
+    } catch (error) {
+        console.error("API 응답이 JSON 형식이 아님: ", text.substring(0,100));
+        throw new Error('잘못 형식의 응답 도착(Not Json)')
+    }
+}
+
+const liveData = await errorCheck<WeatherResponse>(resLive, "초단기실황")
+const fcstData = await errorCheck<WeatherResponse>(resFcst, "초단기예보")
+const srtData = await errorCheck<WeatherResponse>(resSrt, "단기예보")
+```
