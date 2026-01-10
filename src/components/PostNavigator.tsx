@@ -1,6 +1,17 @@
+import { PostData } from '@/types/post_type';
 import Link from 'next/link';
 
-export default function PostNavigator({ prev, next }) {
+interface PostNavigatorProps {
+    prev: PostData | null;
+    next: PostData | null;
+}
+
+interface PostCardProps {
+    post: PostData;
+    type: string;
+}
+
+export default function PostNavigator({ prev, next }: PostNavigatorProps) {
     return (
         <div className="flex w-full gap-2 md:gap-4 mt-8 lg:mt-10 lg:mb-8">
             {/* 이전 글 (Prev) */}
@@ -20,7 +31,7 @@ export default function PostNavigator({ prev, next }) {
     );
 }
 
-function PostCard({ post, type }) {
+function PostCard({ post, type }: PostCardProps) {
     const isNext = type === 'next';
 
     return (
