@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import RetroWindow from "@/components/RetroWindow";
 import TechInventory from "@/components/TechInventory";
+import LighthouseCircle from "@/components/LighthouseCircle";
 
 const pixelShadow = "shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
 
@@ -49,9 +50,26 @@ export default function AboutPage() {
                 System Status
               </span>
            </div>
-           <p className="text-2xl font-bold text-green-600 dark:text-green-500">FCP 0.6s</p>
-           <p className="text-2xl font-bold text-green-600 dark:text-green-500">LCP 0.7s</p>
-           <p className="text-2xl font-bold text-green-600 dark:text-green-500">SEO Score 100</p>
+           {/* 그래프 영역 */}
+           <div className="flex flex-col items-center">
+            <LighthouseCircle score={100} label="Performance" size={150} strokeWidth={8} />
+            <div className="flex justify-around w-full gap-2 mt-2">
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold text-green-500">0.6s</span>
+                <span className="text-xs text-gray-500">FCP</span>
+              </div>
+              <div className="w-[1px] h-8 bg-gray-300"></div>
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold text-green-500">0.7s</span>
+                <span className="text-xs text-gray-500">LCP</span>
+              </div>
+              <div className="w-[1px] h-8 bg-gray-300"></div>
+              <div className="flex flex-col items-center">
+                <span className="text-2xl font-bold text-green-500">100</span>
+                <span className="text-xs text-gray-500">SEO</span>
+              </div>
+            </div>
+           </div>
         </div>
 
         {/* 기술 스택 */}
