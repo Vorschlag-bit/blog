@@ -66,7 +66,7 @@ export default async function Post({ params }: PageProps) {
             <PostRemoteControl />
             {/** img 태그 미리 다운로드 체크 확인 컴포넌트 추가 */}
             <PostImageLoader>
-                <RetroWindow title={`Reading: ${postData.title}.txt`}>
+                <RetroWindow title={`Reading: ${postData.title}.txt`} className="">
                     <h1 className="md:text-2xl lg:text-3xl font-bold md:mb-4 md:mt-2 lg:mt-0 flex items-start gap-3">
                         <Link href={`/categories/${postData.category}`}
                             className="shrink-0 bg-blue-600 text-white text-sm lg:text-xl lg:mr-3 font-medium px-2 py-1 border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">

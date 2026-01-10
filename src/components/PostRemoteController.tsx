@@ -1,21 +1,31 @@
 "use client";
-
 import { useEffect, useState, useRef } from "react";
 import ScrollProgress from "./ScrollProgress";
+import { setTimeout } from "timers";
 
-const indentStyles = {
+type HeadingTag = "H2" | "H3" | "H4" | "H5"
+
+interface HeaderInfo {
+    id: string;
+    text: string;
+    level: HeadingTag;
+    element: Element;
+}
+
+const indentStyles: Record<HeadingTag, string> = {
     H2: "text-sm font-bold",
     H3: "ml-4 text-xs font-medium",
-    H4: "ml-8 text-[11px] text-gray-500"
+    H4: "ml-8 text-[11px] text-gray-500",
+    H5: "ml-12 text-[9px] text-gray-400"
 }
 
 export default function PostRemoteControl() {
     // 목차 리스트 상태관리
-    const [headings, setHeadings] = useState([])
+    const [headings, setHeadings] = useState<HeaderInfo[]>([])
     // 현재 보고 있는 헤딩 ID
     const [activeId, setActiveId] = useState("")
     // Observer를 저장할 ref (cleanup)
-    const observerRef = useRef(null)
+    const observerRef = useRef<IntersectionObserver | null>(null)
     // isClosed 추가 (버튼으로 닫기)
     const [isClosed, setIsClosed] = useState(false)
 
@@ -30,28 +40,34 @@ export default function PostRemoteControl() {
         if (!contentArea) return;
 
         // h1,h2,h3 태그 수집
-        const elements = contentArea.querySelectorAll("h2, h3, h4, h5")
+        const elements = contentArea.querySelectorAll<HTMLElement>("h2, h3, h4, h5")
         
         // console.log(`찾은 요소들 개수: ${elements.length}`)
         // console.log(`찾은 요소: ${Array.from(elements)}`)
 
-        const headingData = []
+        const headingData: HeaderInfo[] = []
 
-        elements.forEach((el, index) => {
-            headingData.push({
-                id: el.id,
-                text: el.innerText,
-                // "H2", "H3"
-                level: el.tagName,
-                element: el,
-            })
+        elements.forEach((el,_) => {
+            const tagName = el.tagName as HeadingTag
+            if (indentStyles[tagName]) {
+                    headingData.push({
+                    id: el.id,
+                    text: el.innerText,
+                    // "H2", "H3"
+                    level: tagName,
+                    element: el,
+                })
+            }
         }
         )
 
-        setHeadings(headingData)
+        // setTimeOut으로 감싸서 비동기 처리
+        setTimeout(() => {
+            setHeadings(headingData)
+        },0)
 
         // 2. IntersectionObserver로 현재 위치 감지 로직 구현
-        const handleObserver = (entries) => {
+        const handleObserver = (entries: IntersectionObserverEntry[]) => {
             entries.forEach((entry) => {
                 // 헤딩이 화면의 특정 영역에 들어오면 activeId 변경
                 if (entry.isIntersecting) {
@@ -68,7 +84,7 @@ export default function PostRemoteControl() {
         })
 
         headingData.forEach((heading) => {
-            observerRef.current.observe(heading.element)
+            observerRef.current?.observe(heading.element)
         })
 
         // CleanUp: 컴포넌트가 사라지면 감시 중단
@@ -96,7 +112,7 @@ export default function PostRemoteControl() {
     }
 
     // 5. 목차 클릭 시 이동 함수
-    const handleLinkClick = (e, id) => {
+    const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
         // 기본 앵커 동작 방지
         e.preventDefault()
         const element = document.getElementById(id)
@@ -147,14 +163,13 @@ export default function PostRemoteControl() {
                         <div className="border-2 dark:border-gray-500 bg-white dark:bg-gray-900
                         shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)] mb-4 p-3 max-h-[70vh] overflow-y-auto">
                             <div className="flex items-center justify-between mb-4 border-b-2 border-dashed border-gray-300 pb-3"
-                                aria-level="목차"
                                 title="목차"
                             >
                                 <div className="flex items-center font-bold gap-1">
                                     <svg className="w-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h12v20H4V2h4zm4 8h-2v2H8V4H6v16h12V4h-4v8h-2v-2z" fill="currentColor"/> </svg>
                                     <span>목차</span>
                                 </div>
-                                <button onClick={handleOnClick} className="border border-red-500 dark:border-red-400 cursor-pointer hover:bg-red-400" aria-label="목차 닫기 버튼" title="목차 닫기">
+                                <button onClick={handleOnClick} className="border border-red-500 dark:border-red-400 cursor-pointer hover:bg-red-400" title="목차 닫기">
                                     <svg className="w-5 text-red-500 dark:text-red-400 hover:text-white" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" fill="currentColor"/> </svg>
                                 </button>
                             </div>
@@ -173,7 +188,6 @@ export default function PostRemoteControl() {
                                                     : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                                                 }`}
                                                 title={`${heading.text}`}
-                                                aria-level={`${heading.text}`}
                                             >
                                                 {activeId === heading.id && <span className="mr-1">
                                                     <svg className="w-4 h-4" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 5v2h2V5H8zm4 4V7h-2v2h2zm2 2V9h-2v2h2zm0 2h2v-2h-2v2zm-2 2v-2h2v2h-2zm0 0h-2v2h2v-2zm-4 4v-2h2v2H8z" fill="currentColor"/> </svg>
@@ -208,7 +222,7 @@ export default function PostRemoteControl() {
                         shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)] mb-4 p-3 max-h-[70vh] overflow-y-auto"
                     >
                         <div className="flex items-center justify-between"
-                            aria-level="목차" title="목차">
+                            title="목차">
                             <div className="flex items-center font-bold gap-1">
                                 <svg className="w-6" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M8 2h12v20H4V2h4zm4 8h-2v2H8V4H6v16h12V4h-4v8h-2v-2z" fill="currentColor"/> </svg>
                                 <span>목차</span>

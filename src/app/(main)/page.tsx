@@ -24,7 +24,7 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <div className="w-full mx-auto xl:p-4">
       {/** RetroWindow로 감싸기 */}
-      <RetroWindow title="C:\Users\DevLog\posts_list.exe">
+      <RetroWindow title="C:\Users\DevLog\posts_list.exe" className="">
         <section>
           <h1 className="flex items-center mb-1 font-bold text-xl md:text-2xl lg:text-4xl lg:mb-8">
           <svg className="w-7 h-7 md:w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
