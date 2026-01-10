@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useRef,useEffect } from "react"
 import Image from "next/image"
 
 const TECH_STACK = [
@@ -9,9 +9,9 @@ const TECH_STACK = [
     { name: "Java", icon: "/icons/java.svg", tags: ["Language", "Backend"] },
     { name: "Kotlin", icon: "/icons/kotlin.svg", tags: ["Language", "Backend"] },
     { name: "Python", icon: "/icons/kotlin.svg", tags: ["Language"] },
-    { name: "React", icon: "/icons/react.svg", tags: ["Framework", "Froentend"] },
-    { name: "Next.js", icon: "/icons/nextjs2.svg", tags: ["Framework", "Froentend"] },
-    { name: "TailwindCSS", icon: "/icons/tailwindcss.svg", tags: ["Framework", "Froentend"] },
+    { name: "React", icon: "/icons/react.svg", tags: ["Framework", "Frontend"] },
+    { name: "Next.js", icon: "/icons/nextjs2.svg", tags: ["Framework", "Frontend"] },
+    { name: "TailwindCSS", icon: "/icons/tailwindcss.svg", tags: ["Framework", "Frontend"] },
     { name: "Spring", icon: "/icons/spring.svg", tags: ["Framework", "Backend"] },
     { name: "Redis", icon: "/icons/redis.svg", tags: ["Database"] },
     { name: "MariaDB", icon: "/icons/mariadb.svg", tags: ["Database"] },
@@ -26,6 +26,21 @@ const CATEGORIES = ["ALL", "Frontend", "Backend", "Database", "Tools & Deploymen
 
 export default function TechInventory() {
     const [activeCategory, setActiveCategory] = useState("ALL");
+    // 버튼 Ref - HTMLButtonElement
+    const buttonRef = useRef<HTMLButtonElement>(null)
+
+    // 외부 클릭 로직 추가
+    useEffect(() => {
+        function handleClickOutSide(event: MouseEvent) {
+            // ref존재하고, 클릭된 target이 ref에 포함 안 되면 isClicked false로
+            if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) setActiveCategory("ALL")
+        }
+
+        document.addEventListener('mousedown', handleClickOutSide)
+
+        return () => document.removeEventListener('mousedown', handleClickOutSide)
+    },[])
+
 
     return (
         <div className="flex flex-col gap-4">
@@ -33,6 +48,7 @@ export default function TechInventory() {
             <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((category) => (
                     <button
+                        ref={buttonRef}
                         key={category}
                         onClick={() => setActiveCategory(category)}
                         className={`px-3 py-1 text-sm font-bold border-2 border transiton-all
@@ -51,7 +67,7 @@ export default function TechInventory() {
                     return (
                         <div 
                             key={tech.name}
-                            className={`flex items-center gap-2 border px-3 py-2 bg-white transiton-all duration-500 ease-in-out
+                            className={`flex items-center gap-2 border px-3 py-2 bg-white dark:bg-gray-700 transiton-all duration-500 ease-in-out
                                 ${isActive ? "opactity-100 blur-0 scale-100 grayscale-0" : "opactity-30 blur-[2px] scale-95 grayscale"}
                                 `}
                         >

@@ -1,8 +1,7 @@
-// about/page.tsx (Server Component)
-
 import Image from "next/image";
 import Link from "next/link";
 import RetroWindow from "@/components/RetroWindow";
+import TechInventory from "@/components/TechInventory";
 
 const pixelShadow = "shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
 
@@ -19,7 +18,7 @@ export default function AboutPage() {
           <div className="flex flex-col gap-2">
               <div className="flex gap-2 items-center">
                 <svg className="w-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM14 7h-4v4h4V7zm1 6H9v2H7v2h2v-2h6v2h2v-2h-2v-2z" fill="currentColor"/> </svg>
-                <h1 className="text-2xl font-bold">Developer: Vorschlag</h1>
+                <h1 className="text-2xl font-bold">Developer: <span className="text-blue-600">Vorschlag</span></h1>
               </div>
               <p>Full-stack Developer</p>
               <p>최적화와 DX(개발자 경험)을 고민하는 개발자입니다.</p>
@@ -50,30 +49,16 @@ export default function AboutPage() {
                 System Status
               </span>
            </div>
-           <p className="text-2xl font-bold text-green-600">FCP 0.6s</p>
-           <p className="text-2xl font-bold text-green-600">LCP 0.7s</p>
-           <p className="text-2xl font-bold text-green-600">SEO Score 100</p>
+           <p className="text-2xl font-bold text-green-600 dark:text-green-500">FCP 0.6s</p>
+           <p className="text-2xl font-bold text-green-600 dark:text-green-500">LCP 0.7s</p>
+           <p className="text-2xl font-bold text-green-600 dark:text-green-500">SEO Score 100</p>
         </div>
 
         {/* 기술 스택 */}
-        <div className="col-span-1 md:col-span-2 border-2 p-4">
+        <div className={`col-span-1 md:col-span-2 border-2 p-4 ${pixelShadow}`}>
            <h3 className="-mt-2 mb-2 font-bold">Tech Inventory</h3>
            {/* 아이콘들 */}
-           {/* 1. 언어 */}
-           <div className="flex gap-2">
-            <div className="relative w-8 h-8 border">
-              <Image fill src="/icons/js.svg" alt="Javascript icon" />
-            </div>
-            <div className="relative w-8 h-8">
-              <Image fill src="/icons/kotlin.svg" alt="Kotlin icon" />
-            </div>
-            <div className="relative w-8 h-8">
-              <Image fill src="/icons/java.svg" alt="Java icon" />
-            </div>
-            <div className="relative w-8 h-8">
-              <Image fill src="/icons/python.svg" alt="Python icon" />
-            </div>
-           </div>
+           <TechInventory />
         </div>
 
         {/* 핵심 경험 1: 날씨 API (크게) */}
