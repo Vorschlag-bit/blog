@@ -64,7 +64,7 @@ export default async function Home({ searchParams }: HomeProps) {
             ))}
           </ul>
           {/* Pagination UI 추가 */}
-          <Pagination currentPage={currentPage} totalPages={totalPages} />
+          <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" />
         </section>
       </RetroWindow>
     </div>

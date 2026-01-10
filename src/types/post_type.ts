@@ -29,5 +29,4 @@ export interface PaginatedResult<T> {
     totalCount: number;
     hasNext: boolean;
     hasPrev: boolean;           
-    curPage?: number;       // 호환성 위해 추가 (기존 코드 변수명)
 }

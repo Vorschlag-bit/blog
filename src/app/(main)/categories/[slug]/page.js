@@ -24,7 +24,7 @@ export default async function CategoryPage({ params, searchParams }) {
     const LIMIT = 10
 
     // return 받은 객체 fields
-    const { posts, totalPages, curPage } = getPaginatedCategories(page, LIMIT, category)
+    const { posts, totalPages, currentPage } = getPaginatedCategories(page, LIMIT, category)
 
     if (!posts || posts.length === 0) {
         return notFound();
@@ -56,7 +56,7 @@ export default async function CategoryPage({ params, searchParams }) {
                     ))}
                 </ul>
             ) }
-            <Pagination currentPage={curPage} totalPages={totalPages} basePath={`/categories/${slug}`} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} basePath={`/categories/${slug}`} />
         </section>
     )
 }
