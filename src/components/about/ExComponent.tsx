@@ -6,7 +6,7 @@ export default function ExComponent() {
     return (
         <section className="flex flex-col gap-6">
             {/* [1] 핵심 경험 1: 날씨 API */}
-            <div className={`w-full border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-700 p-5 ${pixelShadow}`}>
+            <div className={`w-full border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-5 ${pixelShadow}`}>
                 <div className="flex items-center gap-3 mb-3 border-2 border-dashed border-gray-300 p-1 pl-2">
                     <svg className="w-7 h-7 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M16 4h-6v2H8v2H4v2H2v2H0v6h2v2h20v-2h2v-6h-2v-2h-2V8h-2V6h-2V4zm2 8h4v6H2v-6h2v-2h4v2h2v-2H8V8h2V6h6v2h2v4zm0 0v2h-2v-2h2z" fill="currentColor"/> </svg>
                     <h3 className="text-base md:text-xl font-bold">Function: Weather Widget Optimization</h3>
@@ -60,7 +60,7 @@ export default function ExComponent() {
     
                 
             {/* [2] 핵심 경험 2: RSC 리팩토링 */}
-            <div className={`col-span-1 border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-700 p-5 ${pixelShadow} flex flex-col`}>
+            <div className={`col-span-1 border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-5 ${pixelShadow} flex flex-col`}>
                 <div className="flex items-center gap-3 mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 p-1 pl-2">
                     <svg className="w-7 h-7 text-purple-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" fill="currentColor"/> </svg>
                     <h3 className="text-base md:text-xl font-bold">Function: RSC Refactoring</h3>
@@ -120,7 +120,7 @@ export default function ExComponent() {
             </div>
     
             {/* [3] 핵심 경험 3: 반응형 웹 디자인 */}
-            <div className={`col-span-1 border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-700 p-5 ${pixelShadow} flex flex-col`}>
+            <div className={`col-span-1 border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-5 ${pixelShadow} flex flex-col`}>
                 <div className="flex items-center gap-3 mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 p-1 pl-2">
                     <svg className="w-7 h-7 text-indigo-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 2h16v20H4V2zm2 2v12h12V4H6zm0 14h12v2H6v-2z" fill="currentColor"/> </svg>
                     <h3 className="text-base md:text-xl font-bold">Function: Responsive Design</h3>

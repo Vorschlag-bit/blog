@@ -56,7 +56,7 @@ export default function CerComponent() {
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
       
       {/* 1. 교육 및 이력 */}
-      <div className={`col-span-1 w-full border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-6 ${pixelShadow}`}>
+      <div className={`col-span-1 w-full border-2 border-black dark:border-gray-500 p-6 ${pixelShadow}`}>
         <div className="flex items-center gap-2 mb-6 border-b-2 border-dashed border-gray-300 dark:border-gray-600 pb-2">
             <svg className="w-6 h-6 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" fill="currentColor"/> </svg>
             <h3 className="text-xl font-bold">Education & History</h3>
@@ -93,7 +93,7 @@ export default function CerComponent() {
       </div>
 
       {/* 2. 어학 및 자격증 */}
-      <div className={`col-span-1 w-full border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-800 p-6 ${pixelShadow}`}>
+      <div className={`col-span-1 w-full border-2 border-black dark:border-gray-500 p-6 ${pixelShadow}`}>
         <div className="flex items-center gap-2 mb-6 border-b-2 border-dashed border-gray-300 dark:border-gray-600 pb-2">
             <svg className="w-6 h-6 text-green-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 4h20v2H2V4zm2 4h16v2H4V8zm2 4h12v2H6v-2zm2 4h8v2H8v-2z" fill="currentColor"/> </svg>
             <h3 className="text-xl font-bold">Certificate & Language</h3>

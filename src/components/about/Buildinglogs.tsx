@@ -19,7 +19,7 @@ export default function BuildingLogs({ posts }: BuildingLogsProps){
             {visiblePosts.map((post) => (
                 <li
                     key={post.id}
-                    className="hover:bg-gray-800 p-1 -mx-1 rounded transition-colors group"
+                    className="hover:bg-gray-900 p-1 -mx-1 rounded transition-colors group"
                 >
                     <div className="flex gap-2 sm:flex-row sm:items-center">
                     <span className="text-gray-500 min-w-[100px]">{`[${post.date.split(' ')[0]}]`}</span>

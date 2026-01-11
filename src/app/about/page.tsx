@@ -99,7 +99,7 @@ export default async function AboutPage() {
       <ExComponent />
       
       {/* 3. Build Logs (Terminal Style) */}
-      <section className={`border-2 border-black dark:border-gray-500 bg-gray-800 text-gray-200 p-4 font-mono text-sm ${pixelShadow}`}>
+      <section className={`border-2 border-black dark:border-gray-500 bg-gray-900 text-gray-200 p-4 font-mono text-sm ${pixelShadow}`}>
           <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
               <span className="text-green-400 font-bold">{`> cat build_logs.txt`}</span>
               <div className="flex gap-1">
