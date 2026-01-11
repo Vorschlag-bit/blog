@@ -72,19 +72,24 @@ export default async function AboutPage() {
               <p className="text-xs lg:text-base">단순한 기능 구현을 넘어, 시스템의 비효율을 발견하고 개선하는 과정에 몰입합니다.<br></br>
               문제를 기술적 근거를 바탕으로 해결책을 설계하고, 그 경험을 기록하여 자산으로 만듭니다.
               </p>
-              <div className="text-sm font-bold lg:text-lg flex flex-col gap-2">
+              <div className="text-sm font-bold lg:text-lg flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <svg className="w-5 w-5 lg:w-7 lg:h-7" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 3H0v18h24V3H2zm20 2v14H2V5h20zM10 7H6v4h4V7zm-6 6h8v4H4v-4zm16-6h-6v2h6V7zm-6 4h6v2h-6v-2zm6 4h-6v2h6v-2z" fill="currentColor"/> </svg>
                     <span>Contact</span>
                   </div>
                   <div className="text-xs lg:text-base flex items-center gap-2" >
-                      <svg className="w-5 lg:w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path fill="currentColor" d="M5 2h4v2H7v2H5V2Zm0 10H3V6h2v6Zm2 2H5v-2h2v2Zm2 2v-2H7v2H3v-2H1v2h2v2h4v4h2v-4h2v-2H9Zm0 0v2H7v-2h2Zm6-12v2H9V4h6Zm4 2h-2V4h-2V2h4v4Zm0 6V6h2v6h-2Zm-2 2v-2h2v2h-2Zm-2 2v-2h2v2h-2Zm0 2h-2v-2h2v2Zm0 0h2v4h-2v-4Z"/> </svg>
+                      <svg className="w-5 lg:w-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path fill="currentColor" d="M5 2h4v2H7v2H5V2Zm0 10H3V6h2v6Zm2 2H5v-2h2v2Zm2 2v-2H7v2H3v-2H1v2h2v2h4v4h2v-4h2v-2H9Zm0 0v2H7v-2h2Zm6-12v2H9V4h6Zm4 2h-2V4h-2V2h4v4Zm0 6V6h2v6h-2Zm-2 2v-2h2v2h-2Zm-2 2v-2h2v2h-2Zm0 2h-2v-2h2v2Zm0 0h2v4h-2v-4Z"/> </svg>
                       <span>Github: </span>
                       <Link href={'https://github.com/Vorschlag-bit'}>github.com/Vorschlag-bit</Link>
                   </div>
                   <div className="text-xs lg:text-base flex items-center gap-2">
-                      <svg className="w-5 lg:w-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M22 4H2v16h20V4zM4 18V6h16v12H4zM8 8H6v2h2v2h2v2h4v-2h2v-2h2V8h-2v2h-2v2h-4v-2H8V8z" fill="currentColor"/> </svg>
+                      <svg className="w-5 lg:w-7" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M22 4H2v16h20V4zM4 18V6h16v12H4zM8 8H6v2h2v2h2v2h4v-2h2v-2h2V8h-2v2h-2v2h-4v-2H8V8z" fill="currentColor"/> </svg>
                       <span>Mail: bustout@naver.com</span>
+                  </div>
+                  <div className="text-xs lg:text-base flex items-center gap-2">
+                      <svg className="w-5 lg:w-7" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 3h20v18H2V3zm18 16V7H4v12h16z" fill="currentColor"/> </svg>  
+                      <span>Blog: </span>
+                      <Link href={'https://github.com/Vorschlag-bit'}>vorschlag-blog.vercel.app</Link>
                   </div>
               </div>
           </div>
@@ -103,15 +108,15 @@ export default async function AboutPage() {
            </div>
            {/* 그래프 영역 */}
            <div className="flex flex-col items-center">
-            <LighthouseCircle score={92} label="Performance" size={150} strokeWidth={8} />
+            <LighthouseCircle score={90} label="Performance" size={150} strokeWidth={8} />
             <div className="flex justify-around w-full gap-2 mt-2">
               <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-green-500">0.6s</span>
+                <span className="text-2xl font-bold text-green-500">1.2s</span>
                 <span className="text-xs text-gray-500">FCP</span>
               </div>
               <div className="w-[1px] h-8 bg-gray-300"></div>
               <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-green-500">0.7s</span>
+                <span className="text-2xl font-bold text-green-500">1.3s</span>
                 <span className="text-xs text-gray-500">LCP</span>
               </div>
               <div className="w-[1px] h-8 bg-gray-300"></div>
