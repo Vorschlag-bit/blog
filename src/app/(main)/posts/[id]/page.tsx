@@ -4,7 +4,6 @@ import Comments from "@/components/Comments";
 import CodeBlockManager from "@/components/CodeBlockManager";
 import PostRemoteControl from "@/components/PostRemoteController";
 import Link from "next/link";
-import PostImageLoader from "@/components/PostImageLoader";
 // 현재 id를 기반으로 이전,이후 글 정보를 가져오는 함수
 import { getPreNextPost } from "@/lib/posts";
 import PostNavigator from "@/components/PostNavigator";
@@ -64,8 +63,6 @@ export default async function Post({ params }: PageProps) {
             {/* mermaidUtil 추가 */}
             <MermaidInit />
             <PostRemoteControl />
-            {/** img 태그 미리 다운로드 체크 확인 컴포넌트 추가 */}
-            <PostImageLoader>
                 <RetroWindow title={`Reading: ${postData.title}.txt`} className="">
                     <h1 className="md:text-2xl lg:text-3xl font-bold md:mb-4 md:mt-2 lg:mt-0 flex items-start gap-3">
                         <Link href={`/categories/${postData.category}`}
@@ -88,7 +85,6 @@ export default async function Post({ params }: PageProps) {
                     {/** 4. 맨 밑에 댓글 컴포넌트 추가 */}
                     <Comments />
                 </RetroWindow>
-            </PostImageLoader>
         </article>
     )
 }
