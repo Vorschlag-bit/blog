@@ -1,12 +1,12 @@
 import { getPostData } from "@/lib/posts";
-import RetroWindow from "@/components/RetroWindow";
-import Comments from "@/components/Comments";
-import CodeBlockManager from "@/components/CodeBlockManager";
-import PostRemoteControl from "@/components/PostRemoteController";
+import RetroWindow from "@/components/main/RetroWindow";
+import Comments from "@/components/main/Comments";
+import CodeBlockManager from "@/components/main/CodeBlockManager";
+import PostRemoteControl from "@/components/main/PostRemoteController";
 import Link from "next/link";
 // 현재 id를 기반으로 이전,이후 글 정보를 가져오는 함수
 import { getPreNextPost } from "@/lib/posts";
-import PostNavigator from "@/components/PostNavigator";
+import PostNavigator from "@/components/page/PostNavigator";
 // mermaid Util
 import MermaidInit from "@/app/utils/mermaidInit";
 // redis zincrby 호출함수

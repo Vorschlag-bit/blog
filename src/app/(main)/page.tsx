@@ -1,9 +1,9 @@
 import Link from "next/link";
 import LoadingLink from "@/components/LoadingLink";
-import RetroWindow from "@/components/RetroWindow";
+import RetroWindow from "@/components/main/RetroWindow";
 // pagination을 위한 함수 및 리모컨 컴포넌트
 import { getPaginatedPosts } from "@/lib/posts";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/page/Pagination";
 
 interface HomeProps {
   // Next.js에선 쿼리 파라미터는 string, string[](같은 키 중복), 혹은 undefined 가능

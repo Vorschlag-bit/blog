@@ -1,5 +1,5 @@
 import CategoryList from "@/components/CategoryList";
-import WeatherContainer from "@/components/WeatherContainer";
+import WeatherContainer from "@/components/weather/WeatherContainer";
 import VisitorCounter from "@/components/VisitorCounter";
 import PostRank from "@/components/PostRank";
 
