@@ -5,9 +5,48 @@ import TechInventory from "@/components/about/TechInventory";
 import LighthouseCircle from "@/components/about/LighthouseCircle";
 import BuildingLogs from "@/components/about/Buildinglogs";
 import ExComponent from "@/components/about/ExComponent";
-
 import { getPostsByCategory } from "@/lib/posts";
 import CerComponent from "@/components/about/CerComponent";
+
+// 아이콘 정적 로딩
+import Git from '@/assets/icons/git.svg'
+import Github from '@/assets/icons/github.svg'
+import Java from '@/assets/icons/java.svg'
+import Js from '@/assets/icons/js.svg'
+import Kotlin from '@/assets/icons/kotlin.svg'
+import MariaDB from '@/assets/icons/mariadb.svg'
+import Next from '@/assets/icons/nextjs2.svg'
+import Postgresql from '@/assets/icons/postgresql.svg'
+import Python from '@/assets/icons/python.svg'
+import React from '@/assets/icons/react.svg'
+import Redis from '@/assets/icons/redis.svg'
+import Spring from '@/assets/icons/spring.svg'
+import Tailwind from '@/assets/icons/tailwindcss.svg'
+import Ts from '@/assets/icons/typescript.svg'
+import Vercel from '@/assets/icons/vercel.svg'
+import { Techitem } from "@/types/tech_type";
+
+const TECH_STACK: Techitem[] = [
+    { name: "Javascript", icon: Js, tags: ["Language", "Frontend"] },
+    { name: "Typescript", icon: Ts, tags: ["Language", "Frontend"] },
+    { name: "Java", icon: Java, tags: ["Language", "Backend"] },
+    { name: "Kotlin", icon: Kotlin, tags: ["Language", "Backend"] },
+    { name: "Python", icon: Python, tags: ["Language", "Database"] },
+    { name: "React", icon: React, tags: ["Framework", "Frontend"] },
+    { name: "Next.js", icon: Next, tags: ["Framework", "Frontend"] },
+    { name: "TailwindCSS", icon: Tailwind, tags: ["Framework", "Frontend"] },
+    { name: "Spring", icon: Spring, tags: ["Framework", "Backend"] },
+    { name: "Redis", icon: Redis, tags: ["Database"] },
+    { name: "MariaDB", icon: MariaDB, tags: ["Database"] },
+    { name: "Postgresql", icon: Postgresql, tags: ["Database"] },
+    { name: "Git", icon: Git, tags: ["Tools & Deployment"] },
+    { name: "Github", icon: Github, tags: ["Tools & Deployment"] },
+    { name: "GithubActions", icon: Github, tags: ["Tools & Deployment"] },
+    { name: "VercelDeployment", icon: Vercel, tags: ["Tools & Deployment"] },
+]
+
+const CATEGORIES = ["ALL", "Frontend", "Backend", "Database", "Tools & Deployment"]
+
 
 const pixelShadow = "shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
 const devPosts = getPostsByCategory('개발')
@@ -91,7 +130,7 @@ export default async function AboutPage() {
              <span className="-mt-2 mb-2 font-bold">Tech Inventory</span>
           </div>
            {/* 아이콘들 */}
-           <TechInventory />
+           <TechInventory techStack={TECH_STACK} categories={CATEGORIES} />
         </div>
       </section>
 
