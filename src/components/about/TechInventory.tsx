@@ -2,38 +2,23 @@
 
 import { useState,useRef,useEffect } from "react"
 import Image from "next/image"
+import { Techitem } from "@/types/tech_type"
 
-const TECH_STACK = [
-    { name: "Javascript", icon: "/icons/js.svg", tags: ["Language", "Frontend"] },
-    { name: "Typescript", icon: "/icons/typescript.svg", tags: ["Language", "Frontend"] },
-    { name: "Java", icon: "/icons/java.svg", tags: ["Language", "Backend"] },
-    { name: "Kotlin", icon: "/icons/kotlin.svg", tags: ["Language", "Backend"] },
-    { name: "Python", icon: "/icons/kotlin.svg", tags: ["Language"] },
-    { name: "React", icon: "/icons/react.svg", tags: ["Framework", "Frontend"] },
-    { name: "Next.js", icon: "/icons/nextjs2.svg", tags: ["Framework", "Frontend"] },
-    { name: "TailwindCSS", icon: "/icons/tailwindcss.svg", tags: ["Framework", "Frontend"] },
-    { name: "Spring", icon: "/icons/spring.svg", tags: ["Framework", "Backend"] },
-    { name: "Redis", icon: "/icons/redis.svg", tags: ["Database"] },
-    { name: "MariaDB", icon: "/icons/mariadb.svg", tags: ["Database"] },
-    { name: "Postgresql", icon: "/icons/postgresql.svg", tags: ["Database"] },
-    { name: "Git", icon: "/icons/git.svg", tags: ["Tools & Deployment"] },
-    { name: "Github", icon: "/icons/github.svg", tags: ["Tools & Deployment"] },
-    { name: "GithubActions", icon: "/icons/github.svg", tags: ["Tools & Deployment"] },
-    { name: "VercelDeployment", icon: "/icons/vercel.svg", tags: ["Tools & Deployment"] },
-]
+interface TechInventoryProps {
+    techStack: Techitem[];
+    categories: string[];
+}
 
-const CATEGORIES = ["ALL", "Frontend", "Backend", "Database", "Tools & Deployment"]
-
-export default function TechInventory() {
+export default function TechInventory({ techStack,categories }: TechInventoryProps) {
     const [activeCategory, setActiveCategory] = useState("ALL");
-    // 버튼 Ref - HTMLButtonElement
-    const buttonRef = useRef<HTMLButtonElement>(null)
+    // Ref - HTMLDivElement
+    const filterRef = useRef<HTMLDivElement>(null)
 
     // 외부 클릭 로직 추가
     useEffect(() => {
         function handleClickOutSide(event: MouseEvent) {
             // ref존재하고, 클릭된 target이 ref에 포함 안 되면 isClicked false로
-            if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) setActiveCategory("ALL")
+            if (filterRef.current && !filterRef.current.contains(event.target as Node)) setActiveCategory("ALL")
         }
 
         document.addEventListener('mousedown', handleClickOutSide)
@@ -45,13 +30,12 @@ export default function TechInventory() {
     return (
         <div className="flex flex-col gap-4">
             {/* 상단 필터들 */}
-            <div className="flex flex-wrap gap-2">
-                {CATEGORIES.map((category) => (
+            <div ref={filterRef} className="flex flex-wrap gap-2">
+                {categories.map((category) => (
                     <button
-                        ref={buttonRef}
                         key={category}
                         onClick={() => setActiveCategory(category)}
-                        className={`px-3 py-1 text-sm font-bold border-2 border transiton-all
+                        className={`px-3 py-1 text-sm font-bold border-2 border transition-all cursor-pointer
                             ${activeCategory === category ? "bg-gray-600 text-white" : "bg-white text-black hover:bg-gray-200"}
                             `}
                     >
@@ -61,14 +45,14 @@ export default function TechInventory() {
             </div>
             {/* 기술 스택 리스트 (Flex Wrap 레이아웃) */}
             <div className="flex flex-wrap gap-3">
-                {TECH_STACK.map((tech) => {
+                {techStack.map((tech) => {
                     const isActive = activeCategory === "ALL" || tech.tags.includes(activeCategory)
 
                     return (
                         <div 
                             key={tech.name}
-                            className={`flex items-center gap-2 border px-3 py-2 bg-white dark:bg-gray-700 transiton-all duration-500 ease-in-out
-                                ${isActive ? "opactity-100 blur-0 scale-100 grayscale-0" : "opactity-30 blur-[2px] scale-95 grayscale"}
+                            className={`flex items-center gap-2 border px-3 py-2 bg-white dark:bg-gray-700 transition-all duration-500 ease-in-out
+                                ${isActive ? "opacity-100 blur-0 scale-100 grayscale-0" : "opacity-30 blur-[2px] scale-95 grayscale"}
                                 `}
                         >
                             {/* 아이콘 */}
@@ -77,7 +61,10 @@ export default function TechInventory() {
                                     fill
                                     src={tech.icon}
                                     alt={`${tech.name} icon`}
+                                    priority={true}
+                                    fetchPriority="high"
                                     className="object-contain"
+                                    sizes="30px"
                                 />
                             </div>
                             {/* 기술 이름 */}

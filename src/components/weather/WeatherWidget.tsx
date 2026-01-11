@@ -4,6 +4,7 @@ import getWeather from "@/lib/weather";
 import getArea from "@/lib/area";
 import Image from "next/image";
 import { WeatherData } from "@/types/weather_type";
+import { weatherIconMap } from "@/assets/index/weatherIndex";
 
 // props는 객체고, 내가 구조분해 할당으로 받는 건 key이기 때문에 타입을 한 번 더 감싸야 함
 interface WeatherWidgetProps {
@@ -88,11 +89,12 @@ export default function WeatherWidget({ initialData }: WeatherWidgetProps) {
                     <div className="flex flex-col items-center -mt-7">
                         <div className="relative w-64 h-64">
                             <Image
-                                src={'/icons/windsock.svg'}
+                                src={weatherIconMap['windsock']}
                                 alt='데이터 로딩 중 아이콘'
                                 fill
                                 className="object-contain"
-                                priority
+                                priority={true}
+                                fetchPriority="high"
                             />
                         </div>
                         <p className="animate-pulse text-lg font-bold dark:text-white-500 -mt-10">SEARCHING...</p>
@@ -103,11 +105,13 @@ export default function WeatherWidget({ initialData }: WeatherWidgetProps) {
                         <div className="w-64 h-64 drop-shadow-sm -mt-5">
                             {/* 날씨 아이콘 동적으로 주입받음 */}
                             <Image 
-                                src={`/icons/${weather.iconName}.svg`}
+                                src={weatherIconMap[weather.iconName]}
                                 alt={weather.iconName}
                                 fill
                                 className="object-contain"
-                                priority // 아이콘은 중요하므로 즉시 로딩
+                                priority={true}
+                                fetchPriority="high"
+                                sizes="(max-width: 768px) 100vw, 256px"
                             />
                         </div>
                         <div className="flex items-center gap-7 -mt-5">
