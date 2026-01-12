@@ -54,7 +54,6 @@ const devPosts = getPostsByCategory('개발')
 export default async function AboutPage() {
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-8">
-      
       {/* 1. Hero: 자기소개 */}
       <RetroWindow title="Reading: Developer, Vorschlag" className="bg-gray-100 dark:bg-gray-800">
         <section className="flex-col md:flex md:flex-row gap-6 md:items-center">

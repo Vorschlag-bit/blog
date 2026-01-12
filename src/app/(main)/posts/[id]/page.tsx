@@ -9,6 +9,8 @@ import { getPreNextPost } from "@/lib/posts";
 import PostNavigator from "@/components/page/PostNavigator";
 // redis 조회 수 증가 server action 비동기로 호출하는 클라이언트 컴포넌트
 import ViewCounter from "@/components/main/ViewCounter";
+// hash 존재 시, 스크롤 이동하도록 만드는 함수
+import ScrollToHash from "@/components/about/ScrollToHash";
 // mermaid Util
 import MermaidInit from "@/app/utils/mermaidInit";
 import { Metadata } from "next";
@@ -70,6 +72,8 @@ export default async function Post({ params }: PageProps) {
             <MermaidInit />
             {/* viewactions 추가 (redis 호출하는 server action 호출하는 클라이언트 컴포넌트) */}
             <ViewCounter id={id} />
+            {/* ScrollToHash 추가 */}
+            <ScrollToHash />
             <PostRemoteControl />
                 <RetroWindow title={`Reading: ${postData.title}.txt`} className="">
                     <h1 className="md:text-2xl lg:text-3xl font-bold md:mb-4 md:mt-2 lg:mt-0 flex items-start gap-3">
