@@ -1,4 +1,3 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import Image from "next/image";
@@ -14,6 +13,7 @@ import "./globals.css";
 import "highlight.js/styles/github-dark.css";
 import 'katex/dist/katex.min.css';
 import { Metadata } from "next";
+import localFont from 'next/font/local'
 
 export const metadata: Metadata = {
   /** 도메인 주소 */
@@ -50,19 +50,50 @@ export const metadata: Metadata = {
   },
 };
 
+// 폰트 정보 설정
+const galmuri11 = localFont({
+  src: [
+    {
+      path: './fonts/Galmuri11.woff2',
+      weight: '400',
+      style: 'normal'
+    },
+    {
+      path: './fonts/Galmuri11-Bold.woff2',
+      weight: '700',
+      style: 'normal'
+    },
+  ],
+  variable: '--font-galmuri11',
+  display: 'swap'
+})
+
+const galmuri9 = localFont({
+  src: [
+    {
+      path: './fonts/Galmuri9.woff2',
+      weight: '400',
+      style: 'normal'
+    },
+  ],
+  variable: '--font-galmuri9',
+  display:'swap'
+})
+
+const galmuriMono9 = localFont({
+  src: './fonts/GalmuriMono9.woff2',
+  variable: '--font-galmuri-mono',
+});
+
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // 빌드 타임 때 실행되어 JSON 데이터 준지
   const posts = getJSONArrayForSearch()
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning className={`${galmuri11.variable} ${galmuri9.variable} ${galmuriMono9.variable}`}>
       <head>
-        {/** 갈무리 폰트 불러오기 */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css"
-        />
       </head>
-      <body className="dark:bg-gray-900 dark:text-gray-100 font-[Galmuri11]">
+      <body className="dark:bg-gray-900 dark:text-gray-100 font-galmuri11">
           <Suspense fallback={null}>
             <LoadingProvider>
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

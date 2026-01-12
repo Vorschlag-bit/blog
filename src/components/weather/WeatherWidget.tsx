@@ -116,7 +116,7 @@ export default function WeatherWidget({ initialData }: WeatherWidgetProps) {
                         </div>
                         <div className="flex items-center gap-7 -mt-5">
                             <div className="flex-col ml-4">
-                                <div className="text-4xl font-[Galmuri9] mb-2 tracking-tighter min-w-[5rem]">
+                                <div className="text-4xl font-galmuri9 mb-2 tracking-tighter min-w-[5rem]">
                                     {weather.temperature}℃
                                 </div>
                                 <div className="text-xs text-gray-500">
@@ -125,17 +125,17 @@ export default function WeatherWidget({ initialData }: WeatherWidgetProps) {
                             </div>
                             <div className="flex flex-col items-start">
                                 {/** 최고 */}
-                                <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
+                                <div className="text-xs text-gray-600 dark:text-gray-200">
                                     <span className="text-red-500 font-bold mr-1">최고</span>
                                     {weather.tmx}℃
                                 </div>
                                 {/** 최저 */}
-                                <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
+                                <div className="text-xs text-gray-600 dark:text-gray-200">
                                     <span className="text-blue-500 font-bold mr-1">최저</span>
                                     {weather.tmn}℃
                                 </div>
                                 {/** 습도 */}
-                                <div className="text-xs font-medium text-gray-600 dark:text-gray-200">
+                                <div className="text-xs text-gray-600 dark:text-gray-200">
                                     <span className="text-blue-400 font-bold mr-1">습도</span>
                                     {weather.humidity}%
                                 </div>

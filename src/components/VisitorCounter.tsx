@@ -73,13 +73,13 @@ return (
                 <div className="flex flex-col gap-3">
                     {/* Today */}
                     <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-gray-600 font-[Galmuri11]">TODAY</span>
+                        <span className="text-[10px] font-bold text-gray-600">TODAY</span>
                         <NumberBoard number={animatedToday} length={8} />
                     </div>
 
                     {/* Total */}
                     <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-gray-600 font-[Galmuri11]">TOTAL</span>
+                        <span className="text-[10px] font-bold text-gray-600">TOTAL</span>
                         <NumberBoard number={animatedTotal} length={8} />
                     </div>
                 </div>

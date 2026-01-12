@@ -52,10 +52,10 @@ export default async function Home({ searchParams }: HomeProps) {
                       {category}
                     </span>
                   </Link>
-                  <p className="text-gray-500 text-xs lg:text-sm font-[Galmuri11]">{date}</p>
+                  <p className="text-gray-500 text-xs lg:text-sm">{date}</p>
                 </div>
                 <LoadingLink href={`posts/${id}`} className={``}>
-                  <h2 className="text-base md:text-xl lg:text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 font-[Galmuri11] gap-2">
+                  <h2 className="text-base md:text-xl lg:text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 gap-2">
                     {title}
                   </h2>
                   <p className="text-xs md:text-sm lg:text-base mt-1 text-gray-700 dark:text-gray-300">{description}</p>

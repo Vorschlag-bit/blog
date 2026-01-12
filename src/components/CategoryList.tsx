@@ -32,7 +32,7 @@ export default function CategoryList({type = "vertical"}) {
             ) : (
                 // pc 이상의 화면
                 // 위치: 화면 중앙 기준 왼쪽 + 약간 아래(mt-14)
-                <div className="w-full mr-4 font-[Galmuri11]">
+                <div className="w-full mr-4">
                     {/* 1. 가장 바깥 박스 (그림자 효과) */}
                     <div className="border-2 border-black dark:border-gray-500 bg-white dark:bg-gray-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]">
                 
