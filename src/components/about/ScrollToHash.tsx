@@ -16,7 +16,7 @@ export default function ScrollToHash() {
                     
                     element.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
-            }, 100);
+            }, 200);
         }
     },[])
     return null

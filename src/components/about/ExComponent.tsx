@@ -85,7 +85,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>RSC 전환:</b> 데이터 가공 로직 서버 이관
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#쓰기write-함수---pagejs'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#1-쓰기write---ssg-환경에서의-딜레마와-해결'} target="_blank" rel="noopener noreferrer">
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>
