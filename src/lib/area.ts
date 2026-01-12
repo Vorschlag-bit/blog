@@ -63,7 +63,7 @@ export default async function getArea({ lng,lat }: getAreaParams) {
         // 마찬가지로 text -> json으로 수정
         const text = await res.text();
 
-        console.log('response:', text);
+        // console.log('response:', text);
         
         
         let data: VWORLDResponse;
