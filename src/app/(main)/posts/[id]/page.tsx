@@ -7,10 +7,10 @@ import Link from "next/link";
 // 현재 id를 기반으로 이전,이후 글 정보를 가져오는 함수
 import { getPreNextPost } from "@/lib/posts";
 import PostNavigator from "@/components/page/PostNavigator";
+// redis 조회 수 증가 server action 비동기로 호출하는 클라이언트 컴포넌트
+import ViewCounter from "@/components/main/ViewCounter";
 // mermaid Util
 import MermaidInit from "@/app/utils/mermaidInit";
-// redis zincrby 호출함수
-import { IncrementRank } from "@/lib/ranks";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -62,14 +62,14 @@ export default async function Post({ params }: PageProps) {
 
     if (!postData) notFound();
 
-    await IncrementRank(id);
-
     const { prev,next } = await getPreNextPost(id)
 
     return (
         <article className="max-w-4xl mx-auto md:px-2 xl:p-4 relative">
             {/* mermaidUtil 추가 */}
             <MermaidInit />
+            {/* viewactions 추가 (redis 호출하는 server action 호출하는 클라이언트 컴포넌트) */}
+            <ViewCounter id={id} />
             <PostRemoteControl />
                 <RetroWindow title={`Reading: ${postData.title}.txt`} className="">
                     <h1 className="md:text-2xl lg:text-3xl font-bold md:mb-4 md:mt-2 lg:mt-0 flex items-start gap-3">

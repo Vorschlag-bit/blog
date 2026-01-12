@@ -4,15 +4,6 @@ import { getPaginatedCategories,getAllCategories } from "@/lib/posts";
 import Pagination from "@/components/page/Pagination";
 import { notFound } from "next/navigation";
 
-export async function generateStaticParams() {
-    const categories = getAllCategories()
-    return categories.map((category) => ({
-        slug: category.category
-    }))
-}
-
-export const dynamicParams = false;
-
 interface CategoryPageProps {
     params: Promise<{ slug: string }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
