@@ -94,11 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
       </head>
       <body className="dark:bg-gray-900 dark:text-gray-100 font-galmuri11">
-          <Suspense fallback={null}>
-            <LoadingProvider>
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                {/** 전역 로딩 컴포넌트 배치 */}
-                <GlobalLoader />
                 {/* 여기에 헤더 추가 */}
                 <header className="relative z-50 max-w-5xl mx-auto p-2 md:p-4 border-b flex justify-between items-center">
                   {/** 마스코트 추가 */}
@@ -137,8 +133,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   © 2025 Vorschlag Tech Blog
                 </footer>
               </ThemeProvider>
-            </LoadingProvider>
-          </Suspense>
       </body>
     </html>
   );

@@ -1,5 +1,5 @@
 /** main과 비슷하지만 전체가 아니라 필터링된 데이터만 가져오는 함수 */
-import LoadingLink from "@/components/LoadingLink";
+import Link from "next/link";
 import { getPaginatedCategories,getAllCategories } from "@/lib/posts";
 import Pagination from "@/components/page/Pagination";
 import { notFound } from "next/navigation";
@@ -46,9 +46,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                     {posts.map(({ id,title,date,description }) => (
                         <li key={id} className="border p-2 lg:p-4 shadow-sm hover:shadow-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                             <p className="text-gray-500 text-xs md:text-sm mb-1">{date}</p>
-                            <LoadingLink href={`/posts/${id}`} className="">
+                            <Link href={`/posts/${id}`}>
                                 <h2 className="lg:text-2xl font-bold text-blue-600">{title}</h2>
-                            </LoadingLink>
+                            </Link>
                             <p className="text-xs lg:text-base lg:mt-2 text-gray-600 dark:text-gray-400">{description}</p>
                         </li>
                     ))}
