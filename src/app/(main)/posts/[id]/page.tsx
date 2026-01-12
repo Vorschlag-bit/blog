@@ -1,4 +1,4 @@
-import { getPostData } from "@/lib/posts";
+import { getPostData,dateSortedAllPosts } from "@/lib/posts";
 import RetroWindow from "@/components/main/RetroWindow";
 import Comments from "@/components/main/Comments";
 import CodeBlockManager from "@/components/main/CodeBlockManager";
@@ -18,6 +18,14 @@ import { notFound } from "next/navigation";
 interface PageProps {
     params: Promise<{ id: string }>;
 }
+
+export async function generateStaticParams() {
+    return dateSortedAllPosts.map((post) => ({
+        id: post.id
+    }))
+}
+
+export const dynamicParams = false;
 
 // 동적 메타데이터 생성 함수
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

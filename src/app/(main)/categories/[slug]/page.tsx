@@ -1,8 +1,17 @@
 /** main과 비슷하지만 전체가 아니라 필터링된 데이터만 가져오는 함수 */
 import LoadingLink from "@/components/LoadingLink";
-import { getPaginatedCategories } from "@/lib/posts";
+import { getPaginatedCategories,getAllCategories } from "@/lib/posts";
 import Pagination from "@/components/page/Pagination";
 import { notFound } from "next/navigation";
+
+export async function generateStaticParams() {
+    const categories = getAllCategories()
+    return categories.map((category) => ({
+        slug: category.category
+    }))
+}
+
+export const dynamicParams = false;
 
 interface CategoryPageProps {
     params: Promise<{ slug: string }>;
