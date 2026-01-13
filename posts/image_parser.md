@@ -57,6 +57,11 @@ export async function getPostData(id: string): Promise<PostData | null> {
 요지는 markdown으로 작성한 `<img>` 태그가 그래도 문자열로 반환되는 구조다 보니까
 내가 markdown 파일에서 `<img>` 태그에 스타일 속성으로 높이와 폭을 일일히 지정하지 않는 한, 기본 크기로 된다는 것이다.
 
+<figure>
+    <img src="/images/img_tag_1.png" alt="개발자 도구로 확인해본 img 태그 모습" />
+    <figcaption>크기 속성은 전혀 없는 걸 볼 수 있다.</figcaption>
+</figure>
+
 그렇다고 지금와서 100개 넘는 글의 `<img>` 태그들을 다 수정할 수는 없었다. 글 하나에 하나의 이미지만 있는 것도 당연히 아니니깐.
 
 ## <\Image> 태그를 쓰고 싶어요
@@ -77,3 +82,8 @@ export async function getPostData(id: string): Promise<PostData | null> {
 빌드 시점에서 rehype으로 데이터를 가공할 때 `<img>` 태그만 찾아서 `<Image>` 태그로 바꾸는 함수를 구현해야 했으나, 그보다 먼저 해야할 것은 `<img>` 태그마다 별도의 너비와 높이 속성을 지정해줘야 했었다.
 
 `<Image>` 태그는 너비와 높이 속성이 없으면 동작하지 않기 때문이다. 없다면 부모 태그의 속성에서 찾지만 그건 말도 안 되기 때문에 이미지별 고유 너비와 높이를 지정해줘야 했었다.
+
+<figure>
+    <img src="/images/img_tag_2.png" alt="개발자 도구로 확인해본 img 태그 모습" />
+    <figcaption>크기 속성이 확실히 있는 걸 볼 수 있다.</figcaption>
+</figure>
