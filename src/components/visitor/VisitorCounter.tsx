@@ -3,7 +3,6 @@ import { useCounter } from "@/app/hooks/UseCounter"
 import { useEffect } from "react"
 import { incrementVisitor } from "@/app/action/visitor"
 
-// server-actions를 사용하도록 리팩토링 예정
 export default function VisitorCounter({ total,date }: { total:number, date: number }) {
     // 애니메이션 적용된 숫자 (duration: 1.2초 동안 촤라락)
     const animatedToday = useCounter(date, 1200)
