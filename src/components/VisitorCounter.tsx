@@ -10,7 +10,6 @@ interface NumberBoardParams {
 
 // server-actions를 사용하도록 리팩토링 예정
 export default function VisitorCounter() {
-    const [isLoading,setIsLoading] = useState(false)
     // 당일과 전체 모두 객체로
     const [visitors,setVisitors] = useState<VisitorData>({ date: 0, total: 0 })
 
@@ -22,7 +21,6 @@ export default function VisitorCounter() {
     const animatedTotal = useCounter(visitors.total, 1200)
 
     const fetchVisitors = async () => {
-        setIsLoading(true)
         try {
             const res = await fetch('/api/visit', {
                 method: 'POST',
@@ -40,8 +38,6 @@ export default function VisitorCounter() {
 
         } catch (err) {
             console.error(err);
-        } finally {
-            setIsLoading(false);
         }
     };
 

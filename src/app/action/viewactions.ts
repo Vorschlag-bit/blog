@@ -1,6 +1,6 @@
 "use server"
 
-import { IncrementRank } from "./ranks"
+import { IncrementRank } from "../../lib/ranks"
 
 export async function ViewCountAction(id: string) {
     try {

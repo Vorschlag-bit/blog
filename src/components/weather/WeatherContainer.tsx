@@ -1,4 +1,4 @@
-import getWeather from "@/lib/weather";
+import getWeather from "@/app/action/weather";
 import WeatherWidget from "./WeatherWidget";
 /**
  * 서버 컴포넌트의 기능만을 수행하는 보이진 않는 컴포넌트입니다.
