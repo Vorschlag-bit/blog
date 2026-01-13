@@ -24,8 +24,8 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
         
         {/** 3. 오른쪽 균형을 맞추기 위한 투명한 유령 박스 */}
         <aside className="hidden xl:block w-52 mr-2 mt-14 shrink-0" aria-hidden="true">
-            <VisitorContainer />
-            <PostRank />
+            {/* <VisitorContainer /> */}
+            {/* <PostRank /> */}
         </aside>
     </div>
     )
