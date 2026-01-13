@@ -1,7 +1,7 @@
 import CategoryList from "@/components/CategoryList";
 import WeatherContainer from "@/components/weather/WeatherContainer";
-import VisitorCounter from "@/components/VisitorCounter";
 import PostRank from "@/components/PostRank";
+import { VisitorContainer } from "@/components/visitor/VisitorContainer";
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -24,7 +24,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
         
         {/** 3. 오른쪽 균형을 맞추기 위한 투명한 유령 박스 */}
         <aside className="hidden xl:block w-52 mr-2 mt-14 shrink-0" aria-hidden="true">
-            <VisitorCounter />
+            <VisitorContainer />
             <PostRank />
         </aside>
     </div>

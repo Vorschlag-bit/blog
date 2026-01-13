@@ -14,7 +14,7 @@ interface GetVisitorsResult {
 const TOTAL_PREFIX = "blog-visit-total"
 
 // unstable_cache는 함수 인자에 따라 자동으로 별도의 캐싱 (Ip 기반)
-const getCachedCounts = unstable_cache(
+export const getCachedCounts = unstable_cache(
     async (dateKey: string): Promise<GetVisitorsResult> => {
         // Pipeline으로 1번의 통신
         const pipeline = redis.pipeline()

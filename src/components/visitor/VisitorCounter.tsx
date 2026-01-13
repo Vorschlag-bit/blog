@@ -1,53 +1,17 @@
 "use client"
 import { useCounter } from "@/app/hooks/UseCounter"
-import { useState,useEffect,useRef } from "react"
-import { VisitorData } from "@/types/visitor_type"
-
-interface NumberBoardParams {
-    number: number;
-    length: number;
-}
+import { useEffect } from "react"
+import { incrementVisitor } from "@/app/action/visitor"
 
 // server-actions를 사용하도록 리팩토링 예정
-export default function VisitorCounter() {
-    // 당일과 전체 모두 객체로
-    const [visitors,setVisitors] = useState<VisitorData>({ date: 0, total: 0 })
-
-    // 개발 모드(Strict Mode)에서 중복 방지용 Ref
-    const hasFetched = useRef(false)
-
+export default function VisitorCounter({ total,date }: { total:number, date: number }) {
     // 애니메이션 적용된 숫자 (duration: 1.2초 동안 촤라락)
-    const animatedToday = useCounter(visitors.date, 1200)
-    const animatedTotal = useCounter(visitors.total, 1200)
-
-    const fetchVisitors = async () => {
-        try {
-            const res = await fetch('/api/visit', {
-                method: 'POST',
-            })
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                throw Error(errData.error)
-            }
-
-            const data = await res.json()
-            // console.log("데이터 파싱 결과: ", data)
-            
-            
-            setVisitors(data)
-
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    const animatedToday = useCounter(date, 1200)
+    const animatedTotal = useCounter(total, 1200)
 
     // 영향 받는 거 없으니 빈 배열 의존성
     useEffect(() => {
-        // 중복 호출 방지
-        if (!hasFetched.current) {
-            fetchVisitors()
-            hasFetched.current = true;
-        }
+        incrementVisitor()
     },[])
 
 return (
@@ -85,7 +49,7 @@ return (
 }
 
 // 공용 컴포넌트
-function NumberBoard({ number, length }: NumberBoardParams) {
+function NumberBoard({ number, length }: { number: number, length: number }) {
     const strNum = number.toString().padStart(length, '0');
     const digits = strNum.split('');
 
