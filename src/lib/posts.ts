@@ -19,6 +19,7 @@ import rehypeExternalLinks from 'rehype-external-links';
 
 // mermaid 문법 적용을 위한 커스텀 플러그인을 위한 라이브러리 import
 import { visit } from 'unist-util-visit';
+import sizeOf from 'image-size'
 
 // 타입 추가
 import { PostData,CategoryData,PaginatedResult } from '@/types/post_type';
@@ -29,6 +30,34 @@ const postsDirectory = path.join(process.cwd(), 'posts')
 
 // 날짜순으로 정렬된 post list 전역 변수
 export const dateSortedAllPosts = getSortedPostsData();
+
+// img 태그 사이즈 지정 함수
+function rehypeImage() {
+    return (tree: any) => {
+        visit(tree, 'img', (node: any) => {
+            if (node.tagName === "img" && node.properties && typeof node.properties.src === 'string') {
+                const src = node.properties.src
+                // 외부 이미지는 크기 계산 불가
+                if (src.startWith('https')) return;
+
+                const imgPath = path.join(process.cwd(),'public',src)
+
+                try {
+                    // 이미지 크기 계산
+                    const buffer = fs.readFileSync(imgPath)
+                    const dim = sizeOf(buffer)
+
+                    if (dim.height && dim.width) {
+                        node.properties.height = dim.height
+                        node.properties.width = dim.width
+                    }
+                } catch (err) {
+                    console.error('img 태그 크기 계산 실패: ', src);
+                }
+            }
+        })
+    }
+}
 
 function remarkMermaidToHTML() {
     return (tree: any) => {
