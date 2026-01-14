@@ -13,6 +13,7 @@ import MermaidInit from "@/app/utils/mermaidInit";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PostContent from "@/components/main/PostContent";
+import ScrollButton from "@/components/main/ScrollButton";
 
 // Params Interface 정의
 interface PageProps {
@@ -71,6 +72,7 @@ export default async function Post({ params }: PageProps) {
             {/* viewactions 추가 (redis 호출하는 server action 호출하는 클라이언트 컴포넌트) */}
             {/* <ViewCounter id={id} /> */}
             <PostRemoteControl />
+            <ScrollButton />
                 <RetroWindow title={`Reading: ${postData.title}.txt`} className="">
                     <h1 className="md:text-2xl lg:text-3xl font-bold md:mb-4 md:mt-2 lg:mt-0 flex items-start gap-3">
                         <Link href={`/categories/${postData.category}`}

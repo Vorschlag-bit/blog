@@ -58,7 +58,7 @@ export default async function AboutPage() {
       <RetroWindow title="Reading: Developer, Vorschlag" className="bg-gray-100 dark:bg-gray-800">
         <section className="flex-col md:flex md:flex-row gap-6 md:items-center">
           <div className="relative w-30 h-30 lg:w-52 lg:h-52">
-              <Image fill className="object-contain" src={'/images/character.png'} alt="캐릭터 이미지" priority={true} sizes="(max-width: 768px) 100vw, 300px" />
+              <Image fill className="object-contain" src={'/images/character.png'} alt="캐릭터 이미지" priority={true} fetchPriority="high" sizes="(max-width: 768px) 100vw, 300px" />
           </div>
           <div className="flex flex-col gap-2">
               <div className="flex gap-2 items-center">
