@@ -1,119 +1,107 @@
 ---
-title: "이미지 로딩 최적화를 해보자 (LCP,FCP 점수 챙기기)"
+title: "이미지 로딩 최적화를 해보자 (LCP, FCP)"
 date: "2026-01-13 21:59:45"
 category: "개발"
-description: "Lighthouse 대표 지표인 LCP와 FCP를 위한 이미지 렌더링 최적화를 해보자."
+description: "Lighthouse의 대표 지표인 LCP와 FCP 개선을 위해 Next.js의 Image 컴포넌트를 적용하고, 마크다운 파이프라인을 최적화해보자."
 ---
 
 ## 서론: 이거 짜증나네
-내 블로그 글의 상세 정보를 Lighthouse를 통해서 성능 검사를 해보면 아래와 같은 <b>이미지 전송 개선</b> 권고가 나왔다.
+
+요즘 Lighthouse로 성능 검사를 자주 돌린다. 그런데 블로그 상세 조회에선 항상 빨간색 경고등과 함께 <b>이미지 전송 개선 권고</b>가 맨날 보인다..
 
 <figure>
-    <img src="/images/lcp_1.png" alt="이미지 파일이 표시된 크기에 비해 크기가 너무 크다는 내용" />
-    <figcaption>사진의 기본 크기가 화면에 그려지는 것보다 너무 크단다.</figcaption>
+    <img src="/images/lcp_1.png" alt="Lighthouse 이미지 전송 개선 권고 화면" />
+    <figcaption>사진의 원본 크기가 화면에 그려지는 크기보다 너무 크다시단다.</figcaption>
 </figure>
 
-화면을 보여줄 때 이미지 렌더링 최적화는 정말 중요하다고 생각한다.
+웹 성능 최적화에서 이미지는 분명 중요하다. 단순히 "빨리 가져오는 것"을 넘어, "적절한 크기로", "필요한 순간에" 가져오는 전략이 필수적이다. React의 `fetchPriority` 같은 속성이나 Next.js가 기본으로 제공하는 `<Image>` 태그만 봐도 이 최적화 기술들이 얼마나 고도화되어 있는지 알 수 있다.
 
-`fetchPriority` 같은 속성과 Next.js가 지원하는 `<Image>` 태그만 봐도 빠르게 가져오는 것도 중요하지만 언제 가져올 것이냐 같은 최적화 방식이 정말 다양하다는 걸 알 수 있다.
-
-내 블로그는 마크다운 파일로 글을 작성하면, 빌드 시점에서 모든 글을 완성되는 <b>SSG(Static Site Generator)</b> 방식이다.
-
-이때 마크다운은 여러 라이브러리를 거쳐서 <b>순수한 문자열</b>로 반환된다.
+하지만 내 블로그는 <b>SSG(Static Site Generator)</b> 방식이다. 마크다운 파일이 여러 라이브러리를 거쳐 <b>순수한 HTML 문자열로 변환</b>되어 뿌려지는 구조다.
 
 ```typescript
 // id(파일 이름)을 받아서 해당 글의 데이터를 가져오는 함수 (remark 비동기)
 export async function getPostData(id: string): Promise<PostData | null> {
     try {
-        const fullPath = path.join(postsDirectory, `${id}.md`)
-        const fileContents = fs.readFileSync(fullPath, 'utf8')
-
-        // 메타 데이터 파싱 (gray-matter)
-        const matterResult = matter(fileContents)
+        // ... 파일 읽기 ...
+        
         // 마크다운 본문을 HTML로 파싱 (remark)
         const processedContent = await remark()
+            // ... 플러그인들 ...
+            .process(matterResult.content);
 
-        const htmlContent = processedContent.toString()
+        const htmlContent = processedContent.toString(); // 여기서 순수 문자열이 됨!
 
-        // console.log(htmlContent)
-        const metadata = matterResult.data as any
-
-        const postData: PostData = {
+        return {
             id,
-            htmlContent,
-            // ... 
-        }
-
-        // 데이터와 HTML 내용을 합쳐서 반환
-        return postData
+            htmlContent, // 문자열 덩어리를 리턴
+            // ...
+        };
     } catch (error) {
         // ...
     }
 }
 ```
 
-위의 코드처럼 `htmlContent`라는 변수 속에 `tostring()`로 문자열로 보낸다. 그래서 `setDangerouslyInnerHTML` 속성을 통해 escape 문자가 아니라 태그 같은 문자도 그대로 사용하고 있다.
+이렇게 문자열로 변환된 `htmlContent`를 `dangerouslySetInnerHTML`을 통해 화면에 그리고 있었다. 
 
-요지는 markdown으로 작성한 `<img>` 태그가 그래도 문자열로 반환되는 구조다 보니까
-내가 markdown 파일에서 `<img>` 태그에 스타일 속성으로 높이와 폭을 일일히 지정하지 않는 한, 기본 크기로 된다는 것이다.
+문제는 마크다운 파서가 `<img>` 태그를 만들 때, 내가 일일이 `width`와 `height`를 적어주지 않는 이상 <b>크기 정보가 없는 깡통 태그</b>가 생성된다는 점이다.
 
 <figure>
     <img src="/images/img_tag_1.png" alt="개발자 도구로 확인해본 img 태그 모습" />
-    <figcaption>크기 속성은 전혀 없는 걸 볼 수 있다.</figcaption>
+    <figcaption>width, height 속성이 전혀 없는 순정 img 태그의 모습.</figcaption>
 </figure>
 
-그렇다고 지금와서 100개 넘는 글의 `<img>` 태그들을 다 수정할 수는 없었다. 글 하나에 하나의 이미지만 있는 것도 당연히 아니니깐.
+그렇다고 지금 와서 100개가 넘는 글들을 전부 열어서 이미지마다 크기를 적어줄 수는 없었다. <b>자동화가 필요했다</b>.
 
-## <Image\> 태그를 쓰고 싶어요
-내 블로그는 Next.js 기반 웹 페이지이다. Next.js에는 기본 `<img>` 태그 대신에
-자체적으로 제공하는 `<Image>`라는 태그가 존재한다. 
+## Next.js의 <Image\> 태그를 쓰고 싶어요
 
-`<Image>` 태그가 수행하는 기능은 아래와 같다.
+내 블로그는 Next.js 기반이다. Next.js는 일반 `<img>` 태그 대신 사용할 수 있는 강력한 `<Image>` 컴포넌트를 제공한다. 이걸 쓰면 얻을 수 있는 이득은 명확하다.
 
-1. <b>자동 리사이징</b>: 원본을 요청한 기기 화면 크기에 맞춰 같은 사진을 여러 장 생성해둠. (<code>srcset</code>)
-2. <b>포맷 변경</b>: JPG/PNG를 더 가벼운 <b>Webp</b>나 <b>AVIF</b>로 변경해줌.
-3. <b>Lazy Loading</b>: 스크롤이 이미지에 도달할 때 다운로드를 시작함.
+| 기능 | 설명 | 기대 효과 |
+| :--- | :--- | :--- |
+| **자동 리사이징** | 요청한 기기의 화면 크기에 맞춰 적절한 크기의 이미지를 생성 (`srcset`) | 모바일에서 4K 원본을 받는 데이터 낭비 방지 |
+| **최신 포맷 변환** | JPG/PNG를 더 가벼운 **WebP**나 **AVIF**로 자동 변환 | 이미지 용량 대폭 감소 (LCP 개선) |
+| **Lazy Loading** | 뷰포트에 들어올 때까지 이미지 로딩을 지연 | 초기 로딩 속도 향상 및 대역폭 절약 |
+| **CLS 방지** | 이미지 로딩 전 영역을 미리 확보 (`width`/`height` 필수) | 레이아웃이 덜컥거리는 현상 방지 |
 
-위의 기능만 보아도 Next.js 프로젝트라면 반드시 써야 한다는 걸 알 수 있다.
+성능 점수를 깎아먹는 주범인 LCP(Largest Contentful Paint)와 CLS(Cumulative Layout Shift)를 잡으려면 `<Image>` 태그 도입은 필수였다.
 
-현재 나는 이러한 기능을 못 쓰고 있으니 어떻게든 `<Image>` 태그를 적용할 방법을 찾아야 했었다.
+## 1단계: 빌드 타임에 너비와 높이 주입하기
 
-## 결국 너비와 높이가 필요하다
-빌드 시점에서 rehype으로 데이터를 가공할 때 `<img>` 태그만 찾아서 `<Image>` 태그로 바꾸는 함수를 구현해야 했으나, 그보다 먼저 해야할 것은 `<img>` 태그마다 별도의 너비와 높이 속성을 지정해줘야 했었다.
+`<Image>` 태그를 사용하려면 **반드시 `width`와 `height` 속성이 필요하다.** (비율을 계산해서 공간을 확보해야 하니까)
 
-`<Image>` 태그는 너비와 높이 속성이 없으면 동작하지 않기 때문이다. 없다면 부모 태그의 속성에서 찾지만 부모 태그가 뭔지 알고 컨트롤하는 건 말이 안 되기 때문에 이미지별 고유 너비와 높이를 지정해줘야 했었다.
+따라서 마크다운을 HTML로 변환하는 빌드 시점(Build Time)에, 로컬 이미지 파일을 직접 열어서 크기를 잰 다음 `<img>` 태그에 속성으로 박아넣는 작업이 선행되어야 했다.
 
-이를 위해선 `image-size` 라는 패키지를 사용했다. 이 패키지는 파일 시스템으로 읽은 파일 버퍼를 바탕으로 이미지에 대한 여러 메타 정보들을
-`ISizeCalculationResult`라는 객체에 담아 return하는 함수인 `sizeOf()`를 제공한다.
+이를 위해 `image-size` 패키지와 `unist-util-visit`을 사용해서 커스텀 플러그인을 만들었다.
 
-해당 객체에는 `height`와 `width` 속성을 통해서 이미지의 크기를 쉽게 알 수 있다.
-
-또한 각 이미지 태그에 대한 트리 순환을 위해서 이전에 `mermaid` 전처리를 위해 사용했던 `unist-util-visit` 패키지의 `visit()` 함수로
-내가 `element` 속성의 노드 중 이미지 태그에 대해서 크기를 계산하고 직접 부여하는 로직을 구현했다.
+*   `image-size`: 이미지 파일의 버퍼를 읽어 크기(`width`, `height`)를 계산.
+*   `visit()`: HTML 트리(AST)를 순회하며 `<img>` 태그만 골라냄.
 
 ```typescript
-// img 태그 사이즈 지정 함수
+// rehype 플러그인: img 태그에 크기 속성 강제 주입
 function rehypeImage() {
     return (tree: any) => {
         visit(tree, 'element', (node: any) => {
+            // img 태그이면서 로컬 이미지인 경우만 처리
             if (node.tagName === 'img' && node.properties && typeof node.properties.src === 'string') {
-                const src = node.properties.src
-                // 외부 이미지는 크기 계산 불가
-                if (src.startsWith('https')) return;
+                const src = node.properties.src;
+                if (src.startsWith('https')) return; // 외부 이미지는 패스
                 
-                const imgPath = path.join(process.cwd(),'public',src)
+                // 실제 파일 시스템 경로 계산
+                const imgPath = path.join(process.cwd(), 'public', src);
 
                 try {
-                    // 이미지 크기 계산
-                    const buffer = fs.readFileSync(imgPath)
-                    const dim = sizeOf(buffer)
+                    // 이미지 파일을 읽어서 크기 계산
+                    const buffer = fs.readFileSync(imgPath);
+                    const dim = sizeOf(buffer); // image-size 라이브러리
 
+                    // width, height 속성 주입
                     if (dim.height && dim.width) {
-                        node.properties.height = dim.height
-                        node.properties.width = dim.width
+                        node.properties.height = dim.height;
+                        node.properties.width = dim.width;
                     }
                 } catch (err) {
-                    console.error('img 태그 크기 계산 실패: ', src);
+                    console.error('이미지 처리 실패:', src);
                 }
             }
         })
@@ -121,11 +109,76 @@ function rehypeImage() {
 }
 ```
 
-이 함수를 `rehypeRaw()` 뒤에 추가해 태그가 만들어지고 난 뒤 판별하도록 붙였다. 그렇게 하자 아래 사진처럼 이미지 태그에
-크기(너비와 높이) 속성이 생긴 걸 볼 수 있었다.
+이 함수를 `rehypeRaw` 플러그인 뒤에 배치했다. 이제 마크다운 파이프라인을 통과한 HTML 문자열 속 `<img>` 태그들은 자신의 크기 정보를 가지게 되었다.
 
 <figure>
-    <img src="/images/img_tag_2.png" alt="개발자 도구로 확인해본 img 태그 모습" />
-    <figcaption>크기 속성이 확실히 있는 걸 볼 수 있다.</figcaption>
+    <img src="/images/img_tag_2.png" alt="속성이 주입된 img 태그" />
+    <figcaption>이제 width와 height 속성이 확실하게 들어가 있다.</figcaption>
 </figure>
 
+## 2단계: <img\>를 <Image\>로
+
+이제 재료는 준비됐다. 남은 건 HTML 문자열을 화면에 뿌릴 때, `<img>` 태그를 낚아채서 Next.js의 `<Image>` 컴포넌트로 바꿔치기하는 것이다.
+
+기존의 `dangerouslySetInnerHTML` 방식은 문자열을 통째로 렌더링하기 때문에 태그별 조작이 불가능했다. 그래서 **`html-react-parser`** 라이브러리를 도입했다. 이 라이브러리는 HTML 문자열을 React Node로 변환해 주는데, 이 과정에서 특정 태그를 다른 컴포넌트로 교체(`replace`)할 수 있는 강력한 기능을 제공한다.
+
+```tsx
+// components/PostContent.tsx (Server Component)
+import parse, { Element } from "html-react-parser";
+import Image from "next/image";
+
+export default function PostContent({ htmlContent }: { htmlContent: string }) {
+    // 문자열 -> React Node 변환
+    const content = parse(htmlContent, {
+        replace: (domNode) => {
+            // img 태그 발견 시 교체 로직 실행
+            if (domNode instanceof Element && domNode.tagName === 'img') {
+                const { src, alt, width, height } = domNode.attribs;
+
+                // 로컬 이미지이고 크기 정보가 있다면 <Image>로 변환
+                if (src.startsWith('/') && width && height) {
+                    return (
+                        <span className="relative w-full flex justify-center my-8">
+                            <Image 
+                                src={src}
+                                alt={alt || 'image'}
+                                width={parseInt(width, 10)}
+                                height={parseInt(height, 10)}
+                                className="retro-img h-auto" // Tailwind 커스텀 클래스
+                                sizes="(max-width: 768px) 100vw, 700px"
+                                priority={false} 
+                            />
+                        </span>
+                    );
+                }
+            }
+        }
+    });
+
+    return <div className="markdown-body">{content}</div>;
+}
+```
+
+이 컴포넌트는 클라이언트 번들 사이즈를 줄이기 위해 <b>서버 컴포넌트(RSC)</b>로 구현했다. 브라우저는 파싱 로직이나 라이브러리 코드 없이, 변환이 완료된 깔끔한 HTML만 받게 된다.
+
+### 적용된 주요 최적화 옵션
+
+이번 리팩토링에서 `<Image>` 태그에 적용한 주요 속성들은 다음과 같다.
+
+| 속성 | 값 (Example) | 역할 및 최적화 포인트 |
+| :--- | :--- | :--- |
+| **sizes** | `(max-width: 768px) 100vw, 700px` | **가장 중요한 옵션.** 브라우저에게 "모바일이면 화면 꽉 차게, PC면 700px로 보여줄 거야"라고 미리 알려줌. 브라우저는 이에 맞춰 **가장 적절한 용량의 이미지**를 골라서 다운로드함. |
+| **priority** | `true` / `false` | LCP 요소(보통 첫 번째 이미지)에는 `true`를 줘서 우선순위를 높이고, 나머지는 `false`로 Lazy Loading을 적용함. |
+| **quality** | `75` (기본값) | 이미지 품질을 조절하여 용량을 줄임. (필요시 조정 가능) |
+| **placeholder**| `blur` | 이미지가 로드되기 전 흐릿한 미리보기를 보여줘 사용자 경험(UX) 개선. |
+
+## 마무리
+
+이렇게 해서 <b>마크다운 파싱 → 이미지 크기 계산 → HTML 변환 → React 컴포넌트 교체</b>로 이어지는 이미지 최적화 파이프라인을 완성했다.
+
+<figure>
+    <img src="/images/img_tag_3.png" alt="수정 후 lighthouse 점수" />
+    <figcaption>lcp 점수는 아직도 좀 낮지만, fcp 점수가 대폭 상승했다.</figcaption>
+</figure>
+
+LCP 점수가 좀 아쉽지만 결론적으로 Lighthouse 점수 개선은 물론, 사용자가 블로그에 들어왔을 때 이미지가 덜컥거리지 않고 부드럽게 뜨는 쾌적한 경험을 제공할 수 있게 되었다. 100개의 글을 일일이 수정하지 않고 기술적으로 해결해서 더욱 뿌듯하다.

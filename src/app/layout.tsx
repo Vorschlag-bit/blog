@@ -2,12 +2,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import Image from "next/image";
 import ThemeContainer from "@/components/ThemeContainer";
-import { LoadingProvider } from "@/context/LoadingContext";
-import GlobalLoader from "@/components/GlobalLoader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { getJSONArrayForSearch } from "@/lib/posts";
 import SearchModal from "@/components/SearchModal";
-import { Suspense } from "react";
 import Link from "next/link";
 import "./globals.css";
 import "highlight.js/styles/github-dark.css";
