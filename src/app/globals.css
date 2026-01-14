@@ -120,6 +120,17 @@ body {
     .prose tbody tr:hover {
         @apply bg-blue-50 dark:bg-blue-900/30 transition-colors cursor-default;
     }
+
+    .retro-img {
+        @apply border-2 object-contain max-w-[80%];
+        color: rgba(0,0,0,1) !important;
+        border-color: currentColor;
+        box-shadow: 4px 4px 0px 0px currentColor;
+    }
+
+    .dark .retro-img {
+        color: rgba(255,255,255,0.5) !important;
+    }
 }
 
 /* 크롬, 사파리에서 기본 삼각형 제거 */
@@ -166,16 +177,6 @@ button, .border {
     color: inherit !important;
     padding: 0 !important; 
     font-family: inherit;
-}
-
-.prose img {
-    max-width: 80%;
-    height: auto;
-    display: block; 
-
-    /* Retro 감성 */
-    border: 2px solid currentColor;
-    box-shadow: 4px 4px 0px currentColor;
 }
 
 /* 두 번째 줄 끝에 콤마(,) 추가 */

@@ -13,7 +13,7 @@ export interface PostData {
     category: string;
     description: string | '내용 없음';
     content?: string;               // 순수 검색용
-    htmlContent?: string;           // 상세 페이지용
+    htmlContent: string;           // 상세 페이지용
     [key: string]: any;             // 그 외 메타데이터 허용
 }
 

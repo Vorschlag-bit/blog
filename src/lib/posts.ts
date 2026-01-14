@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
+import { cache } from 'react';
 
 // 수학 공식 이쁘게 표현하기 위한 라이브러리 import
 import remarkMath from 'remark-math';
@@ -19,6 +20,7 @@ import rehypeExternalLinks from 'rehype-external-links';
 
 // mermaid 문법 적용을 위한 커스텀 플러그인을 위한 라이브러리 import
 import { visit } from 'unist-util-visit';
+import sizeOf from 'image-size'
 
 // 타입 추가
 import { PostData,CategoryData,PaginatedResult } from '@/types/post_type';
@@ -29,6 +31,36 @@ const postsDirectory = path.join(process.cwd(), 'posts')
 
 // 날짜순으로 정렬된 post list 전역 변수
 export const dateSortedAllPosts = getSortedPostsData();
+
+// img 태그 사이즈 지정 함수
+function rehypeImage() {
+    return (tree: any) => {
+        visit(tree, 'element', (node: any) => {
+            if (node.tagName === 'img' && node.properties && typeof node.properties.src === 'string') {
+                const src = node.properties.src
+                // 외부 이미지는 크기 계산 불가
+                if (src.startsWith('https')) return;
+                // console.log('img 태그 발견, src: ', src);
+                
+                const imgPath = path.join(process.cwd(),'public',src)
+
+                try {
+                    // 이미지 크기 계산
+                    const buffer = fs.readFileSync(imgPath)
+                    const dim = sizeOf(buffer)
+                    // console.log('읽은 buffer의 크기: ', dim);
+
+                    if (dim.height && dim.width) {
+                        node.properties.height = dim.height
+                        node.properties.width = dim.width
+                    }
+                } catch (err) {
+                    console.error('img 태그 크기 계산 실패: ', src);
+                }
+            }
+        })
+    }
+}
 
 function remarkMermaidToHTML() {
     return (tree: any) => {
@@ -77,7 +109,7 @@ export function getSortedPostsData(): PostData[] {
 }
 
 // id(파일 이름)을 받아서 해당 글의 데이터를 가져오는 함수 (remark 비동기)
-export async function getPostData(id: string): Promise<PostData | null> {
+export const getPostData = cache(async(id: string): Promise<PostData | null> => {
     // Path Traversal 방지 (id에 슬래시나 파일 시스템 탐색 시도 차단)
     if (id.includes('/') || id.includes('\\') || id.includes('..')) return null;
 
@@ -94,6 +126,7 @@ export async function getPostData(id: string): Promise<PostData | null> {
         .use(remarkGfm)
         .use(remarkRehype, { allowDangerousHtml: true }) // md -> HTML로 변경
         .use(rehypeRaw)
+        .use(rehypeImage)
         .use(rehypeExternalLinks, {
             target: '_blank',
             rel: ['noopener', 'noreferrer'],
@@ -117,14 +150,14 @@ export async function getPostData(id: string): Promise<PostData | null> {
             category: metadata.category || '기타',
             description: metadata.description
         }
-
+        
         // 데이터와 HTML 내용을 합쳐서 반환
         return postData
     } catch (error) {
         console.error(`Error reading post id -> ${id}: `, error);
         return null;
     }
-}
+})
 
 export function getPostsByCategory(category: string) {
     // filter 함수로 조건에 맞는 것만 남기기

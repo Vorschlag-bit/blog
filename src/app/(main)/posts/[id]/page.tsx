@@ -7,13 +7,12 @@ import Link from "next/link";
 // 현재 id를 기반으로 이전,이후 글 정보를 가져오는 함수
 import { getPreNextPost } from "@/lib/posts";
 import PostNavigator from "@/components/page/PostNavigator";
-// redis 조회 수 증가 server action 비동기로 호출하는 클라이언트 컴포넌트
-import ViewCounter from "@/components/main/ViewCounter";
 // hash 존재 시, 스크롤 이동하도록 만드는 함수
 // mermaid Util
 import MermaidInit from "@/app/utils/mermaidInit";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import PostContent from "@/components/main/PostContent";
 
 // Params Interface 정의
 interface PageProps {
@@ -83,10 +82,9 @@ export default async function Post({ params }: PageProps) {
                     <p className="text-xs md:text-base text-gray-600 lg:mb-8 mb-3">{postData.date}</p>
                     {/** 3. HTML 문자열을 실제 HTML로 랜더링하는 리액트 문법 */}
                     {/** React는 보안 떄문에 HTML 태그를 보여주지 않고 글자 그대로 보여줌, 그걸 무시하기 위한 문법 */}
-                    <div
-                    className="prose prose-sm md:prose-lg dark:prose-invert"
-                    dangerouslySetInnerHTML={{ __html: postData.htmlContent || ""}}
-                    />
+                    <div className="prose prose-sm md:prose-lg dark:prose-invert">
+                        <PostContent htmlContent={postData.htmlContent} />
+                    </div>
                     {/** CodeBlockManager 추가 */}
                     <CodeBlockManager />
                     {/* 이전/이후 글 Navigator 추가 */}

@@ -1,5 +1,3 @@
-"use client";
-
 interface RetroWindowProps {
     children: React.ReactNode;
     title: string | "Untitled";
@@ -9,7 +7,7 @@ interface RetroWindowProps {
 export default function RetroWindow({ children, title, className }: RetroWindowProps) {
     return (
         // 1. 창틀 (검은 테두리 + 그림자)
-        <div suppressHydrationWarning className={`border-2 border-black dark:border-gray-400 bg-white 
+        <div className={`border-2 border-black dark:border-gray-400 bg-white 
         dark:bg-gray-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)] ${className}`}>
             {/** 2. 타이틀 바 (파란색 or 회색 배경) */}
             <div suppressHydrationWarning className="border-b-2 border-black dark:border-gray-400 bg-blue-100 dark:bg-gray-800 p-2
