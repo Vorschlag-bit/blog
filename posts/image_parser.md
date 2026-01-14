@@ -64,7 +64,7 @@ export async function getPostData(id: string): Promise<PostData | null> {
 
 그렇다고 지금와서 100개 넘는 글의 `<img>` 태그들을 다 수정할 수는 없었다. 글 하나에 하나의 이미지만 있는 것도 당연히 아니니깐.
 
-## <\Image> 태그를 쓰고 싶어요
+## <Image\> 태그를 쓰고 싶어요
 내 블로그는 Next.js 기반 웹 페이지이다. Next.js에는 기본 `<img>` 태그 대신에
 자체적으로 제공하는 `<Image>`라는 태그가 존재한다. 
 
@@ -81,9 +81,51 @@ export async function getPostData(id: string): Promise<PostData | null> {
 ## 결국 너비와 높이가 필요하다
 빌드 시점에서 rehype으로 데이터를 가공할 때 `<img>` 태그만 찾아서 `<Image>` 태그로 바꾸는 함수를 구현해야 했으나, 그보다 먼저 해야할 것은 `<img>` 태그마다 별도의 너비와 높이 속성을 지정해줘야 했었다.
 
-`<Image>` 태그는 너비와 높이 속성이 없으면 동작하지 않기 때문이다. 없다면 부모 태그의 속성에서 찾지만 그건 말도 안 되기 때문에 이미지별 고유 너비와 높이를 지정해줘야 했었다.
+`<Image>` 태그는 너비와 높이 속성이 없으면 동작하지 않기 때문이다. 없다면 부모 태그의 속성에서 찾지만 부모 태그가 뭔지 알고 컨트롤하는 건 말이 안 되기 때문에 이미지별 고유 너비와 높이를 지정해줘야 했었다.
+
+이를 위해선 `image-size` 라는 패키지를 사용했다. 이 패키지는 파일 시스템으로 읽은 파일 버퍼를 바탕으로 이미지에 대한 여러 메타 정보들을
+`ISizeCalculationResult`라는 객체에 담아 return하는 함수인 `sizeOf()`를 제공한다.
+
+해당 객체에는 `height`와 `width` 속성을 통해서 이미지의 크기를 쉽게 알 수 있다.
+
+또한 각 이미지 태그에 대한 트리 순환을 위해서 이전에 `mermaid` 전처리를 위해 사용했던 `unist-util-visit` 패키지의 `visit()` 함수로
+내가 `element` 속성의 노드 중 이미지 태그에 대해서 크기를 계산하고 직접 부여하는 로직을 구현했다.
+
+```typescript
+// img 태그 사이즈 지정 함수
+function rehypeImage() {
+    return (tree: any) => {
+        visit(tree, 'element', (node: any) => {
+            if (node.tagName === 'img' && node.properties && typeof node.properties.src === 'string') {
+                const src = node.properties.src
+                // 외부 이미지는 크기 계산 불가
+                if (src.startsWith('https')) return;
+                
+                const imgPath = path.join(process.cwd(),'public',src)
+
+                try {
+                    // 이미지 크기 계산
+                    const buffer = fs.readFileSync(imgPath)
+                    const dim = sizeOf(buffer)
+
+                    if (dim.height && dim.width) {
+                        node.properties.height = dim.height
+                        node.properties.width = dim.width
+                    }
+                } catch (err) {
+                    console.error('img 태그 크기 계산 실패: ', src);
+                }
+            }
+        })
+    }
+}
+```
+
+이 함수를 `rehypeRaw()` 뒤에 추가해 태그가 만들어지고 난 뒤 판별하도록 붙였다. 그렇게 하자 아래 사진처럼 이미지 태그에
+크기(너비와 높이) 속성이 생긴 걸 볼 수 있었다.
 
 <figure>
     <img src="/images/img_tag_2.png" alt="개발자 도구로 확인해본 img 태그 모습" />
     <figcaption>크기 속성이 확실히 있는 걸 볼 수 있다.</figcaption>
 </figure>
+

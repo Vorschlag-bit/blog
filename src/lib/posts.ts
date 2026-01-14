@@ -139,7 +139,7 @@ export const getPostData = cache(async(id: string): Promise<PostData | null> => 
 
         const htmlContent = processedContent.toString()
 
-        console.log(htmlContent)
+        // console.log(htmlContent)
         const metadata = matterResult.data as any
 
         const postData: PostData = {
