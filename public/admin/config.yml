@@ -2,7 +2,9 @@ backend:
   name: github
   repo: Vorschlag-bit/blog
   branch: main
+  # 로컬 환경 테스트
   base_url: https://vorschlag-blog.vercel.app/
+  auth_endpoint: api/auth
 
 media_folder: "public/images"
 public_folder: "/images"
@@ -17,4 +19,5 @@ collections:
       - {label: "Title", name: "title", widget: "string"}
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "Category", name: "category", widget: "string"}
+      - {label: "Description", name: "description", widget: "string"}
       - {label: "Body", name: "body", widget: "markdown"}
