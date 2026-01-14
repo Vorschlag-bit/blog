@@ -1,0 +1,20 @@
+backend:
+  name: github
+  repo: Vorschlag-bit/blog
+  branch: main
+  base_url: https://vorschlag-blog.vercel.app/
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "posts"
+    label: "Blog Posts"
+    folder: "posts" # 마크다운 파일이 저장되는 실제 폴더 경로
+    create: true
+    slug: "{{slug}}" # 파일명 규칙
+    fields: # 마크다운 Frontmatter랑 1:1 매칭 시킴
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "Category", name: "category", widget: "string"}
+      - {label: "Body", name: "body", widget: "markdown"}
