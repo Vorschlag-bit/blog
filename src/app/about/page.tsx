@@ -107,10 +107,10 @@ export default async function AboutPage() {
            </div>
            {/* 그래프 영역 */}
            <div className="flex flex-col items-center">
-            <LighthouseCircle score={90} label="Performance" size={150} strokeWidth={8} />
+            <LighthouseCircle score={93} label="Performance" size={150} strokeWidth={8} />
             <div className="flex justify-around w-full gap-2 mt-2">
               <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-green-500">1.2s</span>
+                <span className="text-2xl font-bold text-green-500">0.5s</span>
                 <span className="text-xs text-gray-500">FCP</span>
               </div>
               <div className="w-[1px] h-8 bg-gray-300"></div>
