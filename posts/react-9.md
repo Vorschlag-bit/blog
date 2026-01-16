@@ -4,7 +4,7 @@ date: "2025-12-31 20:55:52"
 category: "React"
 description: "Next.js가 새로 제시한 패턴인 use server에 대해서 알아보자."
 ---
-<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
+<img src="/images/react_icon.svg" alt="React 로고" />
 
 ## 1. 패러다임의 변화: "API 없어도 된다"
 지금까지 데이터를 요청하거나 수정하는 작업을 해야 할 때는 늘 똑같은 패턴을 반복했었다.  

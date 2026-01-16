@@ -4,7 +4,7 @@ date: "2025-12-30 14:32:58"
 category: "React"
 description: "성능에서 가장 중요한 데이터 fetching 전략과 캐싱 방법에 대해서 알아보자."
 ---
-<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
+<img src="/images/react_icon.svg" alt="React 로고" />
 
 ## 1. 폭포수(Waterfall) 현상 막기
 서버 컴포넌트에서 `await`를 쓸 수 있게 되면서 흔하게 저지르는 실수가 있다. 바로 요청을 <b>순차적으로(Sequential)</b> 보내는 것이다.  

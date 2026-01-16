@@ -4,7 +4,7 @@ date: "2026-01-06 15:30:12"
 category: "React"
 description: "리스트 렌더링 시 Key가 필요한 이유와 배열의 Index를 Key로 사용했을 때 발생하는 문제점에 대해 알아보자."
 ---
-<img src="/images/react_icon.svg" alt="React 로고" width="400" height="400" />
+<img src="/images/react_icon.svg" alt="React 로고" />
 
 ## React에서 Key란 무엇인가?
 React로 개발을 하다 보면 배열을 `map()` 함수로 순회하여 화면에 그릴 때가 많다. 이때 `key` props를 넘겨주지 않으면 콘솔 창에 빨간색 경고 메시지가 뜨는 것을 본 적이 있을 것이다.

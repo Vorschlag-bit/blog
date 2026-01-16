@@ -5,7 +5,7 @@ category: "JavaScript"
 description: "호이스팅 현상의 원리와, 화살표 함수가 단순히 코드만 줄여주는 것이 아니라는 사실을 알아보자."
 ---
 
-<img src="/images/js.svg" class="w-[20rem] h-[20rem]" alt="Javascript 로그 사진">
+<img src="/images/js.svg" alt="Javascript 로그 사진">
 
 ## 자바스크립트의 알쏭달쏭한 동작들
 
