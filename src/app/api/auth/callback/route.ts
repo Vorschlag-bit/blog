@@ -27,15 +27,13 @@ export async function GET(request: NextRequest) {
         const token = result.access_token
 
         const message = JSON.stringify({ token }); 
-        
-        const origin = request.headers.get('referer') || '*';
 
         const script = `
         <script>
             const receiveMsg = (msg) => {
                 window.opener.postMessage(
                     'authorization:github:success:${message}',
-                    '${origin}'
+                    window.location.origin
                 );
                 window.removeEventListener('message', receiveMsg, false);
             }

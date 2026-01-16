@@ -1,0 +1,50 @@
+/* 1. 폰트 등 전역 설정 */
+/* VS Code 프리뷰의 body 클래스는 .vscode-body 입니다 */
+.vscode-body {
+  background-color: red !important;
+  font-family: 'Galmuri11', sans-serif !important;
+  padding: 2rem;
+  color: #1a1a1a;
+  max-width: 100% !important; 
+}
+
+/* 2. 헤딩 태그 */
+h1, h2, h3, h4 {
+  font-weight: bold;
+  color: #000;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid currentColor; /* 레트로 밑줄 추가 */
+}
+
+h1 { font-size: 2.25em; border-bottom-style: double; border-bottom-width: 4px; }
+h2 { font-size: 1.75em; }
+h3 { font-size: 1.5em; border-bottom-style: dashed; }
+h4 { font-size: 1.25em; border: none; color: #555; }
+
+/* 3. 이미지 레트로 스타일 */
+img {
+  display: block;
+  max-width: 80% !important; /* !important 권장 */
+  height: auto;
+  margin: 2rem auto; /* 가운데 정렬 */
+  
+  /* 레트로 스타일 */
+  border: 2px solid currentColor; 
+  box-shadow: 4px 4px 0px 0px currentColor;
+}
+
+/* 4. 인용구 */
+blockquote {
+  border-left: 4px solid currentColor;
+  background-color: rgba(0,0,0,0.05); /* 배경색 투명도 조절 */
+  padding: 1rem;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+/* 5. (선택사항) 다크모드 대응 */
+body.vscode-dark, body.vscode-high-contrast {
+  color: #e5e5e5;
+}

@@ -3,7 +3,8 @@ backend:
   repo: Vorschlag-bit/blog
   branch: main
   # 로컬 환경 테스트
-  base_url: https://vorschlag-blog.vercel.app/
+  base_url: http://localhost:3000
+  # base_url: https://vorschlag-blog.vercel.app/
   auth_endpoint: api/auth
 
 media_folder: "public/images"

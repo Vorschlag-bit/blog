@@ -51,7 +51,7 @@ export default async function getArea({ lng,lat }: getAreaParams) {
         
     try {
         const res = await fetch(url, { 
-            next: { revalidate: 900 } 
+            cache: "no-store"
         });
 
         if (!res.ok) {

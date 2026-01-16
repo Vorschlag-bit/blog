@@ -1,4 +1,4 @@
-import getWeather from "@/app/action/weather";
+import { getSeoulWeather } from "@/app/action/weather";
 import WeatherWidget from "./WeatherWidget";
 /**
  * 서버 컴포넌트의 기능만을 수행하는 보이진 않는 컴포넌트입니다.
@@ -9,12 +9,10 @@ import WeatherWidget from "./WeatherWidget";
  * @returns 
  */
 
-// 서울 기상 관측소 좌표
-const SEOUL_CODE = { nx: '60', ny: '127' }
 
 export default async function WeatherContainer() {
     // 기본값으로 종로구 송월동에 위치한 '서울 기상 관측소' 날씨 제공
-    const data = await getWeather({cx: SEOUL_CODE.nx, cy: SEOUL_CODE.ny, type: "xy"})
+    const data = await getSeoulWeather()
     // console.log('WeatherContainer에서 받은 데이터: ', data);
     
     return (

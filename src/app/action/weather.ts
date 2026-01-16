@@ -1,6 +1,7 @@
 "use server"
 import { dfs_xy_conv } from "@/app/utils/positionConverter"
 import { WeatherData } from "@/types/weather_type";
+import { unstable_cache } from "next/cache";
 
 // 매개변수 타입 정의
 interface GetWeatherParams {
@@ -31,6 +32,22 @@ interface WeatherApiItem {
     fcstDate?: string;
     fcstTime?: string;
 }
+
+// 서울 기상 관측소 좌표
+const SEOUL_CODE = { nx: '60', ny: '127' }
+
+export const getSeoulWeather = unstable_cache(
+    async () => {
+        console.log(' [Cache MISS] - 서울 날씨 새로 조회 (write 발생!)');
+        return await getWeather({ cx: SEOUL_CODE.nx, cy: SEOUL_CODE.ny, type: "xy" })
+    },
+    ['global-seoul-weather-v1'],
+    {
+        revalidate: 3600,
+        tags: ['weather']
+    }
+)
+
 
 /**
  * 좌표(x,y)를 기반으로 기상청 API를 호출하고 return 받은 걸 그대로 return 하는 함수입니다.
@@ -100,10 +117,11 @@ export default async function getWeather({ cx, cy, type="xy" }: GetWeatherParams
     // console.log(`단기 예보 URL: ${url_srt}`);
 
     try {
+        const fetchOption: RequestInit = { cache: "no-store" }
         const [resLive, resFcst, resSrt] = await Promise.all([
-            fetch(url_live, { next: { revalidate: 600 } }),
-            fetch(url_fcst, { next: { revalidate: 600 } }),
-            fetch(url_srt, { next: { revalidate: 900 } })
+            fetch(url_live, fetchOption),
+            fetch(url_fcst, fetchOption),
+            fetch(url_srt, fetchOption)
         ])
 
         // res 상태 체크 및 안전한 Json 파싱 함수(text -> json)

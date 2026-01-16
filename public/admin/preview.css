@@ -1,0 +1,44 @@
+/* 1. 폰트 설정 (갈무리) */
+@import url('https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css');
+
+body {
+  font-family: 'Galmuri11', sans-serif;
+}
+
+/* 2. 본문 컨테이너 (Tailwind Typography 보정) */
+.prose {
+  max-width: 100% !important; 
+  padding: 2rem;
+  color: #1a1a1a;
+}
+
+/* 3. 헤딩 태그 (H1 ~ H4) 스타일 */
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-weight: bold;
+  color: #000;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.3em;
+}
+
+.prose h1 { font-size: 2.25em; }
+.prose h2 { font-size: 1.75em; }
+.prose h3 { font-size: 1.5em;  }
+.prose h4 { font-size: 1.25em; border: none; color: #555; }
+
+/* 4. 이미지 레트로 스타일 */
+.prose img {
+  display: block;
+  max-width: 80%;    
+  height: auto;  
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0px 0px #000;
+}
+
+/* 5. 인용구 (Blockquote) */
+.prose blockquote {
+  border-left: 4px solid #000;
+  background-color: #f3f4f6;
+  padding: 1rem;
+  font-style: italic;
+}

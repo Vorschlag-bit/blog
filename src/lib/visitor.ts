@@ -30,5 +30,5 @@ export const getCachedCounts = unstable_cache(
         };
     },
     ['visitor-counts'],     // 캐시 키(고유한 문자열)
-    { revalidate: 600 }             // 10분 TTL
+    { revalidate: 3600 }             // 10분 TTL
 );

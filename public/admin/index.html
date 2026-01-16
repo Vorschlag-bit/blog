@@ -7,7 +7,32 @@
   <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url">
 </head>
 <body>
-  <!-- Decap CMS 스크립트 로드 -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  
+  <script>
+    // 1. Tailwind CSS (Typography 플러그인 포함) 불러오기
+    CMS.registerPreviewStyle("https://cdn.tailwindcss.com?plugins=typography");
+    
+    // 2. 아까 만든 커스텀 CSS 불러오기
+    CMS.registerPreviewStyle("/admin/preview.css");
+
+    // 3. React 컴포넌트로 프리뷰 템플릿 만들기
+    var PostPreview = createClass({
+      render: function() {
+        var entry = this.props.entry;
+        var title = entry.getIn(['data', 'title']);
+        // var date = entry.getIn(['data', 'date']); //
+
+        // 4. 렌더링 (div.prose 안에 타이틀과 본문을 넣음)
+        return h('div', { className: 'prose prose-lg' },
+          h('h1', {}, title),
+          this.props.widgetFor('body') // 마크다운 본문이 HTML로 변환되어 들어감
+        );
+      }
+    });
+
+    // 4. 'posts' 컬렉션에 프리뷰 적용
+    CMS.registerPreviewTemplate("posts", PostPreview);
+  </script>
 </body>
 </html>
