@@ -34,8 +34,8 @@ export const getRank = unstable_cache(
         return rankingData;
     },
     ['post_ranking'],
-    // 캐시 1시간
-    { revalidate: 3600 }
+    // 캐시 24시간
+    { revalidate: 86400 }
 )
 
 export async function IncrementRank(id: string) {

@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import getWeather from "@/app/action/weather";
-import getArea from "@/app/action/area";
+import { getArea } from "@/app/action/area";
 import Image from "next/image";
 import { WeatherData } from "@/types/weather_type";
 import { weatherIconMap } from "@/assets/index/weatherIndex";
