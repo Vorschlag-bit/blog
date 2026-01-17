@@ -24,11 +24,11 @@ export default function BuildingLogs({ posts }: BuildingLogsProps){
                     <div className="flex gap-2 sm:flex-row sm:items-center">
                     <span className="text-gray-500 min-w-[100px]">{`[${post.date.split(' ')[0]}]`}</span>
                     <Link href={`/posts/${post.id}`} className="flex flex-col"
-                          target="_blank" rel="noopener noreferrer"
+                        target="_blank" rel="noopener noreferrer" prefetch={false}
                     >
-                      <span className="text-yellow-400 font-bold group-hover:underline">{`${post.title}`}</span>
+                    <span className="text-yellow-400 font-bold group-hover:underline">{`${post.title}`}</span>
                     </Link>
-                  </div>
+                    </div>
                 </li>
             ))}
 

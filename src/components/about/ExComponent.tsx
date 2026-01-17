@@ -31,7 +31,7 @@ export default function ExComponent() {
                         <li>
                         <span>
                             <b>Server Component Wrapper:</b> 초기 렌더링은 서버에서 처리하여 로딩 없는 즉각적 화면 제공 (SSR)
-                            <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/weather_refactor'} target="_blank" rel="noopener noreferrer">
+                            <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/weather_refactor'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                             <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                             </Link>
                         </span>
@@ -39,7 +39,7 @@ export default function ExComponent() {
                         <li>
                         <span>
                             <b>Server Actions & Caching:</b> 좌표 소수점 반올림(3자리)을 통해 캐시 적중률(Hit Rate)을 높여 API 호출 최소화
-                            <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/weather#위치-데이터-캐싱'} target="_blank" rel="noopener noreferrer">
+                            <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/weather#위치-데이터-캐싱'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                             <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                             </Link>
                         </span>
@@ -85,7 +85,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>RSC 전환:</b> 데이터 가공 로직 서버 이관
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#1-쓰기write---ssg-환경에서의-딜레마와-해결'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#1-쓰기write---ssg-환경에서의-딜레마와-해결'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>
@@ -93,7 +93,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>Zero Bundle Size:</b> HTML만 전송하여 JS 최소화
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#정리--비교-분석'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#정리--비교-분석'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>
@@ -101,7 +101,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>Parallel Fetching:</b> API Waterfall 제거로 병렬 데이터 fetching
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#정리--비교-분석'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/rank_refactor#정리--비교-분석'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>
@@ -145,7 +145,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>Breakpoints:</b> 모바일/태블릿/PC 분기 처리
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/layout_refactor#4-메인-layoutjs의-header와-footer'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/layout_refactor#4-메인-layoutjs의-header와-footer'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>
@@ -153,7 +153,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>Layout Shift 방지:</b> 디바이스별 레이아웃 통일
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/layout_refactor#1-tailwind의-브레이크-포인트-기준점'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/layout_refactor#1-tailwind의-브레이크-포인트-기준점'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>
@@ -161,7 +161,7 @@ export default function ExComponent() {
                             <li>
                                 <span>
                                 <b>Conditional UI:</b> 모바일 사이드바 숨김 및 메뉴 최적화
-                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/layout_refactor#1-카테고리-모음-컴포넌트-categorylistjs'} target="_blank" rel="noopener noreferrer">
+                                <Link className="inline-flex items-center align-middle ml-1 mb-1" href={'/posts/layout_refactor#1-카테고리-모음-컴포넌트-categorylistjs'} target="_blank" rel="noopener noreferrer" prefetch={false}>
                                 <svg className="w-5 text-blue-600" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M21 11V3h-8v2h4v2h-2v2h-2v2h-2v2H9v2h2v-2h2v-2h2V9h2V7h2v4h2zM11 5H3v16h16v-8h-2v6H5V7h6V5z" fill="currentColor"/> </svg>
                                 </Link>
                             </span>

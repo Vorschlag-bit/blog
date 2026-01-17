@@ -100,6 +100,7 @@ export default function SearchModal({ posts }: SearchModalParams) {
                                     href={`/posts/${post.id}`} 
                                     className="block p-2 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                                     onClick={() => setIsOpen(false)}
+                                    prefetch={false}
                                 >
                                     <div className="font-bold text-lg dark:text-white truncate">{post.title}</div>
                                     <div className="text-sm text-gray-500 flex gap-2 mb-1">

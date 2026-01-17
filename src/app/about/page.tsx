@@ -79,7 +79,7 @@ export default async function AboutPage() {
                   <div className="text-xs lg:text-base flex items-center gap-2" >
                       <svg className="w-5 lg:w-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path fill="currentColor" d="M5 2h4v2H7v2H5V2Zm0 10H3V6h2v6Zm2 2H5v-2h2v2Zm2 2v-2H7v2H3v-2H1v2h2v2h4v4h2v-4h2v-2H9Zm0 0v2H7v-2h2Zm6-12v2H9V4h6Zm4 2h-2V4h-2V2h4v4Zm0 6V6h2v6h-2Zm-2 2v-2h2v2h-2Zm-2 2v-2h2v2h-2Zm0 2h-2v-2h2v2Zm0 0h2v4h-2v-4Z"/> </svg>
                       <span>Github: </span>
-                      <Link href={'https://github.com/Vorschlag-bit'}>github.com/Vorschlag-bit</Link>
+                      <Link href={'https://github.com/Vorschlag-bit'} prefetch={false}>github.com/Vorschlag-bit</Link>
                   </div>
                   <div className="text-xs lg:text-base flex items-center gap-2">
                       <svg className="w-5 lg:w-7" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M22 4H2v16h20V4zM4 18V6h16v12H4zM8 8H6v2h2v2h2v2h4v-2h2v-2h2V8h-2v2h-2v2h-4v-2H8V8z" fill="currentColor"/> </svg>
@@ -88,7 +88,7 @@ export default async function AboutPage() {
                   <div className="text-xs lg:text-base flex items-center gap-2">
                       <svg className="w-5 lg:w-7" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M2 3h20v18H2V3zm18 16V7H4v12h16z" fill="currentColor"/> </svg>  
                       <span>Blog: </span>
-                      <Link href={'https://github.com/Vorschlag-bit'}>vorschlag-blog.vercel.app</Link>
+                      <Link href={'https://github.com/Vorschlag-bit'} prefetch={false}>vorschlag-blog.vercel.app</Link>
                   </div>
               </div>
           </div>
@@ -99,14 +99,14 @@ export default async function AboutPage() {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* 성능 지표 (Lighthouse) */}
         <div className={`col-span-1 border-2 p-4 ${pixelShadow}`}>
-           <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center">
               <svg className="w-7 -mt-2" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M3 3h18v18H3V3zm16 2H5v14h14V5zM7 12h2v5H7v-5zm10-5h-2v10h2V7zm-6 3h2v2h-2v-2zm2 4h-2v3h2v-3z" fill="currentColor"/> </svg>
               <span className="font-bold mb-2 -mt-1">
                 System Status
               </span>
-           </div>
+          </div>
            {/* 그래프 영역 */}
-           <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center">
             <LighthouseCircle score={93} label="Performance" size={150} strokeWidth={8} />
             <div className="flex justify-around w-full gap-2 mt-2">
               <div className="flex flex-col items-center">
@@ -124,17 +124,17 @@ export default async function AboutPage() {
                 <span className="text-xs text-gray-500">SEO</span>
               </div>
             </div>
-           </div>
+          </div>
         </div>
 
         {/* 기술 스택 */}
         <div className={`col-span-1 md:col-span-2 border-2 p-4 ${pixelShadow}`}>
           <div className="flex items-center gap-1">
             <svg className="w-7 h-7 -mt-3" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M3 3h2v18H3V3zm16 0H5v2h14v14H5v2h16V3h-2zm-8 6h2V7h-2v2zm2 8h-2v-6h2v6z" fill="currentColor"/> </svg>
-             <span className="-mt-2 mb-2 font-bold">Tech Inventory</span>
+              <span className="-mt-2 mb-2 font-bold">Tech Inventory</span>
           </div>
-           {/* 아이콘들 */}
-           <TechInventory techStack={TECH_STACK} categories={CATEGORIES} />
+          {/* 아이콘들 */}
+          <TechInventory techStack={TECH_STACK} categories={CATEGORIES} />
         </div>
       </section>
 

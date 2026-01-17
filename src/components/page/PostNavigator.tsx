@@ -38,6 +38,7 @@ function PostCard({ post, type }: PostCardProps) {
         <Link 
             href={`/posts/${post.id}`} 
             className="flex-1 min-w-0 group"
+            prefetch={false}
         >
             <div className={`
                 h-full p-2 lg:p-4 rounded-lg

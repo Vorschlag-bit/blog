@@ -46,7 +46,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 `}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <Link href={`categories/${category}`}>
+                  <Link href={`categories/${category}`} prefetch={false} > 
                     {/* 뱃지도 픽셀 스타일 (rounded 제거) */}
                     <span className="bg-blue-100 text-blue-800 text-xs px-1 lg:px-2 py-1 border-1 lg:border-2 border-blue-200 hover:underline cursor-pointer dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700">
                       {category}
@@ -54,7 +54,7 @@ export default async function Home({ searchParams }: HomeProps) {
                   </Link>
                   <p className="text-gray-500 text-xs lg:text-sm">{date}</p>
                 </div>
-                <Link href={`posts/${id}`}>
+                <Link href={`posts/${id}`} prefetch={false} >
                   <h2 className="text-base md:text-xl lg:text-2xl font-bold text-blue-600 cursor-pointer dark:text-blue-400 gap-2">
                     {title}
                   </h2>

@@ -46,7 +46,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                     {posts.map(({ id,title,date,description }) => (
                         <li key={id} className="border p-2 lg:p-4 shadow-sm hover:shadow-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                             <p className="text-gray-500 text-xs md:text-sm mb-1">{date}</p>
-                            <Link href={`/posts/${id}`}>
+                            <Link href={`/posts/${id}`} prefetch={false} >
                                 <h2 className="lg:text-2xl font-bold text-blue-600">{title}</h2>
                             </Link>
                             <p className="text-xs lg:text-base lg:mt-2 text-gray-600 dark:text-gray-400">{description}</p>
