@@ -1,5 +1,7 @@
 "use server"
 
+import { unstable_cache } from "next/cache";
+
 interface getAreaParams {
     lng: string;
     lat: string
@@ -24,7 +26,7 @@ interface VWORLDResponse {
  * 위/경도를 기반으로 VWORLD에서 사용자 위치 정보를 return 하는 함수입니다.
  * 문자열 --시 --구 --동 중 --구 --동을 return합니다.
  */
-export default async function getArea({ lng,lat }: getAreaParams) {    
+export const getArea = unstable_cache(async ({ lng,lat }: getAreaParams) => {    
     if (!lat || !lng) {
         console.error('좌표 누락 - lng/lag가 없음: ', lng,lat);
         return ""
@@ -50,9 +52,7 @@ export default async function getArea({ lng,lat }: getAreaParams) {
     
         
     try {
-        const res = await fetch(url, { 
-            cache: "no-store"
-        });
+        const res = await fetch(url);
 
         if (!res.ok) {
             const errorText = await res.text();
@@ -86,8 +86,10 @@ export default async function getArea({ lng,lat }: getAreaParams) {
         return addr
     } catch (e) {
         console.error(e);
-    }
-}
+    }},
+    ['vworld-area'],
+    { revalidate: 86400 }
+)
 
 function parseAreaData(data: VWORLDResponse): string {
     // data.response.result[0].text

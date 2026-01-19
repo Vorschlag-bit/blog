@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import getWeather from "@/app/action/weather";
-import getArea from "@/app/action/area";
+import { getArea } from "@/app/action/area";
 import Image from "next/image";
 import { WeatherData } from "@/types/weather_type";
 import { weatherIconMap } from "@/assets/index/weatherIndex";
@@ -147,11 +147,11 @@ export default function WeatherWidget({ initialData }: WeatherWidgetProps) {
                     <div className="flex flex-col items-center">
                         <div className="relative w-64 h-64 -mt-10">
                             <Image
-                                src={'/icons/smoke.svg'}
+                                src={weatherIconMap['smoke']}
                                 alt='weather api fetch failed'
                                 fill
                                 className="object-contain"
-                                priority
+                                priority={true}
                             />
                         </div>
                         <div className="flex items-center gap-2 w-[12rem] mx-auto text-xs text-red-500 border-2 border-red-500 border-dashed justify-center bg-red-50 p-2 -mt-5">

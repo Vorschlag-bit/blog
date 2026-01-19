@@ -28,6 +28,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
                     // basePath 뒤에 queryString 덧붙이기
                     href={`${basePath}?page=${prevPage}`}
                     className="px-2 lg:px-3 py-1 text-xs whitespace-nowrap lg:text-base border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
+                    prefetch={false}
                 >
                     &lt; PREV
                 </Link>
@@ -46,6 +47,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
                             ${p == currentPage 
                                 ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-800'
                                 : 'border-black dark:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                        prefetch={false}
                     >
                         {p}
                     </Link>
@@ -56,6 +58,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
                 <Link
                     href={`${basePath}?page=${nextPage}`}
                     className="px-2 lg:px-3 py-1 text-xs whitespace-nowrap lg:text-base border-2 border-black dark:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800"
+                    prefetch={false}
                 >
                     NEXT &gt;
                 </Link>

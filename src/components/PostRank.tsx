@@ -20,7 +20,7 @@ export default async function PostRank() {
                             <li key={post.id}
                                 className="group p-2 border border-gray-500 hover:border-indigo-700 w-full transition-colors"
                             >
-                                <Link href={`/posts/${post.id}`} className="">
+                                <Link href={`/posts/${post.id}`} className="" prefetch={false}>
                                     <p className="font-bold text-black truncate group-hover-glitch dark:text-gray-300 mb-1">{post.title}</p>
                                     <p className="text-gray-400 text-xs">{post.date}</p>
                                 </Link>

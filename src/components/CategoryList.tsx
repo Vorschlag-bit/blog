@@ -19,6 +19,7 @@ export default function CategoryList({type = "vertical"}) {
                                 <Link
                                     href={category === "All" ? "/" : `/categories/${category}`}
                                     className="hover-glitch block transition-color px-2 py-1 dark:bg-gray-800"
+                                    prefetch={false}
                                 >
                                     <span className="text-xs flex items-center gap-1">
                                         {category}
@@ -61,6 +62,7 @@ export default function CategoryList({type = "vertical"}) {
                                             href={category === "All" ? "/" : `/categories/${category}`}
                                             // hover-glitch 클래스 적용
                                             className="hover-glitch block p-1.5 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors rounded group"
+                                            prefetch={false}
                                         >
                                             {/* 마우스 올리면 화살표 나오게 (group-hover) */}
                                             <span className="font-medium text-sm flex items-center">

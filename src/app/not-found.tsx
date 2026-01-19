@@ -12,7 +12,7 @@ export default function Notfound() {
                 </span>
             </div>
             <p className="mb-8 text-gray-500">시스템 관리자에게 문의하세요.</p>
-            <Link href="/" className="bg-blue-600 text-white px-6 py-3 shadow-pixel cursor-pointer hover:bg-blue-800">
+            <Link href="/" className="bg-blue-600 text-white px-6 py-3 shadow-pixel cursor-pointer hover:bg-blue-800" prefetch={false}>
                 시스템 초기화(홈으로)
             </Link>
         </div>
