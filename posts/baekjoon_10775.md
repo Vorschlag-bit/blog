@@ -1,5 +1,5 @@
 ---
-title: "백준 10775번 (python)"
+title: "백준 10775번 공항 (python)"
 date: "2026-01-19 19:47:16"
 category: "코테"
 description: "python으로 풀어보는 백준 10775"
