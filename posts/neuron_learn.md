@@ -421,4 +421,43 @@ $\frac{\partial L}{\partial W}$의 각 원소는 각각의 원소에 대한 편�
 
 여기서 중요한 건 $\frac{\partial L}{\partial W}$의 형상이 $W$와 같다는 것이다. 둘 다 모두 $2*3$의 크기를 갖고 있다.
 
+이러한 간단한 신경망을 예시로 실제 기울기를 구하는 코드를 작성해보자. 
 
+```python
+import sys,os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+import numpy as np
+from common.functions import softmax, cross_entropy_error
+from common.gradient import numerical_gradient
+
+class simpleNet:
+    def __init__(self):
+        # 정규 분포로 초기화
+        self.W = np.random(2,3)
+    
+    def predict(self, x):
+        return np.dot(x, self.W)
+    
+    def loss(self, x, t):
+        z = self.predict(x)
+        y = softmax(z)
+        loss = cross_entropy_error(y,t)
+
+        return loss
+```
+이전에 정의했던 `soft_max()`와 `cross_entropy_error()` 함수를 그대로 사용하고 `diff()` 함수도 `numerical_gradient()` 함수도 사용했다.
+
+`simpleNet` 클래스는 $2*3$ 형상의 가중치 매개변수 하나를 인스턴스 변수로 갖는다. 함수는 2개인데 하나는 에측을 수행하는 `predict()` 함수고, 다른 하나는 손실 함수값을 구하는 `loss()` 함수다. 
+
+```python
+net = simpleNet()
+print(net.W)
+
+x = np.array([0.6,0.9])
+
+# 1 * 3 형상의 벡터 생성
+p = net.predict(x)
+
+# 최댓값 인덱스
+np.argmax(p)
+```
