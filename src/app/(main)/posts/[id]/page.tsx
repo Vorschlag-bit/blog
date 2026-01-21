@@ -14,6 +14,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PostContent from "@/components/main/PostContent";
 import ScrollButton from "@/components/main/ScrollButton";
+// 조회 수 증가하는 client 컴포넌틍 추가
+import ViewCounter from "@/components/main/ViewCounter";
 
 // Params Interface 정의
 interface PageProps {
@@ -70,7 +72,7 @@ export default async function Post({ params }: PageProps) {
             {/* mermaidUtil 추가 */}
             <MermaidInit />
             {/* viewactions 추가 (redis 호출하는 server action 호출하는 클라이언트 컴포넌트) */}
-            {/* <ViewCounter id={id} /> */}
+            <ViewCounter id={id} />
             <PostRemoteControl />
             <ScrollButton />
                 <RetroWindow title={`Reading: ${postData.title}.txt`} className="">
