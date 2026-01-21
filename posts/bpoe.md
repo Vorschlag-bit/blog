@@ -137,3 +137,204 @@ flowchart LR
  이처럼 계산 그래프의 이점은 순전파와 역전파를 활용해 각 변수의 미분을 효율적으로 구할 수 있다는 것이다.
 
 ### 연쇄 법칙
+<!-- 랩탑 git 충돌 부분 여기에 넣을 것 -->
+
+위 식을 예로 설명하면 $\frac{\partial z}{\partial x}$($x$에 대한 $z$의 미분)은 $\frac{\partial z}{\partial t}$($t$에 대한 $z$의 미분)과 $\frac{\partial t}{\partial x}$($x$에 대한 $t$의 미분)의 곱으로 나타낼 수 있다는 것이다.
+
+수식적으로는 아래와 같다.
+
+$$
+\frac{\partial z}{\partial x} = \frac{\partial z}{\partial t}\frac{\partial t}{\partial x}
+$$
+
+위 식은 약분에 의해서 $\partial t$를 지울 수 있다.  
+합성함수의 미분을 이용해서 먼저 $\frac{\partial z}{\partial t}$과 $\frac{\partial t}{\partial x}$을 구하면 된다. (각각의 편미분)
+$$
+
+\frac{\partial t}{\partial x} = 1 \\
+\frac{\partial z}{\partial t} = 2t
+$$
+
+따라서 $\frac{\partial z}{\partial x}$는 이 두 미분에 대한 곱이다.
+$$
+\frac{\partial z}{\partial x} = \frac{\partial z}{\partial t}\frac{\partial t}{\partial x} = 2t * 1 = 2(x+y)
+$$
+
+#### 연쇄법칙과 계산 그래프
+위 식을 계산 그래프로 나타내보자. 2제곱 계산을 $**2$ 노드로 표현하면 아래의 그림처럼 된다.
+```mermaid
+flowchart LR
+    %% 노드 정의
+    X[ ]
+    Y[ ]
+    Plus((+))
+    Pow(("**2"))
+    Z[ ]
+
+    %% 순전파 (Forward)
+    X -- "x" --> Plus
+    Y -- "y" --> Plus
+    Plus -- "t" --> Pow
+    Pow -- "z" --> Z
+
+    %% 역전파 (Backward)
+    Z -- "∂z/∂z" --> Pow
+    Pow -- "∂z/∂z · ∂z/∂t" --> Plus
+    Plus -- "∂z/∂z · ∂z/∂t · ∂t/∂x" --> X
+
+    %% 스타일
+    style X fill:none,stroke:none
+    style Y fill:none,stroke:none
+    style Z fill:none,stroke:none
+    linkStyle 4,5,6 stroke:red,stroke-width:2px,color:red;
+```
+
+중요한 건 순전파와는 반대 방향으로 국소적 미분을 곱하면서 전달한다는 것이다.  
+$y = f(x)$의 국소적 미분이 $\frac{\partial y}{\partial x}$인 것처럼 각 함수 $t = x +y$와 $z = t^2$에 대한 미분이 서로 곱한 것이다.
+
+$z$의 경우에는 출력층이므로 미분할 경우 $\frac{\partial z}{\partial z}$가 된다.
+
+결국 중요한 건 맨 왼쪽 역전파의 결과이다. $\frac{\partial z}{\partial z}\frac{\partial z}{\partial t}\frac{\partial t}{\partial x} = \frac{\partial z}{\partial x}$가 성립되어 $x$에 대한 $z$의 미분인 것은 변치 않는다.
+
+즉, <b>역전파가 하는 일은 연쇄법칙의 원리와 동일하다</b>.
+
+### 역전파
+앞에서 계산 그래프의 역전파가 연쇄법칙에 따라 진행되는 모습을 알아보았다. 이번에는
+$+$와 $×$ 연산에 따른 예시로 역전파 구조를 알아보자.
+
+#### 덧셈 노드의 역전파
+$z = x + y$라는 식을 예시로 역전파가 어떻게 진행되는지 보자.
+먼저 $z = x + y$의 $x$와 $y$에 대한 각각의 편미분으로 아래와 같이 표현 가능하다.
+$$
+\frac{\partial z}{\partial x} = 1 \\
+\frac{\partial z}{\partial y} = 1
+$$
+
+둘 다 지수가 1이기 때문에 미분 시, 모두 1이 된다. 계산 그래프로는 아래와 같다.
+
+```mermaid
+flowchart LR
+    %% 투명 노드 클래스 정의
+    classDef hidden fill:none,stroke:none,color:none;
+
+    %% 1. 순전파 그래프 (왼쪽)
+    subgraph Forward [순전파]
+        direction LR
+        Lx[ ]:::hidden
+        Ly[ ]:::hidden
+        P1((+))
+        Lz[ ]:::hidden
+
+        Lx -- x --> P1
+        Ly -- y --> P1
+        P1 -- z --> Lz
+    end
+
+    %% 2. 역전파 그래프 (오른쪽)
+    subgraph Backward [역전파]
+        direction RL  %% 흐름을 오른쪽->왼쪽으로 강제
+        Rx[ ]:::hidden
+        Ry[ ]:::hidden
+        P2((+))
+        R_in[ ]:::hidden
+
+        %% 미분 값 입력
+        R_in -- "∂L/∂z" --> P2
+        
+        %% 미분 값 분배 (덧셈은 그대로 흘려보냄)
+        P2 -- "∂L/∂z · 1" --> Rx
+        P2 -- "∂L/∂z · 1" --> Ry
+    end
+
+    %% 역전파(오른쪽 그래프)의 선 색상 변경 (빨간색)
+    linkStyle 3,4,5 stroke:red,stroke-width:2px,color:red;
+```
+
+위 그림에서 역전파는 상류에서 전해진 미분($\frac{\partial L}{\partial z}$)에 1을 곱해 하류로 보낸다. 덧셈 노드의 역전파는 1을 곱할 뿐(국소적 계산) 입력된 값을 다음 노드로 전달한다.
+
+여기서 상류에서 전해진 미분을 $\frac{\partial L}{\partial z}$라고 했는데, 이는 이 계산 그래프가 더 거대한 구조라서 $z$가 출력층이 아닌 하나의 중간 노드라고 생각할 경우 최종적으로 $L$이라는 값을 출력하는 계산 그래프라는 가정을 한 것이다.
+
+따라서 $z$도 하나의 중간 노드일 뿐이고, $\frac{\partial L}{\partial z}$을 상류로부터 전달 받았고 이를 하류에 각각 $\frac{\partial L}{\partial x}$와 $\frac{\partial L}{\partial y}$로 전달한다.
+
+결론적으로 덧셈 노드의 역전파에선 입력 신호(상류의 미분값)를 그냥 그대로 다음 노드로 전달하면 된다.
+
+#### 곱셈 노드의 역전파
+$z = xy$라는 곱셈식에 대한 예시로 역전파를 알아보자. 이 식의 미분은 아래와 같다.
+$$
+\frac{\partial z}{\partial x} = y \\
+\frac{\partial z}{\partial y} = x
+$$
+둘은 각각 $x,y$에 대한 편미분이며 합성함수의 미분에 따라 두 미분의 곱이 곧 $z$의 미분이 될 것이다. 이걸 계산 그래프로 그리면 아래와 같다.
+
+```mermaid
+flowchart LR
+    %% 투명 노드 클래스
+    classDef hidden fill:none,stroke:none,color:none;
+
+    %% 1. 순전파 (Forward)
+    subgraph Forward [순전파]
+        direction LR
+        Lx[ ]:::hidden
+        Ly[ ]:::hidden
+        M1((×))
+        Lz[ ]:::hidden
+
+        Lx -- x --> M1
+        Ly -- y --> M1
+        M1 -- z --> Lz
+    end
+
+    %% 2. 역전파 (Backward)
+    subgraph Backward [역전파]
+        direction RL
+        Rx[ ]:::hidden
+        Ry[ ]:::hidden
+        M2((×))
+        R_in[ ]:::hidden
+
+        %% 오른쪽에서 들어오는 입력
+        R_in -- "∂L/∂z" --> M2
+        
+        %% 서로 바뀐 입력값(flip)을 곱해서 전달
+        M2 -- "∂L/∂z · y" --> Rx
+        M2 -- "∂L/∂z · x" --> Ry
+    end
+
+    %% 역전파 링크(3,4,5번) 빨간색 적용
+    linkStyle 3,4,5 stroke:red,stroke-width:2px,color:red;
+```
+
+곱셈 노드의 역전파는 합성 함수의 미분에 따라서 $x$는 $x$에 대한 편미분인 $y × 1$을 $y$는 $y$애 대한 편미분인 $x × 1$을 상류에서 전달받은 미분값에 곱해서 전달시킨다. 즉, 서로 입력 신호를 바꿔서 하류로 전달한다.
+
+이렇게 곱셈 노드의 역전파에선 덧셈 노드와는 다르게 순전파 입력 신호의 값이 필요하다. 그래서 곱셈 노드를 구현할 때는 순전파 입력 신호를 반드시 변수에 저장해야 한다.
+
+#### 호두 쇼핑 예시
+이전에 계산 그래프에 대한 설명으로 호두 구매에 대한 예시가 있었다.
+
+이 문제에서는 호두의 가격, 호두의 개수, 소비세라는 세 변수가 최종 금액에 어떻게 영향을 주는지 알아내는 것이 목적이었다. 이는 곧 '호두 가격에 대한 지불 금액의 미분', '호두 개수에 대한 지불 금액의 미분', '소비세에 대한 지불 금액의 미분'을 구하는 것이다.
+```mermaid
+flowchart LR
+    W[walnut]
+    WC[walnut count]
+    Tax[tax]
+    Ans[answer]
+    M1((×))
+    M2((×))
+
+    W -- 100 --> M1
+    WC -- 2 --> M1
+    M1 -- 200 --> M2
+    Tax -- 1.1 --> M2
+    M2 -- 220 --> Ans
+
+    Ans -- 1 --> M2
+    M2 -- 1.1 --> M1
+    M1 -- 2.2 --> W
+
+    linkStyle 5,6,7 stroke:red,stroke-width:2px,color:red;
+```
+지금까지 설명한 바와 같이 곱셈 노드의 역전파에선 입력 신호를 서로 바꿔서 하류로 전달한다. 
+그림의 결과를 보면 호두 가격의 미분은 2.2, 호두 개수의 미분은 110, 소비세의 미분은 200이다.
+
+이는 소비세와 호두 가격이 같은 양만큼 오르면 최종 금액에는 소비세가 200의 크기로, 호두 가격이 2.2 크기로 영향을 준다고 해석할 수 있다. 단, 소비세와 사과 가격은 '단위'가 다르니 주의하자.
+
