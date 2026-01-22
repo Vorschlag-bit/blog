@@ -175,9 +175,6 @@ flowchart LR
 
 <b>연쇄법칙은 함성 함수의 미분에 대한 성질이며 합성 함수의 미분은 합성 함수를 구성하는 각 함수의 미분 곱으로 나타낼 수 있다</b>.
 
-
-<!-- 랩탑 git 충돌 부분 여기에 넣을 것 -->
-
 위 식을 예로 설명하면 $\frac{\partial z}{\partial x}$($x$에 대한 $z$의 미분)은 $\frac{\partial z}{\partial t}$($t$에 대한 $z$의 미분)과 $\frac{\partial t}{\partial x}$($x$에 대한 $t$의 미분)의 곱으로 나타낼 수 있다는 것이다.
 
 수식적으로는 아래와 같다.
@@ -378,3 +375,544 @@ flowchart LR
 이는 소비세와 호두 가격이 같은 양만큼 오르면 최종 금액에는 소비세가 200의 크기로, 호두 가격이 2.2 크기로 영향을 준다고 해석할 수 있다. 단, 소비세와 사과 가격은 '단위'가 다르니 주의하자.
 
 ### 단순한 계층 구현하기
+
+이번 절에서는 지금까지 보아온 지금까진 본 '호두 쇼핑'을 python으로 구현해본다. 여기서 계산 그래프의 곱셈 노드는 `MulLayer`, 덧셈 노드를 `AddLayer`라는 이름으로 구현한다.
+
+#### 곱셈 계층
+모든 계층은 `forward()`와 `backward()`라는 함수를 갖도록 인터페이스를 기반으로 구현할 것이다.  
+이름 그대로 `forward()`는 순전파, `backward()`는 역전파를 처리한다.
+
+```python
+class MulLayer:
+    def __init__(self):
+        self.x = None
+        self.y = None
+    
+    def forward(self, x, y):
+        self.x = x
+        self.y = y
+        out = x + y
+
+        return out
+    
+    def backward(self, dout):
+        dx = dout * self.y
+        dy = dout * self.x
+
+        return dx,dy
+```
+
+생성자인 `__init()__`에선 인스턴스 변수인 $x,y$를 초기화한다. `forward()`에선 $x,y$를 파라미터로 받아 두 수를 곱한 걸 `return`하고, `backward()`에선 상류에서 넘어온 `dout`이라는 미분값에 순전파 파라미터를 서로 반대로 곱해 `return`하면 된다.
+
+이 `MulLayer`를 사용해서 '호두 쇼핑'을 구현해보자. 호두 쇼핑의 계산 그래프는 앞에서 계속 봤던 그 그래프이다.
+```mermaid
+flowchart LR
+    W[walnut]
+    WC[walnut count]
+    Tax[tax]
+    Ans[answer]
+    M1((×))
+    M2((×))
+
+    W -- 100 --> M1
+    WC -- 2 --> M1
+    M1 -- 200 --> M2
+    Tax -- 1.1 --> M2
+    M2 -- 220 --> Ans
+
+    Ans -- 1 --> M2
+    M2 -- 1.1 --> M1
+    M1 -- 2.2 --> W
+
+    linkStyle 5,6,7 stroke:red,stroke-width:2px,color:red;
+```
+
+```python
+walnut = 100
+w_cnt = 2
+tax = 1.1
+
+mul_wal = MulLayer()
+mul_tax = MulLayer()
+
+# 순전파
+wal_price = mul_wal.forward(walnut, w_cnt)
+total = mul_tax.forward(wal_price, tax)
+
+print(total) # 220
+```
+
+각 변수에 대한 미분은 `backward()`를 통해 구할 수 있다.
+
+```python
+# 역전파
+dprice = 1
+dwal_price, dtax = mul_tax.backward(dprice)
+dwal,dw_cnt = mul_wal.backward(dwal_price)
+
+print(dwal_price, dw_cnt, dtax) # 2.2 110 220
+```
+
+`backward()` 함수의 호출 순서는 `forward()`와는 정반대이며, 받는 파라미터 역시 '<b>순전파의 출력에 대한 미분</b>'임에 주의해야 한다.
+
+#### 덧셈 계층
+덧셈 노드 역시 아래와 같이 구현하면 된다.
+```python
+class AddLayer:
+    def __init__(self):
+        pass
+
+    def forward(self,x,y):
+        self.x = x
+        self.y = y
+
+        return x + y
+    
+    def backward(self,dout):
+        dx = dout * 1
+        dy = dout * 1
+
+        return dx,dy
+```
+
+덧셈 계층에선 초기화가 필요없다. `backward()` 호출 시, 순전파의 값을 기록할 필요가 없기 때문이다. `forward()`에선 두 파라미터를 더하고, `backward()`에선 앞에서 전달받은 미분값을 그대로 
+`return`하면 된다.
+
+위 두 계층(덧셈,곱셈)을 활용해서 호두 2개와 피스타치오 3개를 구매하는 아래의 그래프를 코드로 구현해보자.
+
+```mermaid
+flowchart LR
+    %% 입력 변수
+    W[walnut]
+    WC[walnut count]
+    P[pistachio]
+    PC[pistachio count]
+    Tax[tax]
+    Ans[answer]
+    
+    %% 연산자 노드
+    Mul1((×))
+    Mul2((×))
+    Add((+))
+    Mul3((×))
+
+    %% 호두 계산 흐름 (상단)
+    WC -- 2 --> Mul1
+    W -- 100 --> Mul1
+    Mul1 -- 200 --> Add
+
+    %% 피스타치오 계산 흐름 (하단)
+    P -- 150 --> Mul2
+    PC -- 3 --> Mul2
+    Mul2 -- 450 --> Add
+
+    %% 합산 및 최종 계산
+    Add -- 650 --> Mul3
+    Tax -- 1.1 --> Mul3
+    Mul3 -- 715 --> Ans
+```
+
+```python
+walnut = 100
+w_cnt = 3
+pistachio = 150
+p_cnt = 2
+tax = 1.1
+
+# 계층
+mul_wal = MulLayer()
+mul_pis = MulLayer()
+mul_tax = MulLayer()
+add_wal_pis = AddLayer()
+
+# 순전파
+wal_p = mul_wal.forward(walnut,w_cnt)
+pis_p = mul_pis.forward(pistachio,p_cnt)
+total = add_wal_pis.forward(wal_p,pis_p)
+price = mul_tax.forward(total, tax)
+
+# 역전파
+dprice = 1
+dtotal, dtax = mul_tax.backward(dprice)
+dwalnut_price,dpistachio_price = add_wal_pis.backward(dtotal)
+dwalnut,dw_cnt = mul_wal.backward(dwalnut_price)
+dpistachio,dp_cnt = mul_pis.backward(dpistachio_price)
+
+print(price) # 715
+print(dwalnut,dpistachio,dw_cnt,dp_cnt,dtax) # 2.2 3.3 110 165 650
+```
+
+필요한 계층을 만들어 순전파를 먼저 호출하고 그 후에 역전파를 순전파의 반대 순서로 호출하면 원하는 값을 모두 구할 수 있다.  
+이처럼 계산 그래프에서 계층은 쉽게 구현이 가능하며, 이를 통해 복잡한 미분도 쉽게 계산할 수 있다.
+
+### 활성화 함수 계층 구현
+계산 그래프를 이제 '신경망'에 도입해볼 차례다. 여기선 신경망을 구성하는 계층을 각각 하나의 클래스로 구현한다. 우선 활성화 함수인 ReLU와 Sigmoid 함수를 구현한다.
+
+#### ReLU 계층
+활성화 함수로 사용되는 ReLU의 수식은 아래와 같다.
+$$
+y = 
+\begin{cases} 
+    0\ (x \le 0) \\
+    x\ (x > 0)
+\end{cases}
+$$
+
+위 식에서 $x$에 대한 $y$의 미분은 아래와 같다.
+
+$$
+\frac{\partial y}{\partial x} = 
+\begin{cases} 
+    0\ (x \le 0) \\
+    1\ (x > 0)
+\end{cases}
+$$
+
+순전파의 입력값인 $x$가 0보다 크면 역전파는 상류의 값을 그대로 하류로 보낸다. 반면 0 이하이면 아무것도 하류로 보내지 않는다. (0을 보냄)
+계산 그래프로는 아래와 같이 그려질 것이다.
+
+```mermaid
+flowchart LR
+    %% 투명 노드 클래스
+    classDef hidden fill:none,stroke:none,color:none;
+
+    %% 1. x > 0 인 경우
+    subgraph Case1 ["x > 0"]
+        direction LR
+        L1[ ]:::hidden
+        ReLU1((relu))
+        R1[ ]:::hidden
+
+        %% 순전파
+        L1 -- "x" --> ReLU1
+        ReLU1 -- "y" --> R1
+
+        %% 역전파 (그대로 전달)
+        R1 -- "∂L/∂y" --> ReLU1
+        ReLU1 -- "∂L/∂y" --> L1
+    end
+
+    %% 2. x <= 0 인 경우
+    subgraph Case2 ["x ≤ 0"]
+        direction LR
+        L2[ ]:::hidden
+        ReLU2((relu))
+        R2[ ]:::hidden
+
+        %% 순전파
+        L2 -- "x" --> ReLU2
+        ReLU2 -- "y" --> R2
+
+        %% 역전파 (0으로 전달)
+        R2 -- "∂L/∂y" --> ReLU2
+        ReLU2 -- "0" --> L2
+    end
+
+    %% 역전파 링크(돌아오는 화살표) 빨간색 지정
+    linkStyle 2,3,6,7 stroke:red,stroke-width:2px,color:red;
+    style Case1 fill:#f9f9f9
+    style Case2 fill:#f9f9f9
+```
+
+ReLU를 구현한 클래스는 아래와 같다.
+class ReLU:
+    def __init__(self):
+        self.mask = None
+
+    def forward(self, x, y):
+        self.mask = (x <= 0)
+        out = x.copy()
+        out[self.mask] = 0
+
+    return out
+
+    def backward(self, dout):
+        dout[self.mask] = 0
+        dx = dout
+
+        return dx
+
+ReLU 클래스는 `mask`라는 인스턴스 변수를 갖는다. `mask`는 `True/False`로 구성된 넘파이 배열로, 순전파의 입력인 $x$의 원소 값이 0 이하인 인덱스는 `True`로, 그 외에는 `False`로 저장한다.
+이를 통해 역전파 함수인 `backward()`를 호출할 때는 `mask`의 인덱스 값이 `True`인 곳에는 상류에서 전파된 `dout`을 0으로 한다.
+
+문법적으로는 <b>Numpy 배열</b>에서만 동작하는 <b>Boolean Indexing</b>이며, 내부 동작은 <b>C언어</b>로 작성된 아래와 같은 반복문이다.
+
+
+```c
+/* 실제 NumPy 내부 구현의 개념적 형태 (C언어) */
+void set_masked_values_to_zero(double* dout, bool* mask, int size) {
+    // CPU가 처리하기 가장 좋은 형태의 단순 반복문
+    for (int i = 0; i < size; i++) {
+        if (mask[i]) {   // mask가 1(True)이면
+            dout[i] = 0; // 바로 0으로 덮어씀
+        }
+    }
+}
+```
+
+#### Sigmoid 계층
+시그모이드 함수는 수식적으로 아래와 같다.
+
+$$
+y = \frac{1}{1+exp(-x)}
+$$
+
+Sigmoid 함수를 순전파 계산 그래프로 표현하면 아래와 같을 것이다.
+
+```mermaid
+flowchart LR
+    %% 스타일 정의 (노드: 흰색 원, 투명 노드 등)
+    classDef op fill:#lelele,stroke:#lelele,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+    classDef inputParam fill:none,stroke:none;
+
+    %% 노드 생성
+    Start[ ]:::hidden
+    Mul((×)):::op
+    Param1[-1]:::inputParam
+    
+    Exp((exp)):::op
+    
+    Add((+)):::op
+    Param2[1]:::inputParam
+    
+    Div((/)):::op
+    End[ ]:::hidden
+
+    %% 연결 및 라벨
+    Start -- "x" --> Mul
+    Param1 --> Mul
+    
+    Mul -- "-x" --> Exp
+    Exp -- "exp(-x)" --> Add
+    
+    Param2 --> Add
+    Add -- "1+exp(-x)" --> Div
+    
+    %% 마지막 결과 라벨 (수식 표현 근사)
+    Div -- "y = 1 / (1+exp(-x))" --> End
+```
+
+여기선 $×$과 $+$ 노드 외에 $exp$와 $/$ 노드가 새로 등장했다. $exp$ 노드는 $y = exp(x)$ 계산을 수행하고, $/$ 노드는 $y = \frac{1}{x}$ 계산을 수행한다.
+
+Sigmoid의 역전파 흐름을 순서대로 정리하면 아래와 같다.
+
+1. '$/$' 노드 ($y = \frac{1}{x}$)의 미분
+$$
+\frac{\partial y}{\partial x} = -\frac{1}{x^2} = -y^2
+$$
+
+위 수식에 따르면 역전파에선 상류에선 넘어온 값에 순전파 출력의 제곱에 마이너스를 붙인 값을 곱해서 하류로 전달하면 된다. 계산 그래프로는 아래와 같다.
+
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef op fill:#lelele,stroke:#lelele,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+    classDef inputParam fill:none,stroke:none;
+
+    %% 노드 생성
+    Start[ ]:::hidden
+    Mul((×)):::op
+    P1[-1]:::inputParam
+    Exp((exp)):::op
+    P2[1]:::inputParam
+    Add((+)):::op
+    Div((/)):::op
+    End[ ]:::hidden
+
+    %% 순전파 흐름
+    Start -- "x" --> Mul
+    P1 --> Mul
+    Mul -- "-x" --> Exp
+    Exp -- "exp(-x)" --> Add
+    P2 --> Add
+    Add -- "1+exp(-x)" --> Div
+    Div -- "y" --> End
+
+    %% 역전파 흐름 (수식 근사 표기)
+    End -- "∂L/∂y" --> Div
+    Div -- "- ∂L/∂y · y²" --> Add
+
+    %% 역전파 링크 스타일 (붉은색)
+    linkStyle 7,8 stroke:red,stroke-width:2px,color:red;
+```
+
+2. '$+$' 노드 (상류의 값을 그대로 내보냄)
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef op fill:#lelele,stroke:#lelele,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+    classDef inputParam fill:none,stroke:none;
+
+    %% 노드 생성
+    Start[ ]:::hidden
+    Mul((×)):::op
+    P1[-1]:::inputParam
+    Exp((exp)):::op
+    P2[1]:::inputParam
+    Add((+)):::op
+    Div((/)):::op
+    End[ ]:::hidden
+
+    %% 순전파 흐름
+    Start -- "x" --> Mul
+    P1 --> Mul
+    Mul -- "-x" --> Exp
+    Exp -- "exp(-x)" --> Add
+    P2 --> Add
+    Add -- "1+exp(-x)" --> Div
+    Div -- "y" --> End
+
+    %% 역전파 흐름 (수식 근사 표기)
+    End -- "∂L/∂y" --> Div
+    Div -- "- ∂L/∂y · y²" --> Add
+    Add -- "- ∂L/∂y · y²" --> Exp
+
+    %% 역전파 링크 스타일 (붉은색)
+    linkStyle 7,8,9 stroke:red,stroke-width:2px,color:red;
+```
+
+3. '$exp$' 노드
+$y = exp()x$ 연산을 수행하고 그 미분은 아래와 같다.
+$$
+\frac{\partial y}{\partial x} = exp(x)
+$$
+
+계산 그래프 상에선 상류의 값에 순전파 출력($exp(-x)$)을 곱해 하류로 전달한다.
+
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef op fill:#lelele,stroke:#lelele,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+    classDef inputParam fill:none,stroke:none;
+
+    %% 노드 생성
+    Start[ ]:::hidden
+    Mul((×)):::op
+    P1[-1]:::inputParam
+    Exp((exp)):::op
+    P2[1]:::inputParam
+    Add((+)):::op
+    Div((/)):::op
+    End[ ]:::hidden
+
+    %% 순전파 흐름
+    Start -- "x" --> Mul
+    P1 --> Mul
+    Mul -- "-x" --> Exp
+    Exp -- "exp(-x)" --> Add
+    P2 --> Add
+    Add -- "1+exp(-x)" --> Div
+    Div -- "y" --> End
+
+    %% 역전파 흐름 (수식 근사 표기)
+    End -- "∂L/∂y" --> Div
+    Div -- "- ∂L/∂y · y²" --> Add
+    Add -- "- ∂L/∂y · y²" --> Exp
+    Exp -- "- ∂L/∂y · y² · exp(-x)" --> Mul
+
+    %% 역전파 링크 스타일 (붉은색)
+    linkStyle 7,8,9,10 stroke:red,stroke-width:2px,color:red;
+```
+
+4. '$x$' 노드
+'$x$' 노드는 순전파의 입력값을 서로 바꾼다.
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef op fill:#lelele,stroke:#lelele,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+    classDef inputParam fill:none,stroke:none;
+
+    %% 노드 생성
+    Start[ ]:::hidden
+    Mul((×)):::op
+    P1[-1]:::inputParam
+    Exp((exp)):::op
+    P2[1]:::inputParam
+    Add((+)):::op
+    Div((/)):::op
+    End[ ]:::hidden
+
+    %% 순전파 흐름
+    Start -- "x" --> Mul
+    P1 --> Mul
+    Mul -- "-x" --> Exp
+    Exp -- "exp(-x)" --> Add
+    P2 --> Add
+    Add -- "1+exp(-x)" --> Div
+    Div -- "y" --> End
+
+    %% 역전파 흐름 (수식 근사 표기)
+    End -- "∂L/∂y" --> Div
+    Div -- "- ∂L/∂y · y²" --> Add
+    Add -- "- ∂L/∂y · y²" --> Exp
+    Exp -- "- ∂L/∂y · y² · exp(-x)" --> Mul
+    Mul -- "∂L/∂y · y² · exp(-x)" --> Start
+
+    %% 역전파 링크 스타일 (붉은색)
+    linkStyle 7,8,9,10,11 stroke:red,stroke-width:2px,color:red;
+```
+
+위의 그림을 보면 최종 출력인 $\frac{\partial L}{\partial y}y^2exp(-x)$의 값이 하류 노드로 전파되는 걸 볼 수 있다.
+이 그래프는 순수하게 $x$와 $y$만으로 계산이 가능한 그래프이기 때문에 아래와 같이 간단하게 표현이 가능하다.
+
+```mermaid
+flowchart LR
+    %% 스타일 클래스
+    classDef hidden fill:none,stroke:none,color:none;
+    classDef op fill:#lelele,stroke:#333,stroke-width:1px;
+
+    %% 노드
+    Input[ ]:::hidden
+    Sig((sigmoid)):::op
+    Output[ ]:::hidden
+
+    %% 순전파
+    Input -- "x" --> Sig
+    Sig -- "y" --> Output
+
+    %% 역전파
+    Output -- "∂L/∂y" --> Sig
+    Sig -- "∂L/∂y · y² exp(-x)" --> Input
+
+    %% 스타일 적용 (역방향 화살표 붉은색)
+    linkStyle 2,3 stroke:red,stroke-width:2px,color:red;
+```
+
+또한 $\frac{\partial L}{\partial y}y^2exp(-x)$는 아래와 같이 정리해서 작성이 가능하다.
+
+$$
+\frac{\partial L}{\partial y}y^2exp(-x) = \frac{\partial L}{\partial y}\frac{1}{(1+exp(-x))^2}exp(-x) = \frac{\partial L}{\partial y}\frac{1}{(1+exp(-x))}\frac{exp(-x)}{(1+exp(-x))} = \frac{\partial L}{\partial y}y(1-y)
+$$
+
+즉, sigmoid의 역전파는 순전파의 출력($y$)만으로도 계산할 수 있다.  
+sigmoid 계층을 python으로 구현하면 아래와 같다.
+
+```python
+class Sigmoid:
+    def __init__(self):
+        self.out = None
+    
+    def forward(self,x):
+        out = 1 / (1 + np.exp(-x))
+        self.out = out
+
+        return out
+    
+    def backward(self, dout):
+        dx = dout * (1.0 - self.out) * self.out
+
+        return dx
+```
+
+순전파의 출력을 인스턴스 변수 `out`에 보관했다가 역전파 계산 시, 사용하는 것이 핵심이다.
+
+### Affine/Softmax 계층
+#### Affine계층
+신경망의 순전파에서는 가중치 신호의 총합을 계산하기 때문에 행렬의 곱(`np.dot()`)을 사용했다.
+
+이 계산은 입력과 가중치 두 행렬을 서로 곱한 후, 편향을 더하는 방식으로 순전파가 진행되었고, 그 출력을 활성화 함수로 변환해 다음 층으로 전파는 게 신경망 순전파의 흐름이었다.
