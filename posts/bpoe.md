@@ -1125,11 +1125,11 @@ Softmax-with-loss의 계산 그래프는 아래와 같다.
     <figcaption>Softmax-with-Loss 계층 계산 그래프</figcaption>
 </figure>
 
-복잡한 계산 과정을 거치지만, 결국 맨 끝에서 맨 앞으로 돌아오는 미분 값은 `y - t`(예측값 - 정답)이라는 아주 단순한 뺄셈이 된다는 거다.
+이 복잡한 계산 그래프를 거치지만, 결국 맨 끝에서 맨 앞으로 돌아오는 미분 값은 `y - t`(예측값 - 정답)라는 아주 단순한 뺄셈이 된다는 거다.
 
 이 그래프의 역전파를 하나하나 뜯어서 설명하면 아래와 같다.
 
-##### 1. Cross Entropy Error의 역전파 박스
+##### 1. Cross Entropy Error의 역전파 박스 (오른쪽)
 교차 엔트로피 오차의 수식은 아래와 같다.
 $$
 L = - \sum_{k} t_k \log y_k 
@@ -1140,32 +1140,71 @@ $$
 2.  상수 곱: $-t_k$는 그대로 붙음.
 3.  **결과:** $-\frac{t_k}{y_k}$
 
-그림의 오른쪽 박스에서 $y_1, y_2, y_3$ 쪽으로 돌아가는 화살표에 $-\frac{t_1}{y_1}$ 등이 적혀 있는 이유다.
+그림의 오른쪽 박스에서 $y_1, y_2, y_3$ 쪽으로 돌아가는 화살표에 $-\frac{t_1}{y_1}$ 등이 적혀 있는 이유다. 이것이 바로 뒤에서 넘어온 <b>오차 정보</b>다.
 
 ##### 2. Softmax의 역전파 (왼쪽 박스)
-여기가 복잡한 부분이다. Softmax 식은 $y_k = \frac{\exp(a_k)}{S}$ 이다. ($S$는 전체 합 $\sum e^{a_i}$)  
-여기서 $a_k$가 변하면, 분자도 변하고 분모($S$)도 변하기 때문에 미분이 까다롭다.
+여기가 가장 핵심적이고 복잡한 부분이다. Softmax 식은 $y_k = \frac{\exp(a_k)}{S}$ 이다. ($S$는 전체 합 $\sum e^{a_i}$)
 
-따라서 2가지 경우로 나눠야 한다.
+여기서 우리가 구해야 할 것은 <b>'입력 $a_k$가 변할 때, 최종 오차 $L$이 얼마나 변하는가?'</b> $\left( \frac{\partial L}{\partial a_k} \right)$ 이다.
 
-2-1. <b>자기 자신$(i = k)$을 미분할 때</b>: 결과는 $y_k(1-y_k)$가 된다.  
-2-2. <b>다른 녀석$(i \neq k)$을 미분할 때</b>: 결과는 $-y_ky_i$가 된다.
+그런데 Softmax는 입력 하나($a_k$)가 변하면 분모($S$)가 변하기 때문에, <b>출력되는 모든 $y_1, y_2, \dots, y_n$이 동시에 다 변하게 된다.</b>
+즉, $a_k$에서 출발하여 오차 $L$에 도달하는 경로가 하나가 아니라 <b>$y$의 개수만큼 여러 갈래</b>라는 뜻이다.
 
-미분 과정에는 몫의 미분법을 사용한다.
+따라서 <b>다변수 함수의 연쇄 법칙(Chain Rule)</b>에 의해, 모든 경로($y_i$)를 통해 들어온 영향력을 남김없이 다 더해야 한다.
 
-이제 $\frac{\partial L}{\partial a_k}$를 구하기 위해 모든 $y$에 대한 영향을 합친다.
+$$
+\frac{\partial L}{\partial a_k} = \sum_{i} \left( \frac{\partial L}{\partial y_i} \times \frac{\partial y_i}{\partial a_k} \right)
+$$
 
-$$ \frac{\partial L}{\partial a_k} = \sum_{i} \frac{\partial L}{\partial y_i} \frac{\partial y_i}{\partial a_k} $$
+이 식의 의미를 뜯어보면 다음과 같다.
+*   $\frac{\partial L}{\partial y_i}$: 뒤(Cross Entropy)에서 넘어온 오차 정보
+*   $\frac{\partial y_i}{\partial a_k}$: Softmax 자체의 미분 (입력 $a_k$가 $y_i$에 미치는 영향)
+*   $\sum$: 이 둘을 곱한 값(각 경로의 영향력)을 <b>모두 합친다.</b>
 
-이 시그마($\sum$)를 <b>'자기 자신($k$)'</b>과 <b>'나머지($i \neq k$)'</b>로 쪼개서 전개해보면
+참고로, $\frac{\partial y_i}{\partial a_k}$ 부분은 벡터를 벡터로 미분하는 것이기 때문에 사실상 <b>야코비안 행렬(Jacobian Matrix)</b>을 의미한다. 즉, 위 시그마 식은 <b>오차 정보 벡터와 Softmax 행렬의 내적(Dot Product)을 수행하는 과정</b>이라고 이해하면 된다.
+
+이제 구체적으로 미분을 수행해 보자. 몫의 미분법 $\left( \frac{f}{g} \right)' = \frac{f'g - fg'}{g^2}$ 을 사용한다.
+
+**2-1. <b>자기 자신$(i = k)$을 미분할 때</b> (행렬의 대각선 성분)**
+
+분자와 분모 모두에 $a_k$가 있으므로 둘 다 미분된다.
+- 분자 미분($f'$): $e^{a_k}$
+- 분모 미분($g'$): $e^{a_k}$ (나머지항은 상수 취급되어 사라짐)
+
+$$
+\begin{aligned}
+\frac{\partial y_k}{\partial a_k} &= \frac{e^{a_k}S - e^{a_k}e^{a_k}}{S^2} \\
+&= \frac{e^{a_k}}{S} \left( \frac{S - e^{a_k}}{S} \right) \\
+&= y_k (1 - y_k)
+\end{aligned}
+$$
+<b>결과는 $y_k(1-y_k)$가 된다.</b>
+
+**2-2. <b>다른 녀석$(i \neq k)$을 미분할 때</b> (행렬의 나머지 성분)**
+
+분자에는 $a_k$가 없고($a_i$이므로 상수 취급), 분모($S$)에만 $a_k$가 있다.
+- 분자 미분($f'$): $0$
+- 분모 미분($g'$): $e^{a_k}$
+
+$$
+\begin{aligned}
+\frac{\partial y_i}{\partial a_k} &= \frac{0 \cdot S - e^{a_i}e^{a_k}}{S^2} \\
+&= -\frac{e^{a_i}}{S} \frac{e^{a_k}}{S} \\
+&= -y_i y_k
+\end{aligned}
+$$
+<b>결과는 $-y_ky_i$가 된다.</b>
+
+##### 3. 최종 결합
+이제 위에서 구한 재료들을 시그마 식에 대입하여 합친다. 시그마($\sum$)를 <b>'자기 자신($k$)'</b>과 <b>'나머지($i \neq k$)'</b>로 쪼개서 전개해보면 놀라운 일이 일어난다.
 
 $$
 \begin{aligned}
 \frac{\partial L}{\partial a_k} &= \underbrace{\left( -\frac{t_k}{y_k} \right) \cdot y_k(1-y_k)}_{\text{자기 자신}} + \sum_{i \neq k} \underbrace{\left( -\frac{t_i}{y_i} \right) \cdot (-y_k y_i)}_{\text{나머지들}} \\
 \\
-&= (-t_k + t_k y_k) + \sum_{i \neq k} (t_i y_k) \quad \leftarrow \text{여기서 } y_i \text{가 약분되어 사라짐!} \\
+&= (-t_k + t_k y_k) + \sum_{i \neq k} (t_i y_k) \quad \leftarrow \text{여기서 분모 } y_i \text{가 약분되어 사라짐!} \\
 \\
-&= -t_k + y_k \underbrace{(t_k + \sum_{i \neq k} t_i)}_{\text{전체 정답의 합}} \quad \leftarrow y_k \text{로 묶음}
+&= -t_k + y_k \underbrace{(t_k + \sum_{i \neq k} t_i)}_{\text{전체 정답의 합}} \quad \leftarrow \text{공통인수 } y_k \text{로 묶음}
 \end{aligned}
 $$
 
@@ -1182,10 +1221,10 @@ $$
 *   **$t_k$**: 실제 정답 (예: 1.0)
 *   **역전파 값**: $0.8 - 1.0 = -0.2$ (오차만큼만 갱신해라!)
 
-##### 3. 결론
+##### 4. 결론
 이 복잡한 그래프를 그리는 이유는, <b>Softmax 함수와 Cross Entropy Error를 짝지어 쓰면(Softmax-with-Loss), 역전파 계산이 $y-t$로 단순해진다</b>는 것을 보여주기 위함이다.
 
 *   회귀 문제에서 <b>Identity(항등) 함수 + MSE(평균제곱오차)</b>를 쓸 때도 똑같이 $y-t$가 나온다.
-*   이는 우연이 아니라, <b>딥러닝 프레임워크를 설계할 때 미분 계산을 빠르고 효율적으로 하기 위해 의도적으로 이렇게 짝을 맞춘 것</b>이다.
+*   이는 우연이 아니라, <b>딥러닝 프레임워크를 설계할 때 미분 계산을 빠르고 효율적으로 하기 위해 의도적으로 이렇게 짝을 맞춘 것</b>이다. (Canonical Link Function)
 
 그래서 우리는 복잡한 미분 공식을 매번 풀 필요 없이, <b>"아, 예측값에서 정답을 뺀 값($y-t$)을 그냥 앞쪽으로 던져주면 되는구나!"</b> 하고 직관적으로 이해하고 넘어가면 된다.
