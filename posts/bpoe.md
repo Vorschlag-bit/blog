@@ -916,3 +916,276 @@ class Sigmoid:
 신경망의 순전파에서는 가중치 신호의 총합을 계산하기 때문에 행렬의 곱(`np.dot()`)을 사용했다.
 
 이 계산은 입력과 가중치 두 행렬을 서로 곱한 후, 편향을 더하는 방식으로 순전파가 진행되었고, 그 출력을 활성화 함수로 변환해 다음 층으로 전파는 게 신경망 순전파의 흐름이었다.
+이때 행렬의 곱에선 <b>행렬의 형상</b>이 일치해야 계산이 가능했다.
+
+예를 들어 $X(2,3)$라는 입력과 $W(3,1)$라는 가중치를 곱하는 것은 가능했으나 $X(2,2)$라는 입력과 $W(3,1)$라는 가중치를 곱하는 건 불가능했다.
+
+신경망에서 순전파 때 수행하는 행렬의 곱은 기하학에서 <b>어파인 변환(Affine transformation)</b>이라고 한다. `np.dot()`라는 함수로 행렬의 곱은 쉽게 수행된다.
+그러므로 `dot`라는 노드를 만들어서 계산 그래프로 신경망에 대한 순전파 그래프를 그려보면 아래와 같을 것이다.
+
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef plain fill:none,stroke:none,text-align:center,font-size:14px;
+    classDef op fill:#fff,stroke:#333,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+
+    %% 1. 입력 변수 (형상과 이름)
+    X["(2,)<br><b>X</b>"]:::plain
+    W["(2, 3)<br><b>W</b>"]:::plain
+    B["(3,)<br><b>B</b>"]:::plain
+    
+    %% 2. 연산 노드
+    Dot((dot)):::op
+    Add((+)):::op
+    
+    %% 3. 끝점 (투명)
+    EndY[ ]:::hidden
+
+    %% 4. 흐름 연결
+    X --> Dot
+    W --> Dot
+    
+    %% 내적 결과
+    Dot -- "(3,)<br><b>X W</b>" --> Add
+    
+    %% 편향 더하기
+    B --> Add
+    
+    %% 최종 출력
+    Add -- "(3,)<br><b>Y</b>" --> EndY
+```
+
+$W,X,B$는 모두 <b>행렬</b>임에 주의하자. 지금까지 계산 그래프에선 노드 사이에 스칼라값이 흘렀지만 이 그래프는 행렬이 흐르고 있다.
+
+이 계산 그래프의 역전파에 대해서 생각해보자. 행렬을 사용한 역전파도 행렬의 원소마다 전개해보면 스칼라값을 사용한 지금까지의 계산 그래프와 같은 순서이다.
+실제로 전개를 해보면 아래의 식이 도출된다.
+
+$$
+\frac{\partial L}{\partial X} = \frac{\partial L}{\partial Y} · W^T \\
+\frac{\partial L}{\partial W} = X^T · \frac{\partial L}{\partial Y}
+$$
+
+위 식에서 $W^T$는 전치행렬을 의미한다. 전치행렬 $W$는 $(i,j)$ 위치의 원소를 $(j,i)$로 바꾼 걸 의미한다. 수식적으로는 아래와 같다.
+
+$$
+\mathbf{W} = \begin{pmatrix} 
+w_{11} & w_{12} & w_{13} \\ 
+w_{21} & w_{22} & w_{23} 
+\end{pmatrix}
+
+\\[1em] % 줄바꿈 간격
+
+\mathbf{W}^{\mathrm{T}} = \begin{bmatrix} 
+w_{11} & w_{21} \\ 
+w_{12} & w_{22} \\ 
+w_{13} & w_{23} 
+\end{bmatrix}
+$$
+
+역전파 계산 그래프는 아래처럼 된다.
+
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef plain fill:none,stroke:none,text-align:center,font-size:14px;
+    classDef op fill:#fff,stroke:#333,stroke-width:1px;
+    classDef hidden fill:none,stroke:none,color:none;
+
+    %% 노드 정의
+    X["(2,)<br><b>X</b>"]:::plain
+    W["(2, 3)<br><b>W</b>"]:::plain
+    B["(3,)<br><b>B</b>"]:::plain
+    
+    Dot((dot)):::op
+    Add((+)):::op
+    
+    Y["(3,)<br><b>Y</b>"]:::plain
+    End[ ]:::hidden
+
+    %% --- 순전파 (Forward - 검은색) ---
+    X --> Dot
+    W --> Dot
+    Dot -- "(3,)<br><b>X · W</b>" --> Add
+    B --> Add
+    Add --> Y
+    Y --> End
+
+    %% --- 역전파 (Backward - 붉은색) ---
+    %% 6번 링크부터 역전파
+    End -- "∂L/∂Y<br>(3,)" --> Y
+    Y -- "∂L/∂Y<br>(3,)" --> Add
+    
+    %% 덧셈 노드의 분기
+    Add -- "∂L/∂Y<br>(3,)" --> B
+    Add -- "∂L/∂Y<br>(3,)" --> Dot
+    
+    %% 내적 노드의 분기 (태그 [1], [2] 포함)
+    Dot -- "[1]" --> X
+    Dot -- "[2]" --> W
+
+    %% 스타일 적용: 6번 링크부터 끝까지 붉은색 처리
+    linkStyle 6,7,8,9,10,11 stroke:red,stroke-width:2px,color:red;
+```
+
+위 계산 그래프에선 각 변수의 형상에 주의해서 살펴보자. $X$와 $\frac{\partial L}{\partial X}$은 같은 형상이고, $W$와 $\frac{\partial L}{\partial W}$는 서로 같은 형상임을 기억해두자.
+$X$와 $\frac{\partial L}{\partial X}$가 같은 형상이라는 건 아래의 식을 보면 명확해진다.
+
+$$
+\mathbf{X} = (x_0, x_1, \cdots, x_n)
+
+\\[1em] % 줄바꿈 및 간격
+
+\frac{\partial L}{\partial \mathbf{X}} = \left( \frac{\partial L}{\partial x_0}, \frac{\partial L}{\partial x_1}, \cdots, \frac{\partial L}{\partial x_n} \right)
+$$
+
+행렬의 형상에 주의해야 하는 이유는 행렬의 곱에선 대응하는 원소의 차원이 일치되어야 한다.
+
+미분값의 형상은 원래 변수의 형상과 항상 일치한다면, 상류에서 넘어온 미분값의 형상에서 `dot` 노드는 어떤 형상을 곱해야 $X(2,)$ 형상을 만들 수 있을까?
+그건 일반 혹은 미분한 W의 형상으로는 불가능하다. $(2,3)$ 따라서 $W$에 대한 전치행렬을 곱해야만 전파를 수행할 수 있다는 걸 알 수 있다. $(3,2)$
+
+#### Softmax-with-loss 계층
+마지막으로 출력층에서 사용하는 소프트맥스 함수에 대해서 알아보자.
+앞에서 말했듯이 소프트맥스 함수는 입력 값을 정규화해 출력한다. 예를 들어 손글씨 숫자 인식에서 Softmax 계층의 출력은 아래와 같다.
+
+```mermaid
+flowchart LR
+    %% 스타일 정의
+    classDef block fill:#fff,stroke:#333,stroke-width:1px,rx:5,ry:5;
+    classDef io fill:#lelele,stroke:none,font-weight:bold;
+
+    %% 노드 정의
+    Input[Input Image<br>'2']:::io
+    
+    subgraph Layers [Hidden Layers]
+        direction LR
+        Aff1[Affine]:::block
+        ReLU1[ReLU]:::block
+        Aff2[Affine]:::block
+        ReLU2[ReLU]:::block
+    end
+
+    subgraph OutputLayer [Output Layer]
+        direction LR
+        Aff3[Affine]:::block
+    end
+
+    subgraph Results [Result]
+        direction TB
+        Scores["<b>점수 (Score)</b><br>5.3<br>0.3<br>10.1<br>...<br>0.01"]:::block
+        Soft[Softmax]:::block
+        Probs["<b>확률 (Prob)</b><br>0.008<br>0.00005<br>0.991 (99.1%)<br>...<br>0.00004"]:::block
+    end
+
+    %% 연결
+    Input --> Aff1
+    Aff1 --> ReLU1
+    ReLU1 --> Aff2
+    Aff2 --> ReLU2
+    ReLU2 --> Aff3
+    Aff3 --> Scores
+    Scores --> Soft
+    Soft --> Probs
+```
+
+이렇게 그림만 보면 잘 이해가 가질 않을 테니 맨 앞의 Affine 계층에서 다음 ReLU까지의 수행을 행렬의 곱이라는 수식적 표현으로 살펴보자.
+
+먼저 손글씨 '2'라는 사진이 $28 × 28$이라는 크기를 가진다고 가정하자. 가장 먼저 이걸 Affine 계층에 넣기 위해선 <b>평탄화(flatten)</b> 작업을 거쳐서 1차원 벡터로 만든다.
+$(1 * 784)$
+
+그 후에는 Affine 연산을 수행한다, Affine 연산은 앞에서 계속 설명했던 것처럼 입력 * 가중치의 행렬 곱 연산에 편향을 더하면 된다. 만약 다음 층 뉴런의 개수를 50개라고 가정하면
+아래와 같이 정리된다.
+
+- 입력($X$): $(1,784)$ 형상 (데이터 1개, $N$이면 앞에가 $N$)
+- 가중치($W$): $(784,50)$ 형상 (입력의 하나하나가 출력의 하나하나와 연결이 되어야 하므로)
+- 편향($B$): $(50,0) 형상 (출력 뉴런의 개수만큼 더해줘야 함)
+
+이를 행렬 모양으로 그리면 아래와 같다.
+
+$$
+\underbrace{ \begin{bmatrix} x_1 & x_2 & \dots & x_{784} \end{bmatrix} }_{(1, \ 784)}
+\cdot
+\underbrace{ \begin{bmatrix} w_{1,1} & \dots & w_{1,50} \\ \vdots & \ddots & \vdots \\ w_{784,1} & \dots & w_{784,50} \end{bmatrix} }_{(784, \ 50)}
++
+\underbrace{ \begin{bmatrix} b_1 & \dots & b_{50} \end{bmatrix} }_{(50,)}
+=
+\underbrace{ \begin{bmatrix} y_1 & \dots & y_{50} \end{bmatrix} }_{(1, \ 50)}
+$$
+
+이후에 ReLU 함수에선 이렇게 입력받은 50개에 대해서 ReLU 함수를 수행한다. (1 이상이면 1, 아니면 0)
+
+신경망에서 수행하는 작업은 학습과 추론이다. 추론 시 일반적으로 Softmax 계층을 사용하지 않는다. 위 계산 그래프 함수의 마지막 Affine 계층의 결과를 인식 결과로 사용한다는 의미이다.
+또한 이러한 마지막 Affine 계층의 출력 결과를 <b>점수(Score)</b>라고 한다. 즉, 신경망 추론에서는 답을 내는 단 하나의 가장 높은 점수만 알면 되므로, 정규화를 거칠 필요가 없다. 반면 학습 시에는 Softmax 계층이 필요하다.
+
+소프트 맥스 함수를 구현은 손실 함수인 교차 엔트로피 오차도 포함해서 `Softmax-with-loss` 계층이라는 이름으로 구현된다.
+Softmax-with-loss의 계산 그래프는 아래와 같다.
+
+<figure>
+    <img src="/images/softmax_with_loss.png" alt="softmax_with_loss 함수의 계산 그래프" />
+    <figcaption>Softmax-with-Loss 계층 계산 그래프</figcaption>
+</figure>
+
+복잡한 계산 과정을 거치지만, 결국 맨 끝에서 맨 앞으로 돌아오는 미분 값은 `y - t`(예측값 - 정답)이라는 아주 단순한 뺄셈이 된다는 거다.
+
+이 그래프의 역전파를 하나하나 뜯어서 설명하면 아래와 같다.
+
+##### 1. Cross Entropy Error의 역전파 박스
+교차 엔트로피 오차의 수식은 아래와 같다.
+$$
+L = - \sum_{k} t_k \log y_k 
+$$
+
+이걸 $y_k$로 미분하면(역전파하면) 아주 간단해진다.
+1.  로그의 미분: $(\log y)' = \frac{1}{y}$
+2.  상수 곱: $-t_k$는 그대로 붙음.
+3.  **결과:** $-\frac{t_k}{y_k}$
+
+그림의 오른쪽 박스에서 $y_1, y_2, y_3$ 쪽으로 돌아가는 화살표에 $-\frac{t_1}{y_1}$ 등이 적혀 있는 이유다.
+
+##### 2. Softmax의 역전파 (왼쪽 박스)
+여기가 복잡한 부분이다. Softmax 식은 $y_k = \frac{\exp(a_k)}{S}$ 이다. ($S$는 전체 합 $\sum e^{a_i}$)  
+여기서 $a_k$가 변하면, 분자도 변하고 분모($S$)도 변하기 때문에 미분이 까다롭다.
+
+따라서 2가지 경우로 나눠야 한다.
+
+2-1. <b>자기 자신$(i = k)$을 미분할 때</b>: 결과는 $y_k(1-y_k)$가 된다.  
+2-2. <b>다른 녀석$(i \neq k)$을 미분할 때</b>: 결과는 $-y_ky_i$가 된다.
+
+미분 과정에는 몫의 미분법을 사용한다.
+
+이제 $\frac{\partial L}{\partial a_k}$를 구하기 위해 모든 $y$에 대한 영향을 합친다.
+
+$$ \frac{\partial L}{\partial a_k} = \sum_{i} \frac{\partial L}{\partial y_i} \frac{\partial y_i}{\partial a_k} $$
+
+이 시그마($\sum$)를 <b>'자기 자신($k$)'</b>과 <b>'나머지($i \neq k$)'</b>로 쪼개서 전개해보면
+
+$$
+\begin{aligned}
+\frac{\partial L}{\partial a_k} &= \underbrace{\left( -\frac{t_k}{y_k} \right) \cdot y_k(1-y_k)}_{\text{자기 자신}} + \sum_{i \neq k} \underbrace{\left( -\frac{t_i}{y_i} \right) \cdot (-y_k y_i)}_{\text{나머지들}} \\
+\\
+&= (-t_k + t_k y_k) + \sum_{i \neq k} (t_i y_k) \quad \leftarrow \text{여기서 } y_i \text{가 약분되어 사라짐!} \\
+\\
+&= -t_k + y_k \underbrace{(t_k + \sum_{i \neq k} t_i)}_{\text{전체 정답의 합}} \quad \leftarrow y_k \text{로 묶음}
+\end{aligned}
+$$
+
+여기서 **원-핫 인코딩의 성질**이 나타난다. 정답 레이블 $t$는 하나만 1이고 나머지는 0이므로, <b>모든 $t$를 더하면 무조건 1이다</b>. ($\sum t_i = 1$)
+
+$$
+\begin{aligned}
+&= -t_k + y_k \cdot 1 \\
+&= \mathbf{y_k - t_k}
+\end{aligned}
+$$
+
+*   **$y_k$**: 신경망이 예측한 확률 (예: 0.8)
+*   **$t_k$**: 실제 정답 (예: 1.0)
+*   **역전파 값**: $0.8 - 1.0 = -0.2$ (오차만큼만 갱신해라!)
+
+##### 3. 결론
+이 복잡한 그래프를 그리는 이유는, <b>Softmax 함수와 Cross Entropy Error를 짝지어 쓰면(Softmax-with-Loss), 역전파 계산이 $y-t$로 단순해진다</b>는 것을 보여주기 위함이다.
+
+*   회귀 문제에서 <b>Identity(항등) 함수 + MSE(평균제곱오차)</b>를 쓸 때도 똑같이 $y-t$가 나온다.
+*   이는 우연이 아니라, <b>딥러닝 프레임워크를 설계할 때 미분 계산을 빠르고 효율적으로 하기 위해 의도적으로 이렇게 짝을 맞춘 것</b>이다.
+
+그래서 우리는 복잡한 미분 공식을 매번 풀 필요 없이, <b>"아, 예측값에서 정답을 뺀 값($y-t$)을 그냥 앞쪽으로 던져주면 되는구나!"</b> 하고 직관적으로 이해하고 넘어가면 된다.
