@@ -152,7 +152,119 @@ Superbase의 무료 티어의 용량 제한선은 최대 <b>500MB</b>이다. 세
 - **Rank Board:** 1위~10위 리스트. 옆에 AI가 분석한 <b>"한 줄 평"</b>과 <b>"긍정 점수"</b> 배지 부착.
 - **Detail Modal:** 클릭하면 상세 분석(3줄 요약, 키워드, 5각 차트) 표시.
 
-## 크롤링 봇 구현
+## 본격적인 구현
+### 프로젝트 구조 및 의존성 설치
+JVM 환경(Gradle/Maven)과 달리 Python에선 `pip`로 패키지들을 관리한다. 
+
+가장 먼저 할 것은 가상환경을 생성하는 것이다. JVM처럼 프로젝트만의 독립된 환경을 구축하는 셈이다.
+
+```bash
+# 1. 프로젝트 폴더로 이동 (이미 들어가 있다면 패스)
+cd your-repo-name
+
+# 2. 가상환경(venv) 생성
+python -m venv venv
+
+# 3. 가상환경 활성화 (운영체제에 맞게 입력)
+# [Mac/Linux]
+source venv/bin/activate
+# [Windows (PowerShell)]
+.\venv\Scripts\Activate
+# [Windows (cmd)]
+.\venv\Scripts\activate
+```
+
+이후엔 필수 라이브러리들을 설치했다. 필요한 라이브러리들은 아래와 같았다.
+
+- <b>웹서버</b>: <code>fastapi</code>, <code>uvicorn</code> (Java의 TomCat/Netty 같은 역할)
+- <b>크롤링</b>: <code>playwright</code> (브라우저 자동화)
+- <b>DB</b>: <code>Superbase</code>
+- <b>스케줄러</b>: <code>apscheduler</code> (주기적 실행, cron job)
+- <b>환경변수</b>: <code>python-dotenv</code> (.env 로드)
+- <b>HTTP 요청</b>: <code>httpx</code> (비동기 요청용, playwright 보조)
+
+```bash
+pip install fastapi "uvicorn[standard]" playwright supabase python-dotenv apscheduler httpx
+```
+
+playwright가 사용할 실제 브라우저 엔진을 설치했다. 크롬으로만 사용하도록 `chromium`만 설치했다.
+
+```bash
+playwright install chromium
+```
+
+새로운 프로젝트 구조는 아래와 같이 구성했다. SpringBoot의 구조(Controller, Service, Repository)와 비슷하게 구성해서 눈에 익도록 만들었다.
+
+<figure>
+    <img src="/images/np_ach.png" alt="새로운 프로젝트 디렉토리 구조 사진" />
+    <figcaption>새로운 프로젝트의 디렉토리 구조 사진. (상세 설명은 아래)</figcaption>
+</figure>
+
+```TEXT
+my-project/
+├── .env                 # DB 키, API 키 등 비밀번호 저장
+├── .gitignore           # 깃에 올리면 안 되는 파일 설정
+├── requirements.txt     # 설치한 라이브러리 목록
+├── main.py              # 앱 실행 진입점 (Application.java 역할)
+└── app/                 # 소스 코드 폴더
+    ├── __init__.py      # (빈 파일) 파이썬 패키지 인식용
+    ├── api/             # Controller (Endpoint)
+    │   └── __init__.py
+    ├── core/            # Config (설정)
+    │   └── config.py    # 환경변수 로드 로직
+    ├── repository/      # Database Connection
+    │   └── supabase.py  # Supabase 연결 객체
+    ├── services/        # Service (비즈니스 로직 + 크롤러)
+    │   ├── crawler.py   # 크롤링 봇
+    │   └── llm.py       # AI 전처리 로직
+    └── schemas/         # DTO (Pydantic 모델)
+        └── movie.py
+```
+
+그 후에 root의 `main.py`에 health check와 루트 엔드 포인트에 대한 간단한 api를 만들어서 테스트 해보았다.
+
+```python
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+# 앱 시작/종료 시 실행될 로직
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("🚀 서버가 시작되었습니다! 크롤러 스케줄러를 준비합니다...")
+    yield
+    print("👋 서버가 종료됩니다.")
+
+app = FastAPI()
+
+@app.get('/')
+def read_root():
+    return {"message" : "Hello! World!"}
+
+@app.get('/health')
+def health_check():
+    return {"status": "ok"}
+```
+
+FastAPI는 기본 port가 8000으로 되어 있다. 따라서 `localhost:8000`으로 접속해 테스트를 해보면 된다.
+
+<figure>
+    <img src="/images/fastapi1.png" alt="fast api 서버를 구동시킨 모습, 기본 8000 port이다." />
+    <figcaption><code>uvicorn main:app --reload</code>로 서버를 킨 모습, 기본 8000 포트인 걸 볼 수 있다.</figcaption>
+</figure>
+
+<figure>
+    <img src="/images/fastapi2.png" alt="fast api 서버에 접속한 모습" />
+    <figcaption>서버가 잘 실행되는 걸 볼 수 있다.</figcaption>
+</figure>
+
+추가로 FastAPI는 자체적으로 <b>Swagger</b>를 함께 제공하기 때문에 <code>/docs</code>로 접속하면 Swagger UI도 쉽게 확인할 수 있다.
+
+<figure>
+    <img src="/images/fastapi3.png" alt="fastapi가 제공하는 기본적인 Swagger UI 모습" />
+    <figcaption>FastAPI가 제공하는 Swagger UI 모습. <code>/docs</code>로 접속하기만 하면 된다.</figcaption>
+</figure>
+
+### 크롤링 봇 구현
 LLM에게 크롤링 봇을 한 번 짜보라고 시켰다. 그랬더니 URL(영화 리뷰)을 직접 넣어야 하는 크롤링 봇 코드를 작성해줬다.
 
 이는 매우 번거로우니 크롤러를 2단계로 나누기로 했다. 
@@ -160,4 +272,118 @@ LLM에게 크롤링 봇을 한 번 짜보라고 시켰다. 그랬더니 URL(영�
 먼저, 왓챠의 무비 탭에 접속해 박스 오피스 TOP 10과 왓챠 TOP 10 그리고 왓챠 실시간 급상승 TOP 30에 대한 <b>상세 주소와 제목</b>을 배열로 return하는 크롤러 코드가 필요했다.
 
 그 후엔 해당 주소를 바탕으로 리뷰 50개를 JSON으로 만들어 DB에 저장하는 봇이 필요했다.
+
+일단 테스트를 리뷰를 크롤링할 주소와 제목 List를 return하는 헬퍼 함수를 하나 구현하고 테스트를 해보았다.
+
+```python
+async def collect_tx_links() -> List[Dict]:
+    """
+    메인 페이지에서 박스오피스, 왓챠랭킹, 급상승 섹션을 찾아 URL을 수집.
+    """
+    targets = []
+    seen_urls = set() # 중복 URL 제거용
+    # 수집할 섹션 키워드 : 해당 키워드 링크 개수
+    tg_configs = {
+        "박스오피스 순위" : 10,
+        "왓챠 Top 10 영화": 10,
+        "왓챠 실시간 급상승 Top 30": 30
+    }
+
+    async with async_playwright() as p:
+        print("🕵️ Scout: 왓챠피디아 메인 페이지 탐색 시작...")
+        browser = await p.chromium.launch(headless=True) # 디버깅 시에는 False
+        page = await browser.new_page()
+
+        # 왓챠피디아 무비탭 접속
+        await page.goto('https://pedia.watcha.com/ko-KR/?domain=movie')
+        await page.wait_for_timeout(2000)
+
+
+        # 설정된 섹션별로 순회하면서 수집
+        for section_title,limit in tg_configs.items():
+            print(f"   👉 섹션 찾는 중: '{section_title}'...")
+
+            try:
+                # [Playwright 필터링 전략]
+                # 1. section_title을 갖춘 요소를 찾음
+                # 2. 해당 요소와 가장 가까운 섹션 컨테이너(<div>)를 찾음.
+                # (p 태그의 부모의 부모가 서로의 공통 부모 태그)
+
+                # locator(..).filter(has_text=..)를 사용해서 제목을 포함한 부모 태그를 특정
+                section = page.locator('div').filter(has=page.get_by_text(section_title, exact=False)).first
+
+                if await section.count() == 0:
+                    print(f"      ⚠️ 섹션을 찾을 수 없습니다: '{section_title}' (텍스트 불일치 가능성)")
+                    continue
+
+                # 해당 섹션에서 a 태그 찾고 제목 찾기
+                # div -> ul -> li -> a 구조
+                links = await section.locator("li a[href*='/contents/']").all()
+
+                print(f"      ✅ 발견된 컨텐츠: {len(links)}개 -> 상위 {limit}개만 수집")
+
+                cnt = 0
+
+                for link in links:
+                    if cnt >= limit: break
+
+                    url = await link.get_attribute('href')
+                    title = await link.get_attribute('title')
+
+                    # title 속성 없으면 내부 텍스트로 대체
+                    if not title:
+                        title = await link.inner_text()
+
+                    if url and title and (url not in seen_urls):
+                        full_url = f"https://pedia.watcha.com{url}"
+                        seen_urls.add(url)
+                        targets.append({
+                            "section": section_title,
+                            "title": title,
+                            "url": full_url
+                        })
+                        cnt += 1
+
+            except Exception as ex:
+                print(f"      ❌ 에러 발생 ({section_title}): {ex}")
+            
+        await browser.close()
+    
+    print(f"📋 총 {len(targets)}개의 타겟 영화 URL 확보 완료.")
+    return targets
+```
+
+그 결과 아래와 같이 <b>박스오피스 순위</b>는 제대로 가져오나(사실 이것도 30개지만 25개만 있다고 나옴) 나머지 2개(왓챠 Top 10과 실시간 급상승 Top 30)는 아예 가져오질 못 하고 있었다.
+
+<figure>
+    <img src="/images/cw1.png" alt="크롤링 코드가 제대로 동작하지 않는 모습" />
+    <figcaption>박스오피스는 총 30개가 있지만 25개가 있다고만 나오고, 나머지 두 개는 가져오는데에 아예 실패한 모습.</figcaption>
+</figure>
+
+문제의 원인은 <b>Lazy Loading</b>과 <b>Locator 범위 오류</b> 때문이었다.
+
+<b>박스 오피스</b>는 해당 페이지의 최상단에 위치해서 DOM이 곧바로 생성되지만, 왓챠 Top 10과 실시간 급상승은 스크롤을 내려야 생성되는 구조이다.
+
+하지만 내 코드엔 사이트에 접속하고 2초를 기다린 뒤에 바로 탐색을 시작하는데, 스크롤이 이뤄지지 않아 나머지 2개의 DOM은 아예 생성되지 않았기 때문에
+링크고 나발이고 아무것도 가져올 수가 없었던 것이다.
+
+<figure>
+    <img src="/images/wt2.png" alt="왓챠 무비탭의 HTML 태그 구조" />
+    <figcaption>왓챠 무비탭의 HTML 태그 구조</figcaption>
+</figure>
+
+또한 위의 사진을 보면 왓챠의 태그 구조가
+```Html
+<div class="Container"> (우리가 잡아야 할 놈)
+   ├── <div class="TitleBox"> (여기에 텍스트가 있음!) </div>
+   └── <section class="ListSection"> (여기에 영화 목록 ul/li가 있음) </section>
+</div>
+```
+이러한 구조로 되어 있음을 알 수 있다.
+
+하지만 내가 작성한 코드는 `locator('div').filter(has=text).first`로 Playwright 입장에서 `div` 태그를 찾는데 `has=text`로 조건을 걸면, <b>Container</b>도 잡히나 <b>TitleBox</b>도 잡힌다.
+
+즉, `.first`로 TitleBox에 접근하게 되면 당연히 그 안에는 `li` 태그가 없기 때문에 링크를 전혀 찾을 수 없는 것. 
+
+따라서 이 두 가지 문제를 해결하기 위해서 천천히 <b>스크롤을 하는 기능과 더 확실한 태그 검증 필터링(텍스트 + 리스트가 있는 부모 찾기)</b>를 적용한 코드로 수정했다.
 
