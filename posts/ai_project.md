@@ -183,6 +183,33 @@ source venv/bin/activate
 - <b>환경변수</b>: <code>python-dotenv</code> (.env 로드)
 - <b>HTTP 요청</b>: <code>httpx</code> (비동기 요청용, playwright 보조)
 
+<details>
+<summary>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
+<span className="text-red-400">라이브러리 선택 이유</span>
+</summary>
+
+<b>1. Playwright</b>
+왓챠피디아는 React/Next.js 기반의 SPA으로 동작하는 것으로 보였다. 따라서 정적 분석 도구(BeautifulSoup)로는 빈 껍데기인 HTML만 가져오게 된다. 하지만 내게 필요한 건 브라우저가 JS가 실행된 이후의 DOM이었다.
+
+또한 왓챠피디아는 Lazy Loading을 사용한다. 즉 페이지가 처음 제공될 때 모든 DOM이 완성된 것이 아니라 세로/가로 스크롤을 통해 실제 DOM에 접근을 해야지만 데이터가 로딩된다. 따라서 <b>브라우저 조작</b>이 필수적인 상황이었다, Playwright는 CSS Selector나 XPath뿐만 아니라 <code>get_by_text</code>, <code>filter</code> 등 내가 원하는 <b>요소(element)</b>를 찾는데에 매우 직관적이다. 또한, <code>Auto-waiting</code> 기능을 사용해서 데이터 로딩까지 기다릴 수 있어서 매우 적합했다.
+
+---
+
+굳이 DOM 요소를 조작하고 기다리는 게 너무 싫어서 순수 api 응답으로 크롤링을 하도록 리팩토링하도록 결정.
+
+왜 이렇게 수정하면서 사실상 playwright는 아예 쓸모가 없어졌다. 왓챠피디아는 개발자 도구의 네트워크 탭에서 `fetch/xhr`만 보면 로그인을 하지 않더라도 리뷰들을 모두 볼 수 있다. 
+
+또한 해당 api에 대한 정보까지 아주 상세히 제공해줘서 로그인 세션 저장까지 필요없어서 playwright를 쓸 필요가 아예 없어졌다. 초반에 api와 json 응답 형식만 보기 위해 사용했다.
+
+<b>2. Apschedueler</b>
+이유 작성해야 함
+
+<b>3. httpx</b>
+이유 작성해야 함
+
+</details>
+
 ```bash
 pip install fastapi "uvicorn[standard]" playwright supabase python-dotenv apscheduler httpx
 ```
@@ -272,6 +299,13 @@ LLM에게 크롤링 봇을 한 번 짜보라고 시켰다. 그랬더니 URL(영�
 먼저, 왓챠의 무비 탭에 접속해 박스 오피스 TOP 10과 왓챠 TOP 10 그리고 왓챠 실시간 급상승 TOP 30에 대한 <b>상세 주소와 제목</b>을 배열로 return하는 크롤러 코드가 필요했다.
 
 그 후엔 해당 주소를 바탕으로 리뷰 50개를 JSON으로 만들어 DB에 저장하는 봇이 필요했다.
+
+#### 영화 상세 페이지 주소를 크롤링하는 코드
+<details>
+<summary>
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" fill="currentColor"/></svg>
+<span className="text-red-400">Playwright를 사용한 크롤링 코드 (기록용) </span>
+</summary>
 
 일단 테스트를 리뷰를 크롤링할 주소와 제목 List를 return하는 헬퍼 함수를 하나 구현하고 테스트를 해보았다.
 
@@ -383,7 +417,159 @@ async def collect_tx_links() -> List[Dict]:
 
 하지만 내가 작성한 코드는 `locator('div').filter(has=text).first`로 Playwright 입장에서 `div` 태그를 찾는데 `has=text`로 조건을 걸면, <b>Container</b>도 잡히나 <b>TitleBox</b>도 잡힌다.
 
-즉, `.first`로 TitleBox에 접근하게 되면 당연히 그 안에는 `li` 태그가 없기 때문에 링크를 전혀 찾을 수 없는 것. 
+즉, `.first`로 TitleBox에 접근하게 되면 당연히 그 안에는 `li` 태그가 없기 때문에 링크를 전혀 찾을 수 없었다.
+아래의 그림을 보면 쉽게 이해할 수 있다.
 
-따라서 이 두 가지 문제를 해결하기 위해서 천천히 <b>스크롤을 하는 기능과 더 확실한 태그 검증 필터링(텍스트 + 리스트가 있는 부모 찾기)</b>를 적용한 코드로 수정했다.
+<figure>
+    <img src="/images/wt3.png" alt="왓챠피디아 영화탭의 HTML 요소 구성" />
+    <figcaption>무비탭 전체가 <code>&lt;section&gt;</code> 태그로 감싸져 있고 그 아래론 &lt;div&gt; 태그로 감싸져 있다.</figcaption>
+</figure>
+
+위의 그림처럼 무비탭 전체가 `<section>`으로 감싸져 있었고, 그 아래론 `<div>` 태그로 감싸져 있어서 내가 찾는 `text` 요소를 정확하게 갖는 `section`이나 `div` 태그를 검색하는 `locator` 함수로는 이 최상위 2개의 태그가 잡힐 것이 분명했다.
+
+따라서 이 두 가지 문제를 해결하기 위해서 천천히 <b>세로 스크롤을 하는 기능</b>과 <b>가로 스크롤을 하는 기능</b> 그리고 정확한 텍스트 기반으로 내가 원하는 요소를 찾은 후 거기서 가장 가까운 `<ul>` 태그로 이동하도록 locator 함수를 작성해야 했다.
+
+```python
+async def collect_tx_links() -> List[Dict]:
+    # 중간 생략
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True) # 디버깅 시에는 False
+        page = await browser.new_page()
+
+        # 왓챠피디아 무비탭 접속
+        await page.goto('https://pedia.watcha.com/ko-KR/?domain=movie')
+        await page.wait_for_timeout(2000)
+
+        # [핵심] 세로 스크롤 실행
+        await slow_scroll(page)
+
+        # 설정된 섹션별로 순회하면서 수집
+        for section_title,limit in tg_configs.items():
+
+            try:
+                # [핵심] [Playwright 필터링 전략]
+                # 1. 제목 텍스트 요소를 정확하게 찾기
+                title_el = page.get_by_text(section_title, exact=True)
+
+                if await title_el.count() == 0:
+                    print(f"      ⚠️ 섹션을 찾을 수 없습니다: '{section_title}' (텍스트 불일치 가능성)")
+                    continue
+
+                # 2. '안에서 밖으로 탐색'
+                # title_el에서 상위(ancestor)로 올라가면서 'ul' 태그를 포함한 가장 가까운 div,section 찾기
+                # xpath: ./ancestor::*[.//ul][1] -> 조상 요소 중 ul을 가진 첫 번째 요소
+                section = title_el.locator("xpath=./ancestor::*[.//ul][1]")
+
+                # [핵심] 해당 섹션 위치로 화면 이동 (Focus)
+                await section.scroll_into_view_if_needed()
+                await page.wait_for_timeout(500) # 이동 후 렌더링 안정화 대기
+
+                # 가로 이동 버튼 실행
+                await click_next_buttons(section)
+
+                # 해당 섹션에서 a 태그 찾고 제목 찾기
+                # div -> ul -> li -> a 구조
+                links = await section.locator("li a[href*='/contents/']").all()
+                # 이하 생략...
+    return targets
+```
+
+왓챠피디아를 접속해보면 알겠지만, Lazy Loading을 적용시켜놔서 (아마 Next.js를 사용해서 그러지 않을까) 스크롤을 하지 않는한 페이지가 완전히 로딩되지 않는다.
+
+또한, 내가 필요한 3가지 요소들 역시 `<button>` 태그를 눌러서 데이터를 로딩하지 않으면 최대 10개의 데이터만 로딩되는 문제가 있었다.
+
+```shall
+🕵️ Scout: 왓챠피디아 메인 페이지 탐색 시작...
+⬇️ 페이지 데이터를 로딩하기 위해 스크롤 중...
+👉 섹션 찾는 중: '박스오피스 순위'...
+✅ 발견된 컨텐츠: 145개 -> 상위 10개만 수집
+👉 섹션 찾는 중: '왓챠 Top 10 영화'...
+✅ 발견된 컨텐츠: 145개 -> 상위 10개만 수집
+```
+
+이러한 문제들을 위해 Playwright의 DOM 조작 함수들을 적극적으로 활용했다.
+
+```python
+from playwright.async_api import async_playwright, Page, Locator
+# 부드러운 스크롤 함수 (세로)
+async def slow_scroll(page: Page):
+    print("   ⬇️ 페이지 데이터를 로딩하기 위해 스크롤 중...")
+    for _ in range(5): # 5번으로 나눠 스크롤
+        await page.mouse.wheel(0, 1000) # 아래로 1000px
+        await page.wait_for_timeout(1000) # 로딩 대기 1초
+
+# 내가 찾은 section 위치로 화면 이동 (Focus)
+await section.scroll_into_view_if_needed()
+
+# 스크롤 버튼 클릭 함수(가로)
+async def click_next_buttons(section_locator: Locator):
+    try:
+        # title="right" 속성을 가진 버튼 찾기
+        next_btn = section_locator.locator('button[title="right"]')
+        
+        # 버튼이 아예 없는 섹션일 수도 있으니 체크
+        if await next_btn.count() == 0:
+            return
+
+        print("      ➡️ 데이터 로딩을 위해 'Next' 버튼 클릭 중...")
+
+        # 최대 5번 클릭 (Top 30 기준 충분)
+        for i in range(5):
+            # 버튼이 화면에 보이고 클릭 가능한 상태인지 확인
+            if await next_btn.is_visible():
+                await next_btn.click()
+                await asyncio.sleep(1.0) # 슬라이드 애니메이션 대기
+            else:
+                # 더 이상 오른쪽으로 갈 수 없으면 버튼이 사라질 수 있음
+                break
+                
+    except Exception as e:
+        print(f"      ⚠️ 버튼 클릭 중 에러: {e}")
+```
+
+Playwright가 제공하는 JS 조작함수들 덕분에 브라우저를 원하는대로 조작하면서 데이터들을 전부 loading할 수 있었고, fetch하는 걸 확인할 수 있었다.
+
+<figure>
+    <img src="/images/cw2.png" alt="중복되지 않은 영화 데이터들을 반환하는 모습" />
+    <figcaption><b>중복되지 않은</b> 영화 데이터들을 제대로 반환하는 걸 볼 수 있다.</figcaption>
+</figure>
+
+#### 영화 리뷰를 크롤링하는 코드
+이제 제공받은 `url`을 바탕으로 영화 리뷰를 크롤링할 코드를 작성해야 했다.
+
+일단 어떤 태그를 기준으로 `locator` 함수를 작성해야 하는지 확인하기 위해서 '범죄도시4' 리뷰를 들어가봤다.
+
+<figure>
+    <img src="/images/wt4.png" alt="리뷰를 보기 위해선 로그인을 해야 한다." />
+    <figcaption>리뷰 상세 페이지는 반드시 로그인을 요구했다.</figcaption>
+</figure>
+
+위와 같이 로그인 없이는 리뷰 상세 페이지에 들어가는 것조차 불가능했다.
+
+<figure>
+    <img src="/images/wt5.png" alt="그냥 영화 상세 페이지에서도 단 하나의 리뷰는 볼 수 없음." />
+    <figcaption>단 하나의 리뷰도 로그인 없이는 볼 수 없는 걸 확인할 수 있었다.</figcaption>
+</figure>
+
+따라서 자동 로그인을 하는 함수를 만들어서 리뷰를 긁어오기 전에 로그인하도록 만들어야 했다.
+
+정말 다행히도 나는 oauth를 사용해서 로그인하는 것이 아니라 순수하게 이메일 바탕으로된 계정이라서 비교적 난이도가 쉬운 편이었고,
+Playwright는 로그인을 자동화하고, 로그인된 세션을 쿠키에 저장해 계속 우려먹는 기능이 잘 되어 있었다.
+
+먼저 환경변수 파일(`.env`)에 계정 정보들을 입력한 후, 자동 로그인 코드를 구현할 예정이었다.
+
+</details>
+
+LLM과 대화를 통해 현재 구조가 불편하다는 걸 파악하고 대대적인 리팩토링을 하도록 결정했다.
+
+대화 대용을 정리해서 요약하면 아래와 같다.
+
+1. 현재 브라우저 조작(with Playwright)는 `wait_for_timeout()`와 같은 비동기 호출 함수를 매우 많이 유발하고(DOM이 생성될 때까지 안정화되도록 기다려야 하므로), 이로 인해 성능이 구리다.
+
+2. 왓챠피디아와 같은 SPA은 Lazy Loading을 cursor/button를 이용해 api로 자연스럽게 구현해놓는 게 대부분이다. 실제로 영화탭에 들어간 뒤 개발자 도구에서 네트워크 탭의 `fetch/xhr`만 보면 스크롤 및 영화 리스트들을 차례로 넘겨볼 때마다 api가 호출되는 걸 확인할 수 있다.
+
+3. 따라서 이러한 api와 응답 json 형식만 안다면 playwright를 이용한 브라우저 조작은 아예 사용할 필요가 없다. `httpx`를 사용해서 직접
+api를 호출하고 응답만 빠르게 받아 저장하는 훨씬 효율 좋은 크롤링 코드를 만들 수 있다.
+
+위와 같은 사고처리 과정에 따라 내 크롤링 함수를 API 응답 수준에서 데이터를 크롤링하는 코드로 대대적인 리팩토링을 하기로 결정했다. 그 과정에서 <b>상태머신</b>으로 리팩토링하여 훌륭한 유지보수와 예외 처리를 할 수 있도록 리팩토링을 하고자 했다.
 
